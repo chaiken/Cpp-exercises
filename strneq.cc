@@ -18,38 +18,41 @@ bool strneq(const char *s1, const char *s2, int n) {
   return true;
 }
 
-// Find the first occurrence of 'c' after the cursor position in the input.
+// Find the first occurrence of 'c' after the cursor position in the input
+// and return its offset from the start of the input string.
 size_t string_next(const string &str1, int cursor, char c) {
-  string str2 = str1.substr(cursor, str1.length());
-  return (str2.find(c));
+  // The two arguments to substr() are start char and number of chars.
+  //      basic_string substr (size_type __pos=0, size_type __n=npos) const
+  //        Get a substring.
+  string str2 = str1.substr(cursor, (str1.length() - cursor));
+  return (str2.find(c) + cursor);
 }
 
 int main(int argc, char **argv) {
   cout << "Enter two strings, separated by a comma, followed by an integer, or "
           "'.' to terminate:"
        << endl;
-  int i = 0;
-  size_t pos = 0, start = 0;
   string inputstr, str[3];
   do {
+    int i = 0;
+    size_t pos = 0, start = 0;
     getline(cin, inputstr);
     if ((inputstr.length()) && (inputstr != ".")) {
       while ((pos != ::std::string::npos) && (i < 3)) {
         pos = string_next(inputstr, start, ',');
-        str[i] = inputstr.substr(start, pos);
-        // Advance the position where the next search starts after the comma.
-        start += pos + 1;
+        if ((i < 2) && (pos == ::std::string::npos)) {
+          cerr << "Insufficient input" << endl;
+          exit(-EINVAL);
+        }
+        // Take the characters between the start and the comma.
+        str[i] = inputstr.substr(start, pos - start);
+        cout << "str[" << i << "] is " << str[i] << endl;
+        // Advance the position after the i'th comma.
+        start = pos + 1;
         i++;
       }
     } else {
       exit(0);
-    }
-    if ((i < 3) && (pos == ::std::string::npos)) {
-      cerr << "Insufficient input" << endl;
-      exit(-EINVAL);
-    } else {
-      for (i = 0; i < 2; i++)
-        cout << "str[" << i << "] is " << str[i] << endl;
     }
 
     int charnum = strtol(str[2].c_str(), nullptr, 10);
