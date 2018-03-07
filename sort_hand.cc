@@ -11,9 +11,37 @@ using namespace std;
 namespace {
 constexpr int kCardsPerHand = 5;
 constexpr int kPlayers = 5;
+enum suit_val { clubs, diamonds, hearts, spades };
 }
 
-enum suit { clubs, diamonds, hearts, spades };
+void PrintSuit(suit_val s) {
+  switch (s) {
+  case 0:
+    cout << "C" << endl;
+    break;
+  case 1:
+    cout << "D" << endl;
+    break;
+  case 2:
+    cout << "H" << endl;
+    break;
+  case 3:
+    cout << "S" << endl;
+    break;
+  default:
+    cerr << "Illegal suit: " << s << endl;
+    exit(EINVAL);
+  }
+}
+
+class Suit {
+public:
+  void assign(int n) { s_ = static_cast<suit_val>(n / 13); }
+  suit_val suit() const { return s_; }
+
+private:
+  suit_val s_;
+};
 
 class Pip {
 public:
@@ -51,43 +79,22 @@ void Pip::PrintPipName() const {
 
 class Card {
 public:
-  suit s;
+  Suit s;
   Pip p;
   void assign(int n) {
     card_ = n;
-    s = static_cast<suit>(n / 13);
+    s.assign(n);
     p.assign(n);
   }
-  void PrintSuitName();
   void copy_card(Card *newcard) { newcard->assign(card_); };
   void pr_card() {
     p.PrintPipName();
-    PrintSuitName();
+    PrintSuit(s.suit());
   };
 
 private:
   int card_;
 };
-
-void Card::PrintSuitName() {
-  switch (s) {
-  case 0:
-    cout << "C" << endl;
-    break;
-  case 1:
-    cout << "D" << endl;
-    break;
-  case 2:
-    cout << "H" << endl;
-    break;
-  case 3:
-    cout << "S" << endl;
-    break;
-  default:
-    cerr << "Illegal suit: " << s << endl;
-    exit(EINVAL);
-  }
-}
 
 class Deck {
 public:
@@ -149,10 +156,11 @@ void PrintHand(Card hand[]) {
 }
 
 bool IsFlush(Card hand[]) {
-  suit first_suit = hand[0].s;
+  Suit first_suit;
+  first_suit.assign(hand[0].s.suit());
   int i = 1;
   while (i < kCardsPerHand) {
-    if ((hand[i].s) != first_suit) {
+    if ((hand[i].s.suit()) != first_suit.suit()) {
       return false;
     }
     i++;
