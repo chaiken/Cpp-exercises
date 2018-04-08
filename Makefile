@@ -32,11 +32,21 @@ num_digits: num_digits.cc num_digits.h
 libcalcfuncs: num_digits.o
 	ar rvs libcalcfuncs.a num_digits.o
 
-reverse_char_stack: reverse_char_stack.cc ch_stac1.h
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@
-
 gcd: gcd.cc gcd_lib.cc gcd_lib.h
 	$(CC) $(CFLAGS) $(LDFLAGS) gcd.cc gcd_lib.cc -o $@
 
 gcd_lib_test: gcd_lib_test.cc gcd_lib.cc gcd_lib.h $(GTEST_HEADERS)
 	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) gcd_lib_test.cc gcd_lib.cc -o $@
+
+reverse_char_stack: reverse_char_stack.cc reverse_char_stack_lib.cc \
+    reverse_char_stack_lib.h
+	$(CC) $(CFLAGS) $(LDFLAGS) reverse_char_stack.cc \
+           reverse_char_stack_lib.cc -o $@
+
+reverse_char_stack_lib_test: reverse_char_stack_lib_test.cc \
+    reverse_char_stack_lib.cc reverse_char_stack_lib.h $(GTEST_HEADERS)
+	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) reverse_char_stack_lib_test.cc \
+           reverse_char_stack_lib.cc -o $@
+
+test: reverse_char_stack_lib_test
+	./reverse_char_stack_lib_test
