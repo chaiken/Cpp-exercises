@@ -1,7 +1,22 @@
+# See ~/gitsrc/googletest/googletest/make/Makefile
+# Points to the root of Google Test, relative to where this file is.
+# Remember to tweak this if you move this file.
+GTEST_DIR = /home/alison/gitsrc/googletest/googletest
+# Wrong: do not include $(GTEST_DIR)/include/gtest/internal/*.h
+GTEST_HEADERS = $(GTEST_DIR)/include
+GTESTLIBPATH=$(GTEST_DIR)/make
+GTESTLIBS= $(GTESTLIBPATH)/libgtest.a $(GTESTLIBPATH)/gtest_main.a
+# Where to find user code.
+USER_DIR = .
+
 # http://www.valgrind.org/docs/manual/quick-start.html#quick-start.prepare
 # Compile your program with -g . . . Using -O0 is also a good idea, 
-CFLAGS= -ggdb -Wall -Wextra -g -O0 -fno-inline -fsanitize=undefined -I/home/alison/gitsrc/googletest
-LDFLAGS= -ggdb -g -fsanitize=undefined
+CXXFLAGS= -ggdb -Wall -Wextra -g -O0 -fno-inline -fsanitize=undefined -I$(GTEST_HEADERS)
+# Set Google Test's header directory as a system directory, such that
+# the compiler doesn't generate warnings in Google Test headers.
+CPPFLAGS += -isystem $(GTEST_DIR)/include
+
+LDFLAGS= -ggdb -g -fsanitize=undefined -L$(GTESTLIBPATH) -lpthread
 #THREADFLAGS= -D_REENTRANT -I/usr/include/ntpl -L/usr/lib/nptl -lpthread
 THREADFLAGS= -D_REENTRANT -lpthread
 #https://gcc.gnu.org/ml/gcc-help/2003-08/msg00128.html
@@ -11,17 +26,17 @@ CC=/usr/bin/g++
 #CC=/usr/bin/clang
 LIBWR=-Llibwr -lwr
 
-#googletest stuff
-# All Google Test headers.  Usually you shouldn't change this
-# definition.
-GTEST_HEADERS = $(GTEST_DIR)/include/gtest/*.h \
-                $(GTEST_DIR)/include/gtest/internal/*.h
-CFLAGSTEST = -ggdb -Wall -Wextra -g -O0 -fno-inline -fsanitize=undefined -pthread
-GTEST_DIR =/home/alison/gitsrc/googletest/googletest
-USER_DIR = .
-
 num_digits: num_digits.cc num_digits.h
-	$(CC) ${CFLAGS} ${LDFLAGS} calc_num_digits.cc -lm
+	$(CC) $(CFLAGS) $(LDFLAGS) calc_num_digits.cc -lm
 
 libcalcfuncs: num_digits.o
 	ar rvs libcalcfuncs.a num_digits.o
+
+reverse_char_stack: reverse_char_stack.cc ch_stac1.h
+	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@
+
+gcd: gcd.cc gcd_lib.cc gcd_lib.h
+	$(CC) $(CFLAGS) $(LDFLAGS) gcd.cc gcd_lib.cc -o $@
+
+gcd_lib_test: gcd_lib_test.cc gcd_lib.cc gcd_lib.h $(GTEST_HEADERS)
+	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) gcd_lib_test.cc gcd_lib.cc -o $@
