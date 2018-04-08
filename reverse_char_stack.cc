@@ -24,6 +24,7 @@ void reverse(const char s1[], char s2[]) {
   assert(strlen(s1) == strlen(s2));
 }
 
+
 int main(void) {
   const char input[] = "Not unreasonably long.";
   const char other[] =
@@ -31,8 +32,8 @@ int main(void) {
   char copy1[64], copy2[64];
 
   CharStack tester;
-  tester.PushMultiple(6, input);
-  tester.PopMultiple(6, copy1);
+  tester.PushMultiple(6u, input);
+  tester.PopMultiple(6u, copy1);
   cout << "Popped: " << copy1 << endl;
   tester.PushMultiple(strlen(input), input);
   tester.PopMultiple(strlen(input), copy2);
@@ -41,7 +42,7 @@ int main(void) {
   cout << "Input: " << input << endl;
   CharStack new_stack;
   new_stack.reset();
-  int i = 0;
+  unsigned i = 0u;
   while (i < strlen(input)) {
     new_stack.Push(input[i++]);
   }
@@ -60,5 +61,8 @@ int main(void) {
   cout << "input: " << other << endl;
   reverse(other, output2);
   cout << "output: " << output2 << endl;
+
+  cout << endl;
+
   exit(EXIT_SUCCESS);
 }

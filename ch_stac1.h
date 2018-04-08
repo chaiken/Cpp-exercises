@@ -1,18 +1,20 @@
 #include <iostream>
 
 namespace {
-constexpr int kMaxLen = 30, kEmpty = -1, kFull = kMaxLen - 1;
+constexpr int kMaxLen = 64, kEmpty = -1, kFull = kMaxLen - 1;
 }
 
 class CharStack {
 public:
+  CharStack() : top_(kEmpty) { s_[0] = '\0'; }
+  CharStack(char *str) : top_(strlen(str)) { strcpy(s_, str); }
   void reset() { top_ = kEmpty; }
   void Push(char c);
-  void PushMultiple(int m, const char s1[]);
+  void PushMultiple(unsigned m, const char s1[]);
   void Reverse();
   void Print();
   char Pop();
-  void PopMultiple(int m, char s1[]);
+  void PopMultiple(unsigned m, char s1[]);
   char top_of() const { return s_[top_]; }
   bool empty() const { return (top_ == kEmpty); }
   bool full() const { return (top_ == kFull); }
@@ -21,14 +23,6 @@ private:
   char s_[kMaxLen];
   int top_;
 };
-
-char CharStack::Pop() {
-  if (empty()) {
-    ::std::cerr << "Stack underflow." << ::std::endl;
-    exit(EXIT_FAILURE);
-  }
-  return s_[top_--];
-}
 
 void CharStack::Push(char c) {
   if (full()) {
@@ -39,35 +33,46 @@ void CharStack::Push(char c) {
   s_[top_] = c;
 }
 
-void CharStack::PushMultiple(int m, const char s1[]) {
+void CharStack::PushMultiple(unsigned m, const char s1[]) {
   if (strlen(s1) < m) {
-    ::std::cerr << "PushMultiple: provided string is too short." << ::std::endl;
+    ::std::cerr << "PushMultiple: provided string " << s1 << " is too short."
+                << ::std::endl;
     exit(EXIT_FAILURE);
   }
   // No trailing NULL.
   if ((m + top_) > kFull) {
-    ::std::cerr << "PushMultiple: provided string is too long." << ::std::endl;
+    ::std::cerr << "PushMultiple: provided string " << s1 << " is too long."
+                << ::std::endl;
     exit(EXIT_FAILURE);
   }
-  int i = 0;
+  unsigned i = 0;
   while (i < m) {
     Push(s1[i++]);
   }
 }
 
-void CharStack::PopMultiple(int m, char s1[]) {
-  // strlen(s1) returns 0, as it is empty.
-  if (m > (kMaxLen - 1)) {
-    ::std::cerr << "PopMultiple: provided string is too short." << ::std::endl;
+char CharStack::Pop() {
+  if (empty()) {
+    ::std::cerr << "Stack underflow." << ::std::endl;
     exit(EXIT_FAILURE);
   }
-  if ((top_ - m) <= kEmpty) {
+  return s_[top_--];
+}
+
+void CharStack::PopMultiple(unsigned m, char s1[]) {
+  strcpy(s1, "");
+  if ((top_ - static_cast<int>(m)) < kEmpty) {
     ::std::cerr << "PopMultiple: provided string is too long." << ::std::endl;
     exit(EXIT_FAILURE);
   }
-  int i = 0;
+  unsigned i = 0u;
   while (i < m) {
-    s1[i++] = Pop();
+    char c = Pop();
+    if (c != '\0' && (0 == i)) {
+      i++;
+      continue;
+    }
+    s1[i++] = c;
   }
   s1[m] = '\0';
 }
@@ -75,7 +80,7 @@ void CharStack::PopMultiple(int m, char s1[]) {
 void CharStack::Reverse() {
   char temp[kMaxLen];
   int i = 0;
-  size_t original_len = strlen(s_);
+  size_t original_len = top_;
   while (!empty()) {
     temp[i++] = Pop();
   }
