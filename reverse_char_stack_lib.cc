@@ -45,21 +45,24 @@ char CharStack::Pop() {
 }
 
 void CharStack::PopMultiple(const unsigned m, char s1[]) {
-  strcpy(s1, "");
+  // Go past any leading NUL characters.
+  char c;
+  while ('\0' == (c = Pop())) {}
+
+  // Check if enough characters are left.
   if ((top_ - static_cast<int>(m)) < kEmpty) {
-    cerr << "PopMultiple: provided string is too long." << endl;
+    cerr << "PopMultiple: not enough characters are stacked." << endl;
+    // Put last char back.
+    Push(c);
     exit(EXIT_FAILURE);
   }
-  unsigned i = 0u;
-  while (i < m) {
-    char c = Pop();
-    if (('\0' == c) && (0 == i)) {
-      i++;
-      continue;
-    }
-    s1[i++] = c;
+
+  // Return the next m.
+  s1[0] = c;
+  unsigned j;
+  for (j=1; j < m; j++) {
+    s1[j] = Pop();
   }
-  s1[m] = '\0';
 }
 
 void CharStack::Reverse() {
