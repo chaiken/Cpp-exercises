@@ -8,7 +8,7 @@ namespace charstack {
 // The following cannot be placed in the header file without triggering a
 // 'multiple definition' error.
 CharStack::CharStack(const string &str) {
-  top_ = str.length();
+  top_ = str.length() - 1;
   strncpy(s_, str.c_str(), str.length());
   s_[++top_] = '\0';
 }
@@ -53,7 +53,7 @@ void CharStack::PopMultiple(const unsigned m, char s1[]) {
   }
 
   // Check if enough characters are left.
-  if ((top_ - static_cast<int>(m)) < kEmpty) {
+  if ((top_ - static_cast<int>(m) + 1) < kEmpty) {
     cerr << "PopMultiple: not enough characters are stacked." << endl;
     // Put last char back.
     Push(c);
