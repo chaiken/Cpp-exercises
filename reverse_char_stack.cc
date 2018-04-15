@@ -8,7 +8,7 @@ int main(void) {
       "Ridiculously, absurdly, unquestionably, indubitably too long";
   char copy1[64], copy2[64];
 
-  CharStack tester;
+  charstack::CharStack tester;
   tester.PushMultiple(6u, input);
   cout << "Pushed: ";
   tester.Print();
@@ -19,7 +19,7 @@ int main(void) {
   cout << endl;
 
   cout << "Reverse() as a method:" << endl;
-  CharStack new_stack;
+  charstack::CharStack new_stack;
   new_stack.reset();
   unsigned i = 0u;
   while (i < strlen(input)) {
@@ -36,7 +36,7 @@ int main(void) {
   cout << "reverse() as a non-member function:" << endl;
   char output[strlen(input)];
   cout << "input: " << input << endl;
-  reverse(input, output);
+  charstack::reverse(input, output);
   cout << "output: " << output << endl;
 
   exit(EXIT_SUCCESS);

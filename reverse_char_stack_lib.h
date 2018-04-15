@@ -4,6 +4,8 @@
 #include <iostream>
 #include <string>
 
+namespace charstack {
+
 namespace {
 constexpr int kMaxLen = 64, kEmpty = -1, kFull = kMaxLen - 1;
 }
@@ -30,3 +32,4 @@ private:
 
 void reverse(const char s1[], char s2[]);
 ::std::string pop_all(CharStack st);
+}

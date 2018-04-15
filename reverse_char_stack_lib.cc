@@ -3,6 +3,8 @@
 
 using namespace std;
 
+namespace charstack {
+
 // The following cannot be placed in the header file without triggering a
 // 'multiple definition' error.
 CharStack::CharStack(const string &str) {
@@ -47,7 +49,8 @@ char CharStack::Pop() {
 void CharStack::PopMultiple(const unsigned m, char s1[]) {
   // Go past any leading NUL characters.
   char c;
-  while ('\0' == (c = Pop())) {}
+  while ('\0' == (c = Pop())) {
+  }
 
   // Check if enough characters are left.
   if ((top_ - static_cast<int>(m)) < kEmpty) {
@@ -60,7 +63,7 @@ void CharStack::PopMultiple(const unsigned m, char s1[]) {
   // Return the next m.
   s1[0] = c;
   unsigned j;
-  for (j=1; j < m; j++) {
+  for (j = 1; j < m; j++) {
     s1[j] = Pop();
   }
 }
@@ -124,3 +127,5 @@ void reverse(const char s1[], char s2[]) {
   // Check that second string's termination is correct.
   assert(strlen(s1) == strlen(s2));
 }
+
+} // namespace charstack

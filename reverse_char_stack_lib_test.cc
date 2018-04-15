@@ -8,25 +8,27 @@ using namespace std;
 
 const ::std::string kTestString("Not unreasonably long.");
 
+namespace testing {
+
 TEST(ReverseCharStackTest, StringConstructor) {
-  CharStack stack(kTestString);
+  charstack::CharStack stack(kTestString);
   EXPECT_EQ(".gnol ylbanosaernu toN", pop_all(stack));
 }
 
 TEST(ReverseCharStackTest, PushMultiple) {
-  CharStack stack;
+  charstack::CharStack stack;
   stack.PushMultiple(kTestString.length(), kTestString.c_str());
   EXPECT_EQ(".gnol ylbanosaernu toN", pop_all(stack));
 }
 
 TEST(ReverseCharStackTest, BasicReversal) {
-  CharStack stack(kTestString);
+  charstack::CharStack stack(kTestString);
   stack.Reverse();
   EXPECT_EQ(kTestString, pop_all(stack));
 }
 
 TEST(ReverseCharStackTest, PopMultiple) {
-  CharStack stack(kTestString);
+  charstack::CharStack stack(kTestString);
   stack.Reverse();
 
   char str[50];
@@ -40,4 +42,5 @@ TEST(ReverseCharStackTest, PopMultiple) {
   // value. Therefore, if you want to compare C strings (e.g. const char*) by
   // value, use ASSERT_STREQ()
   ASSERT_STREQ(str2.c_str(), str);
+}
 }
