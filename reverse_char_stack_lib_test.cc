@@ -15,6 +15,12 @@ TEST(ReverseCharStackTest, StringConstructor) {
   EXPECT_EQ(".gnol ylbanosaernu toN", pop_all(stack));
 }
 
+TEST(ReverseCharStackTest, CopyConstructor) {
+  charstack::CharStack stack1(kTestString);
+  charstack::CharStack stack2(stack1);
+  EXPECT_EQ(".gnol ylbanosaernu toN", pop_all(stack2));
+}
+
 TEST(ReverseCharStackTest, PushMultiple) {
   charstack::CharStack stack;
   stack.PushMultiple(kTestString.length(), kTestString.c_str());

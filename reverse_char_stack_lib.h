@@ -14,6 +14,7 @@ class CharStack {
 public:
   CharStack() : top_(kEmpty) { s_[0] = '\0'; }
   CharStack(const ::std::string &);
+  CharStack(const CharStack &);
   void reset() { top_ = kEmpty; }
   void Push(char c);
   void PushMultiple(unsigned m, const char s1[]);

@@ -13,6 +13,11 @@ CharStack::CharStack(const string &str) {
   s_[++top_] = '\0';
 }
 
+CharStack::CharStack(const CharStack &input) {
+  strncpy(s_, input.s_, input.top_ + 1);
+  top_ = input.top_;
+}
+
 void CharStack::Push(char c) {
   if (full()) {
     cerr << "Stack overflow." << endl;
