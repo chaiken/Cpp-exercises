@@ -48,5 +48,9 @@ reverse_char_stack_lib_test: reverse_char_stack_lib_test.cc \
 	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) reverse_char_stack_lib_test.cc \
            reverse_char_stack_lib.cc -o $@
 
+dyn_string_lib_test: dyn_string_lib.cc dyn_string.h dyn_string_lib_test.cc $(GTEST_HEADERS)
+	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) dyn_string_lib.cc \
+           dyn_string_lib_test.cc -o $@
+
 test: reverse_char_stack_lib_test
 	./reverse_char_stack_lib_test
