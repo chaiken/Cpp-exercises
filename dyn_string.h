@@ -13,12 +13,21 @@ public:
   }
   DynString(const char *p);
   DynString(const DynString &str);
-  ~DynString() { delete[] s_; }
+  ~DynString() {
+    //    ::std::cout << "Destructor" << ::std::endl;
+    //    print();
+    //    ::std::cout << "freeing s_: " << s_ << " of this: " << this <<
+    //    ::std::endl;
+    delete[] s_;
+  }
 
   void assign(const DynString &str);
   void print() const { ::std::cout << s_ << ::std::endl; }
+  void print(size_t n) const;
   void concat(const DynString &a, const DynString &b);
-  bool equals(const DynString &a);
+  bool equals(const DynString &a) const;
+  int compare(const DynString &a) const;
+  int reverse();
 
 private:
   char *s_;
