@@ -10,7 +10,7 @@ TEST(DynStringTest, AssignWorks) {
   dyn_string::DynString a(kTestString.c_str());
   dyn_string::DynString b;
   b.assign(a);
-  ASSERT_TRUE(a.equals(b));
+  ASSERT_EQ(0, a.compare(b));
 }
 
 TEST(DynStringTest, EmptyConcatHasNoEffect) {
@@ -18,7 +18,7 @@ TEST(DynStringTest, EmptyConcatHasNoEffect) {
   dyn_string::DynString b;
   dyn_string::DynString c;
   c.concat(a, b);
-  ASSERT_TRUE(a.equals(c));
+  ASSERT_EQ(0, a.compare(c));
 }
 
 TEST(DynStringTest, ConcatWorks) {
@@ -46,4 +46,10 @@ TEST(DynStringTest, EqualStringsCompareProperly) {
   dyn_string::DynString a("a");
   dyn_string::DynString b("a");
   ASSERT_EQ(0, a.compare(b));
+}
+
+TEST(DynStringTest, EmptyStringIsLeast) {
+  dyn_string::DynString a("a");
+  dyn_string::DynString b("");
+  ASSERT_EQ(1, a.compare(b));
 }

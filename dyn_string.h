@@ -25,9 +25,8 @@ public:
   void print() const { ::std::cout << s_ << ::std::endl; }
   void print(size_t n) const;
   void concat(const DynString &a, const DynString &b);
-  bool equals(const DynString &a) const;
   int compare(const DynString &a) const;
-  int reverse();
+  void reverse();
 
 private:
   char *s_;

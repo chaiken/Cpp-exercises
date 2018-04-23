@@ -46,10 +46,13 @@ void DynString::concat(const DynString &a, const DynString &b) {
   strcpy(s_, temp);
 }
 
-// Copying the DynString objects and then incrementing the string objects inside
+// Using the copy constructor to create new DynString objects and then
+// incrementing the string pointers inside
 // the DynStrings for the char-by-char comparison didn't work, as the strings
 // were changed when the runtime tried to free them, resulting in "free():
-// invalid pointer" error".   See double-free_dyn_string_lib.txt.
+// invalid pointer" error".   See double-free_dyn_string_lib.txt.  To make the
+// copy-constructor approach work, it would be necessary to explicitly free a
+// copy of the initial char* pointer, perhaps with an overloaded destructor.
 int DynString::compare(const DynString &a) const {
   char *b = new char[len_], *c = new char[a.len_];
   unsigned i = 0u;
@@ -68,12 +71,5 @@ int DynString::compare(const DynString &a) const {
   }
   // (b[i] < c[i])
   return -1;
-}
-
-bool DynString::equals(const DynString &a) const {
-  if (!strcmp(a.s_, s_)) {
-    return true;
-  }
-  return false;
 }
 }
