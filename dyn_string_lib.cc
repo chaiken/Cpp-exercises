@@ -2,8 +2,6 @@
 
 #include "dyn_string.h"
 
-#define _RET_IP_ (unsigned long)__builtin_return_address(0)
-
 using namespace std;
 
 namespace dyn_string {
@@ -71,5 +69,18 @@ int DynString::compare(const DynString &a) const {
   }
   // (b[i] < c[i])
   return -1;
+}
+
+void DynString::reverse() {
+  unsigned i = 0u;
+  char temp[len_];
+  strcpy(temp, s_);
+  delete[] s_;
+  s_ = new char[len_];
+  assert(s_ != 0);
+  while (i < len_) {
+    s_[i] = temp[len_ - (i + 1u)];
+    i++;
+  }
 }
 }

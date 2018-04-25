@@ -27,7 +27,7 @@ TEST(DynStringTest, ConcatWorks) {
   dyn_string::DynString c;
   dyn_string::DynString d("ab");
   c.concat(a, b);
-  ASSERT_TRUE(c.equals(d));
+  ASSERT_EQ(0, c.compare(d));
 }
 
 TEST(DynStringTest, UnequalStringsCompareProperly) {
@@ -52,4 +52,13 @@ TEST(DynStringTest, EmptyStringIsLeast) {
   dyn_string::DynString a("a");
   dyn_string::DynString b("");
   ASSERT_EQ(1, a.compare(b));
+}
+
+TEST(DynStringTest, DoubleReverseIsIdempotent) {
+  dyn_string::DynString a(kTestString.c_str());
+  dyn_string::DynString b(kTestString.c_str());
+  a.reverse();
+  ASSERT_EQ(-1, a.compare(b));
+  a.reverse();
+  ASSERT_EQ(0, a.compare(b));
 }
