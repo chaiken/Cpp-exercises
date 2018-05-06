@@ -62,3 +62,15 @@ TEST(DynStringTest, DoubleReverseIsIdempotent) {
   a.reverse();
   ASSERT_EQ(0, a.compare(b));
 }
+
+TEST(DynStringTest, SwapWorks) {
+  dyn_string::DynString a(kTestString.c_str());
+  dyn_string::DynString b("a");
+  dyn_string::DynString c(kTestString.c_str());
+  dyn_string::DynString d("a");
+  ASSERT_EQ(-1, a.compare(d));
+  ASSERT_EQ(1, b.compare(c));
+  a.swap(b);
+  ASSERT_EQ(0, a.compare(d));
+  ASSERT_EQ(0, b.compare(c));
+}

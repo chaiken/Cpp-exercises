@@ -83,4 +83,22 @@ void DynString::reverse() {
     i++;
   }
 }
+
+void DynString::print(size_t n) const {
+  size_t ctr = 0u;
+  while (ctr < n) {
+    cout << *(s_ + ctr);
+    ctr++;
+  }
+  cout << endl;
 }
+
+void DynString::swap(DynString &str) {
+  char temp[len_];
+  strcpy(temp, s_);
+
+  assign(str);
+  str.assign(temp);
+}
+
+} // namespace dyn_string

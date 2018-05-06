@@ -52,5 +52,8 @@ dyn_string_lib_test: dyn_string_lib.cc dyn_string.h dyn_string_lib_test.cc $(GTE
 	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) dyn_string_lib.cc \
            dyn_string_lib_test.cc -o $@
 
+dyn_string: dyn_string_lib.cc dyn_string.h
+	$(CC) $(CFLAGS) $(LDFLAGS) dyn_string_lib.cc dyn_string.cc -o $@
+
 test: reverse_char_stack_lib_test
 	./reverse_char_stack_lib_test

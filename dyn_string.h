@@ -27,6 +27,7 @@ public:
   void concat(const DynString &a, const DynString &b);
   int compare(const DynString &a) const;
   void reverse();
+  void swap(DynString &a);
 
 private:
   char *s_;
