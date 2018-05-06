@@ -1,0 +1,314 @@
+Data dependence of failure:
+The "free(): invalid pointer" error occurs any time the first character
+of the two strings matches.  Thus this fails:
+  dyn_string::DynString a("abc");
+  dyn_string::DynString b("a");
+  ASSERT_EQ(1, a.compare(b));
+as does this:
+  dyn_string::DynString a("a");
+  dyn_string::DynString b("a");
+  ASSERT_EQ(0, a.compare(b));
+but not this:
+  dyn_string::DynString a("bc");
+  dyn_string::DynString b("a");
+  ASSERT_EQ(1, a.compare(b));
+
+Thus, the problematic part of compare() is this:
+  while (*b.s_ == *c.s_) {
+    b.s_++;
+    c.s_++;
+  }
+We are changing b.s_ and c.s_, but not informing the caller.
+
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+Analysis:
+compare() gets const*& this, but a const& to the function
+parameter.  That's why the copy constructor calls inside compare() are
+different.  The caller therefore finds out about the destruction of
+the copy of this, but not about the destruction of the string that is
+part of the function parameter object.
+
+int DynString::compare(const DynString& a) const {
+  cout << endl << "<<< compare() gets this: " << this << endl;
+  DynString b(*this), c(a);
+  while (*b.s_ == *c.s_) {
+    b.s_++;
+    c.s_++;
+  }
+  // Evaluates to true if c.s_ is NULL.  Makes sense since NUL is ASCII 0x0.
+  if (*b.s_ > *c.s_) {
+    return 1;
+  }
+  if (*b.s_ < *c.s_) {
+    return -1;
+  }
+  return 0;
+}
+
+
+
+https://stackoverflow.com/questions/8520678/invalid-pointer-why
+
+
+Question: Invalid pointer - why?
+
+Not very experienced with C++, I've got the following:
+
+void read_image(vector<unsigned char>* buffer) {
+    buffer = new vector<unsigned char>(2048);
+}   
+
+int main(int argc, char ** argv) {
+    vector< unsigned char > *buffer;
+
+    read_image(buffer);
+
+    delete buffer; // gives invalid pointer at run-time
+
+    return 0;
+}
+
+This is only the relevant part of the code, basically I want to initialize the pointer buffer in read_image(). At run-time I'm getting this when trying to free up the heap:
+
+*** glibc detected *** ./main: free(): invalid pointer: 0x00007fff0648556c ***
+
+What's wrong with my approach?
+
+-----------------
+Answer:
+
+You are not sending buffer by reference (or as a pointer to vector<unsigned char>*) when callingread_image`, therefor the function is unable to propagate the update to outside of the function (ie. the caller).
+
+This modification of your function will result in what you wish:
+
+void read_image(vector<unsigned char>*& buffer) {
+    buffer = new vector<unsigned char>(2048);
+}   
+
+We are now passing a reference as a parameter to read_image, and the original variable will be updated with the value returned from new vector<...> (...).
+
+If you are a pointer fanatic this is also valid:
+
+void read_image (vector<unsigned char>** buffer) {
+    *buffer = new vector<unsigned char>(2048);
+}  
+
+...
+
+read_image (&buffer);
+
+In the above we are giving read_image the address of the pointer itself, and inside we can dereference this pointer to pointer to set the value pointed to by the original pointer.
+
+Excuse the wording, I'm quite tired to be honest.
+
+FAQ regarding the use of references.
+https://isocpp.org/wiki/faq/references
+
+
+[alison@bonnet Pohl (master)]$ ./dyn_string_lib_test 
+Running main() from gtest_main.cc
+[==========] Running 5 tests from 1 test case.
+[----------] Global test environment set-up.
+[----------] 5 tests from DynStringTest
+[ RUN      ] DynStringTest.AssignWorks
+Char* constructor this: 0x7fff47b2fc80 with s_ Strings are cheap.
+Destructor
+Strings are cheap.
+freeing s_: Strings are cheap. of this: 0x7fff47b2fc70
+Destructor
+Strings are cheap.
+freeing s_: Strings are cheap. of this: 0x7fff47b2fc80
+[       OK ] DynStringTest.AssignWorks (0 ms)
+[ RUN      ] DynStringTest.EmptyConcatHasNoEffect
+Char* constructor this: 0x7fff47b2fc80 with s_ Strings are cheap.
+Destructor
+Strings are cheap.
+freeing s_: Strings are cheap. of this: 0x7fff47b2fc60
+Destructor
+
+freeing s_:  of this: 0x7fff47b2fc70
+Destructor
+Strings are cheap.
+freeing s_: Strings are cheap. of this: 0x7fff47b2fc80
+[       OK ] DynStringTest.EmptyConcatHasNoEffect (0 ms)
+[ RUN      ] DynStringTest.UnequalStringsCompareProperly
+Char* constructor this: 0x7fff47b2fca0 with s_ a
+Char* constructor this: 0x7fff47b2fc90 with s_ b
+
+<<< compare() gets this: 0x7fff47b2fca0
+Copy constructor this: 0x7fff47b2fc40 with s_ a
+Copy constructor this: 0x7fff47b2fc30 with s_ b
+Destructor
+b
+freeing s_: b of this: 0x7fff47b2fc30
+Destructor
+a
+freeing s_: a of this: 0x7fff47b2fc40
+
+>>>>Back in test.
+Destructor
+b
+freeing s_: b of this: 0x7fff47b2fc90
+Destructor
+a
+freeing s_: a of this: 0x7fff47b2fca0
+[       OK ] DynStringTest.UnequalStringsCompareProperly (0 ms)
+[ RUN      ] DynStringTest.EqualStringsCompareProperly
+Char* constructor this: 0x7fff47b2fca0 with s_ a
+Char* constructor this: 0x7fff47b2fc90 with s_ a
+
+<<< compare() gets this: 0x7fff47b2fc90
+Copy constructor this: 0x7fff47b2fc40 with s_ a
+Copy constructor this: 0x7fff47b2fc30 with s_ a
+Destructor
+
+freeing s_:  of this: 0x7fff47b2fc30
+free(): invalid pointer
+Aborted
+
+
+
+
+
+alison@bonnet Pohl (master)]$ gdb ./dyn_string_lib_test
+GNU gdb (Debian 7.12-6+b1) 7.12.0.20161007-git
+Copyright (C) 2016 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.  Type "show copying"
+and "show warranty" for details.
+This GDB was configured as "x86_64-linux-gnu".
+Type "show configuration" for configuration details.
+For bug reporting instructions, please see:
+<http://www.gnu.org/software/gdb/bugs/>.
+Find the GDB manual and other documentation resources online at:
+<http://www.gnu.org/software/gdb/documentation/>.
+For help, type "help".
+Type "apropos word" to search for commands related to "word"...
+Reading symbols from ./dyn_string_lib_test...done.
+(gdb) b compare
+Function "compare" not defined.
+Make breakpoint pending on future shared library load? (y or [n]) n
+(gdb) b DynString::copare
+Function "DynString::copare" not defined.
+Make breakpoint pending on future shared library load? (y or [n]) n
+(gdb) b DynString::compare
+Function "DynString::compare" not defined.
+Make breakpoint pending on future shared library load? (y or [n]) n
+(gdb) b dyn_string::DynString::compare
+Breakpoint 1 at 0x46953: file dyn_string_lib.cc, line 46.
+(gdb) run
+Starting program: /home/alison/src/exercises/Pohl/dyn_string_lib_test 
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+Running main() from gtest_main.cc
+[==========] Running 5 tests from 1 test case.
+[----------] Global test environment set-up.
+[----------] 5 tests from DynStringTest
+[ RUN      ] DynStringTest.AssignWorks
+freeing s_: Strings are cheap. of this: 0x7fffffffdca0
+freeing s_: Strings are cheap. of this: 0x7fffffffdcb0
+[       OK ] DynStringTest.AssignWorks (0 ms)
+[ RUN      ] DynStringTest.EmptyConcatHasNoEffect
+freeing s_: Strings are cheap. of this: 0x7fffffffdc90
+freeing s_:  of this: 0x7fffffffdca0
+freeing s_: Strings are cheap. of this: 0x7fffffffdcb0
+[       OK ] DynStringTest.EmptyConcatHasNoEffect (0 ms)
+[ RUN      ] DynStringTest.UnequalStringsCompareProperly
+
+Breakpoint 1, dyn_string::DynString::compare (this=0x7fffffffdcd0, a=...)
+    at dyn_string_lib.cc:46
+46        DynString b(*this);
+(gdb) p this
+$1 = (const dyn_string::DynString * const) 0x7fffffffdcd0
+(gdb) p this.s_
+$2 = 0x5555557d99e0 "a"
+(gdb) n
+Created this: 0x7fffffffdc70 with s_ a
+47        cout << "compare gets this: " << this << endl;
+(gdb) n
+compare gets this: 0x7fffffffdcd0
+48        DynString c(a);
+(gdb) p b
+$3 = {s_ = 0x5555557d9e50 "a", len_ = 0x1}
+(gdb) p c
+$4 = {s_ = 0x1 <error: Cannot access memory at address 0x1>, len_ = 0x555555599fb2}
+(gdb) n
+Created this: 0x7fffffffdc60 with s_ b
+49        while (*b.s_ == *c.s_) {
+(gdb) p a
+$5 = (const dyn_string::DynString &) @0x7fffffffdcc0: {s_ = 0x5555557d9e30 "b", len_ = 0x1}
+(gdb) p b
+$6 = {s_ = 0x5555557d9e50 "a", len_ = 0x1}
+(gdb) p c
+$7 = {s_ = 0x5555557da590 "b", len_ = 0x1}
+(gdb) p this
+$8 = (const dyn_string::DynString * const) 0x7fffffffdcd0
+(gdb) p *this
+$9 = {s_ = 0x5555557d99e0 "a", len_ = 0x1}
+(gdb) n
+54        if (*b.s_ > *c.s_) {
+(gdb) n
+57        if (*b.s_ < *c.s_) {
+(gdb) p b
+$10 = {s_ = 0x5555557d9e50 "a", len_ = 0x1}
+(gdb) p c
+$11 = {s_ = 0x5555557da590 "b", len_ = 0x1}
+(gdb) p this
+$12 = (const dyn_string::DynString * const) 0x7fffffffdcd0
+(gdb) p *this
+$13 = {s_ = 0x5555557d99e0 "a", len_ = 0x1}
+(gdb) p a
+$14 = (const dyn_string::DynString &) @0x7fffffffdcc0: {s_ = 0x5555557d9e30 "b", len_ = 0x1}
+(gdb) n
+58          return -1;
+(gdb) n
+48        DynString c(a);
+(gdb) bt
+#0  dyn_string::DynString::compare (this=0x7fffffffdcd0, a=...) at dyn_string_lib.cc:48
+#1  0x000055555559b5cc in DynStringTest_UnequalStringsCompareProperly_Test::TestBody (
+    this=0x5555557d9a00) at dyn_string_lib_test.cc:27
+#2  0x000055555558b8db in testing::internal::HandleSehExceptionsInMethodIfSupported<testing::Test, void> (object=0x5555557d9a00, method=&virtual testing::Test::TestBody(), 
+    location=0x55555559f8cb "the test body") at ../src/gtest.cc:2417
+#3  0x0000555555585fb3 in testing::internal::HandleExceptionsInMethodIfSupported<testing::Test, void> (object=0x5555557d9a00, method=&virtual testing::Test::TestBody(), 
+    location=0x55555559f8cb "the test body") at ../src/gtest.cc:2453
+#4  0x00005555555674a0 in testing::Test::Run (this=0x5555557d9a00) at ../src/gtest.cc:2491
+#5  0x0000555555567d5c in testing::TestInfo::Run (this=0x5555557d9b70) at ../src/gtest.cc:2667
+#6  0x0000555555568398 in testing::TestCase::Run (this=0x5555557d9840) at ../src/gtest.cc:2785
+#7  0x00005555555721a5 in testing::internal::UnitTestImpl::RunAllTests (this=0x5555557d9590)
+    at ../src/gtest.cc:5047
+#8  0x000055555558c8f1 in testing::internal::HandleSehExceptionsInMethodIfSupported<testing::internal::UnitTestImpl, bool> (object=0x5555557d9590, 
+    method=(bool (testing::internal::UnitTestImpl::*)(testing::internal::UnitTestImpl * const)) 0x555555571f0e <testing::internal::UnitTestImpl::RunAllTests()>, 
+    location=0x5555555a0218 "auxiliary test code (environments or event listeners)")
+    at ../src/gtest.cc:2417
+#9  0x0000555555586d87 in testing::internal::HandleExceptionsInMethodIfSupported<testing::internal::UnitTestImpl, bool> (object=0x5555557d9590, 
+    method=(bool (testing::internal::UnitTestImpl::*)(testing::internal::UnitTestImpl * const)) 0x555555571f0e <testing::internal::UnitTestImpl::RunAllTests()>, 
+    location=0x5555555a0218 "auxiliary test code (environments or event listeners)")
+    at ../src/gtest.cc:2453
+#10 0x0000555555570d73 in testing::UnitTest::Run (
+    this=0x5555557c6580 <testing::UnitTest::GetInstance()::instance>) at ../src/gtest.cc:4663
+#11 0x000055555556022e in RUN_ALL_TESTS () at ../include/gtest/gtest.h:2314
+#12 0x00005555555601bd in main (argc=0x1, argv=0x7fffffffe1e8) at ../src/gtest_main.cc:37
+(gdb) n
+freeing s_: b of this: 0x7fffffffdc60
+46        DynString b(*this);
+(gdb) n
+freeing s_: a of this: 0x7fffffffdc70
+61      }
+(gdb) n
+freeing s_: b of this: 0x7fffffffdcc0
+DynStringTest_UnequalStringsCompareProperly_Test::TestBody (this=0x5555557d9a00)
+    at dyn_string_lib_test.cc:26
+26        dyn_string::DynString b("b");
+(gdb) n
+freeing s_: a of this: 0x7fffffffdcd0
+25        dyn_string::DynString a("a");
+(gdb) n
+28      }
+(gdb) n
+testing::internal::HandleSehExceptionsInMethodIfSupported<testing::Test, void> (
+    object=0x5555557d9a00, method=&virtual testing::Test::TestBody(), 
+    location=0x55555559f8cb "the test body") at ../src/gtest.cc:2419
+2419    }
+(gdb) 
