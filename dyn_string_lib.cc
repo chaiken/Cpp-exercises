@@ -90,7 +90,7 @@ void DynString::print(size_t n) const {
     cout << *(s_ + ctr);
     ctr++;
   }
-  cout << endl;
+  //  cout << endl;
 }
 
 void DynString::swap(DynString &str) {
@@ -99,6 +99,46 @@ void DynString::swap(DynString &str) {
 
   assign(str);
   str.assign(temp);
+}
+
+// Cannot be a member function, as it acts on a list of objects, and is
+// therefore not associated with a particular one.
+// We don't have to pass in a function pointer, as compare() is a member
+// function of the class of objects to which is applied.
+void dyn_string_sort(DynString *dynstr, size_t cursor, size_t len) {
+  assert(dynstr != 0);
+  if (cursor < 2u) {
+    return;
+  }
+
+  // unsigned depth = len - cursor;
+  // cout << " depth: " <<  depth << endl;
+  // unsigned i = depth;
+  // while (i < len) {
+  //    (dynstr+i)->print();
+  //    i++;
+  //  }
+  // cout << endl;
+
+  // Note that all these functions add and subtract 1 rather than incrementing
+  // or decrementing.
+  if (cursor > 2) {
+    // Work done on the way down to the end of the array.
+    if (dynstr->compare(*(dynstr + 1)) > 0) {
+      dynstr->swap(*(dynstr + 1));
+    }
+    // Descend to the bottom.
+    dyn_string_sort(dynstr + 1, cursor - 1, len);
+  }
+  // If upon return from previous sort, the array is
+  // disordered, descend again and fix until there's
+  // no more work.
+  // Work done on the way back up from the end of the array.
+  if (dynstr->compare(*(dynstr + 1)) > 0) {
+    dynstr->swap(*(dynstr + 1));
+    dyn_string_sort(dynstr + 1, cursor - 1, len);
+  }
+  return;
 }
 
 } // namespace dyn_string

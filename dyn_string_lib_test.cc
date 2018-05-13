@@ -3,60 +3,61 @@
 #include "dyn_string.h"
 
 using namespace std;
+using namespace dyn_string;
 
 const ::std::string kTestString = "Strings are cheap.";
 
 TEST(DynStringTest, AssignWorks) {
-  dyn_string::DynString a(kTestString.c_str());
-  dyn_string::DynString b;
+  DynString a(kTestString.c_str());
+  DynString b;
   b.assign(a);
   ASSERT_EQ(0, a.compare(b));
 }
 
 TEST(DynStringTest, EmptyConcatHasNoEffect) {
-  dyn_string::DynString a(kTestString.c_str());
-  dyn_string::DynString b;
-  dyn_string::DynString c;
+  DynString a(kTestString.c_str());
+  DynString b;
+  DynString c;
   c.concat(a, b);
   ASSERT_EQ(0, a.compare(c));
 }
 
 TEST(DynStringTest, ConcatWorks) {
-  dyn_string::DynString a("a");
-  dyn_string::DynString b("b");
-  dyn_string::DynString c;
-  dyn_string::DynString d("ab");
+  DynString a("a");
+  DynString b("b");
+  DynString c;
+  DynString d("ab");
   c.concat(a, b);
   ASSERT_EQ(0, c.compare(d));
 }
 
 TEST(DynStringTest, UnequalStringsCompareProperly) {
-  dyn_string::DynString a("a");
-  dyn_string::DynString b("b");
+  DynString a("a");
+  DynString b("b");
   ASSERT_EQ(-1, a.compare(b));
 }
 
 TEST(DynStringTest, ShorterStringIsLess) {
-  dyn_string::DynString a("bc");
-  dyn_string::DynString b("a");
+  DynString a("bc");
+  DynString b("a");
   ASSERT_EQ(1, a.compare(b));
 }
 
 TEST(DynStringTest, EqualStringsCompareProperly) {
-  dyn_string::DynString a("a");
-  dyn_string::DynString b("a");
+  DynString a("a");
+  DynString b("a");
   ASSERT_EQ(0, a.compare(b));
 }
 
 TEST(DynStringTest, EmptyStringIsLeast) {
-  dyn_string::DynString a("a");
-  dyn_string::DynString b("");
+  DynString a("a");
+  DynString b("");
   ASSERT_EQ(1, a.compare(b));
 }
 
 TEST(DynStringTest, DoubleReverseIsIdempotent) {
-  dyn_string::DynString a(kTestString.c_str());
-  dyn_string::DynString b(kTestString.c_str());
+  DynString a(kTestString.c_str());
+  DynString b(kTestString.c_str());
   a.reverse();
   ASSERT_EQ(-1, a.compare(b));
   a.reverse();
@@ -64,13 +65,33 @@ TEST(DynStringTest, DoubleReverseIsIdempotent) {
 }
 
 TEST(DynStringTest, SwapWorks) {
-  dyn_string::DynString a(kTestString.c_str());
-  dyn_string::DynString b("a");
-  dyn_string::DynString c(kTestString.c_str());
-  dyn_string::DynString d("a");
+  DynString a(kTestString.c_str());
+  DynString b("a");
+  DynString c(kTestString.c_str());
+  DynString d("a");
   ASSERT_EQ(-1, a.compare(d));
   ASSERT_EQ(1, b.compare(c));
   a.swap(b);
   ASSERT_EQ(0, a.compare(d));
   ASSERT_EQ(0, b.compare(c));
+}
+
+TEST(DynStringTest, SortWorks) {
+  DynString another("u7");
+  DynString d("d");
+  DynString a("a");
+  DynString somedots("..");
+  DynString longer("Hello world.");
+  DynString nummern("1234");
+  array<DynString, 6> dynstrarr1 = {d, another, a, somedots, longer, nummern};
+  array<DynString, 6> dynstrarr2 = {somedots, nummern, longer, a, d, another};
+  dyn_string_sort(&dynstrarr1[0], dynstrarr1.size(), dynstrarr1.size());
+
+  auto it1 = dynstrarr1.begin(), it2 = dynstrarr2.begin();
+  while (it1 != dynstrarr1.end()) {
+    ASSERT_EQ(0, (*it1).compare(*it2));
+    // it1->print();
+    // it2->print();
+    it1++, it2++;
+  }
 }

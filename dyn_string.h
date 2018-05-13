@@ -33,4 +33,6 @@ private:
   char *s_;
   size_t len_;
 };
+
+void dyn_string_sort(DynString *dynstr, size_t num, size_t len);
 }
