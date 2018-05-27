@@ -51,14 +51,14 @@ void DynString::concat(const DynString &a, const DynString &b) {
     assign(b);
     return;
   }
+  // New string needs only one trailing NULL.
   char *temp = new char[a.len_ + b.len_ + 1];
   len_ = a.len_ + b.len_;
-  // Intentionally omit trailing NULL on prefix.
-  // The strncpy() function is similar, except that at most n bytes of src are
-  // copied.  Warning:  If  there  is  no  null  byte among the first n bytes of
-  // src, the string placed in dest will not be null-terminated.
-  strncpy(temp, a.s_, a.len_);
-  // As with strcat(), the resulting string in dest is always null-terminated.
+  // The  strcat()  function appends the src string to the dest string,
+  // overwriting the terminating null byte ('\0') at the end of dest, and then
+  // adds a terminating  null byte. Therefore strcpy() followed by strcat()
+  // doesn't leave a NULL in the middle.
+  strcpy(temp, a.s_);
   strcat(temp, b.s_);
   delete[] s_;
   s_ = new char[len_ + 1];
@@ -76,14 +76,17 @@ void DynString::concat(const DynString &a, const DynString &b) {
 // copy of the initial char* pointer, perhaps with an overloaded destructor.
 int DynString::compare(const DynString &a) const {
   char b[len_ + 1], c[a.len_ + 1];
-  unsigned i = 0u;
+  assert(s_ != 0);
+  assert(strlen(s_) == len_);
   strcpy(b, s_);
   strcpy(c, a.s_);
+
+  unsigned i = 0u;
   while ((b[i] == c[i]) && (b[i] != '\0')) {
     i++;
   }
   // Got to the end of both strings, and all chars matched.
-  if ((i == len_) && (i == a.len_)) {
+  if ((len_ == i) && (a.len_ == len_)) {
     return 0;
   }
   // Evaluates to true if c.s_ is NULL.  Makes sense since NUL is ASCII 0x0.
@@ -95,16 +98,27 @@ int DynString::compare(const DynString &a) const {
 }
 
 void DynString::reverse() {
-  unsigned i = 0u;
-  char temp[len_];
+  if (0 == len_) {
+    return;
+  }
+  assert(len_ == strlen(s_));
+
+  // Leave room for NULL; a string of length n needs n+1 bytes.
+  char temp[len_ + 1];
   strcpy(temp, s_);
   delete[] s_;
   s_ = new char[len_ + 1];
   assert(s_ != 0);
+
+  unsigned i = 0u;
   while (i < len_) {
-    s_[i] = temp[len_ - (i + 1u)];
+    // Skip the NULL on reversal.
+    s_[i] = temp[(len_ - 1) - i];
     i++;
   }
+  // Add it to the new end.
+  s_[len_] = '\0';
+  assert(len_ == strlen(s_));
 }
 
 void DynString::print(size_t n) const {

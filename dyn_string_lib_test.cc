@@ -55,15 +55,6 @@ TEST(DynStringTest, EmptyStringIsLeast) {
   ASSERT_EQ(1, a.compare(b));
 }
 
-TEST(DynStringTest, DoubleReverseIsIdempotent) {
-  DynString a(kTestString.c_str());
-  DynString b(kTestString.c_str());
-  a.reverse();
-  ASSERT_EQ(-1, a.compare(b));
-  a.reverse();
-  ASSERT_EQ(0, a.compare(b));
-}
-
 TEST(DynStringTest, SwapWorks) {
   DynString a(kTestString.c_str());
   DynString b("a");
@@ -94,4 +85,13 @@ TEST(DynStringTest, SortWorks) {
     // it2->print();
     it1++, it2++;
   }
+}
+
+TEST(DynStringTest, DoubleReverseIsIdempotent) {
+  DynString a(kTestString.c_str());
+  DynString b(kTestString.c_str());
+  a.reverse();
+  ASSERT_EQ(-1, a.compare(b));
+  a.reverse();
+  ASSERT_EQ(0, a.compare(b));
 }
