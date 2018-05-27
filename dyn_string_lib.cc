@@ -75,7 +75,7 @@ void DynString::concat(const DynString &a, const DynString &b) {
 // copy-constructor approach work, it would be necessary to explicitly free a
 // copy of the initial char* pointer, perhaps with an overloaded destructor.
 int DynString::compare(const DynString &a) const {
-  char *b = new char[len_ + 1], *c = new char[a.len_ + 1];
+  char b[len_ + 1], c[a.len_ + 1];
   unsigned i = 0u;
   strcpy(b, s_);
   strcpy(c, a.s_);
