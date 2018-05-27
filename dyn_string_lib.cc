@@ -8,7 +8,14 @@ namespace dyn_string {
 
 DynString::DynString(const char *p) {
   len_ = strlen(p);
-  s_ = new char[len_];
+  // In C:
+  // man strlen: The strlen() function calculates the length of the string
+  // pointed to by s, excluding the terminating null byte ('\0').
+  // The following line therefore needs a '1'.
+  // man strcpy: The strcpy() function copies the string pointed to by src,
+  // including the terminating null byte ('\0'), to the buffer pointed to by
+  // dest.
+  s_ = new char[len_ + 1];
   assert(s_ != 0);
   strcpy(s_, p);
   //  cout << "Char* constructor this: " << this << " with s_ " << dec << s_
@@ -16,7 +23,7 @@ DynString::DynString(const char *p) {
 }
 
 DynString::DynString(const DynString &str) : len_(str.len_) {
-  s_ = new char[len_];
+  s_ = new char[len_ + 1];
   assert(s_ != 0);
   strcpy(s_, str.s_);
   // cout << "Copy constructor this: " << this << " with s_ " << s_ << endl;
@@ -28,7 +35,7 @@ void DynString::assign(const DynString &str) {
   }
   delete[] s_;
   len_ = str.len_;
-  s_ = new char[len_];
+  s_ = new char[len_ + 1];
   assert(s_ != 0);
   strcpy(s_, str.s_);
 }
@@ -39,7 +46,7 @@ void DynString::concat(const DynString &a, const DynString &b) {
   strcpy(temp, a.s_);
   strcat(temp, b.s_);
   delete[] s_;
-  s_ = new char[len_];
+  s_ = new char[len_ + 1];
   assert(s_ != 0);
   strcpy(s_, temp);
 }
@@ -52,7 +59,7 @@ void DynString::concat(const DynString &a, const DynString &b) {
 // copy-constructor approach work, it would be necessary to explicitly free a
 // copy of the initial char* pointer, perhaps with an overloaded destructor.
 int DynString::compare(const DynString &a) const {
-  char *b = new char[len_], *c = new char[a.len_];
+  char *b = new char[len_ + 1], *c = new char[a.len_ + 1];
   unsigned i = 0u;
   strcpy(b, s_);
   strcpy(c, a.s_);
@@ -76,7 +83,7 @@ void DynString::reverse() {
   char temp[len_];
   strcpy(temp, s_);
   delete[] s_;
-  s_ = new char[len_];
+  s_ = new char[len_ + 1];
   assert(s_ != 0);
   while (i < len_) {
     s_[i] = temp[len_ - (i + 1u)];
@@ -94,7 +101,7 @@ void DynString::print(size_t n) const {
 }
 
 void DynString::swap(DynString &str) {
-  char temp[len_];
+  char temp[len_ + 1];
   strcpy(temp, s_);
 
   assign(str);
