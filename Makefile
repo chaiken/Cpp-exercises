@@ -65,5 +65,11 @@ notqsort_lib_test: notqsort_lib.cc notqsort_lib_test.cc notqsort_lib.h  $(GTEST_
 dbl_vector_lib_test: dbl_vector_lib.cc dbl_vector_lib_test.cc dbl_vector.h  $(GTEST_HEADERS)
 	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) dbl_vector_lib.cc dbl_vector_lib_test.cc -o $@
 
+dbl_vector_lib_test2: dbl_vector_lib.cc dbl_vector_lib_test2.cc dbl_vector.h  $(GTEST_HEADERS)
+	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) dbl_vector_lib.cc dbl_vector_lib_test2.cc -o $@
+
+dbl_vector_time: dbl_vector_lib.cc dbl_vector_time.cc dbl_vector.h
+	$(CC) $(CXXFLAGS) $(LDFLAGS) dbl_vector_lib.cc dbl_vector_time.cc -o $@
+
 test: reverse_char_stack_lib_test
 	./reverse_char_stack_lib_test

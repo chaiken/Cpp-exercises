@@ -11,6 +11,11 @@ DoubleVector::DoubleVector(int n) : size_(n) {
   assert(n > 0);
   p_ = new double[size_];
   assert(p_ != 0);
+  int i = 0;
+  while (i <= ub()) {
+    p_[i] = 0.0;
+    i++;
+  }
 }
 
 DoubleVector::DoubleVector(const DoubleVector &v) {
@@ -18,9 +23,18 @@ DoubleVector::DoubleVector(const DoubleVector &v) {
   size_ = v.size_;
   assert(p_ != 0);
   int i = 0;
-  while (i < v.ub()) {
+  while (i <= v.ub()) {
     p_[i] = v.p_[i];
     i++;
+  }
+}
+
+DoubleVector::DoubleVector(const double *v, int sz) {
+  p_ = new double[sz];
+  assert(p_ != 0);
+  size_ = sz;
+  for (int i = 0; i < sz; i++) {
+    p_[i] = *(v + i);
   }
 }
 
@@ -54,28 +68,9 @@ double DoubleVector::SumElements() const {
   return sum;
 }
 
-void DoubleVector::Add(const DoubleVector &a) {
-  assert(size_ == a.size_);
-  for (int i = 0; i < size_; i++) {
-    p_[i] += a.p_[i];
-  }
-}
-
-DoubleVector SumVectors(const DoubleVector &a, const DoubleVector &b) {
-  assert(a.ub() == b.ub());
-  DoubleVector out(a);
-  out.Add(b);
-  return out;
-}
-
 double DoubleVector::Amplitude() const {
-  int i = 0;
-  double sum = 0;
-  while (i <= ub()) {
-    sum += p_[i] * p_[i];
-    i++;
-  }
-  return sum;
+  double sum = DotProduct(*this);
+  return sqrt(sum);
 }
 
 void DoubleVector::Scale(const double scale) {
@@ -85,5 +80,23 @@ void DoubleVector::Scale(const double scale) {
     i++;
   }
   return;
+}
+
+DoubleVector DoubleVector::Add(const DoubleVector &a) {
+  assert(ub() == a.ub());
+  for (int i = 0; i <= ub(); i++) {
+    p_[i] += a.p_[i];
+  }
+  return *this;
+}
+
+// Below is the text's function signature, but it must be wrong.
+// As stated, the function takes consts as arguments and returns nothing, so
+// what good is it?
+// void SumVectors(const DoubleVector &a, const DoubleVector &b) {
+DoubleVector SumVectors(const DoubleVector &a, const DoubleVector &b) {
+  assert(a.ub() == b.ub());
+  DoubleVector c(a);
+  return c.Add(b);
 }
 }
