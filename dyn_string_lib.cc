@@ -41,14 +41,30 @@ void DynString::assign(const DynString &str) {
 }
 
 void DynString::concat(const DynString &a, const DynString &b) {
-  char *temp = new char[a.len_ + b.len_];
+  // DynString default constructor creates a string containing NULL, of strlen
+  // 0u.
+  if (0u == b.len_) {
+    assign(a);
+    return;
+  }
+  if (0u == a.len_) {
+    assign(b);
+    return;
+  }
+  char *temp = new char[a.len_ + b.len_ + 1];
   len_ = a.len_ + b.len_;
-  strcpy(temp, a.s_);
+  // Intentionally omit trailing NULL on prefix.
+  // The strncpy() function is similar, except that at most n bytes of src are
+  // copied.  Warning:  If  there  is  no  null  byte among the first n bytes of
+  // src, the string placed in dest will not be null-terminated.
+  strncpy(temp, a.s_, a.len_);
+  // As with strcat(), the resulting string in dest is always null-terminated.
   strcat(temp, b.s_);
   delete[] s_;
   s_ = new char[len_ + 1];
   assert(s_ != 0);
   strcpy(s_, temp);
+  delete[] temp;
 }
 
 // Using the copy constructor to create new DynString objects and then
