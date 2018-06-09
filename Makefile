@@ -71,5 +71,11 @@ dbl_vector_lib_test2: dbl_vector_lib.cc dbl_vector_lib_test2.cc dbl_vector.h  $(
 dbl_vector_time: dbl_vector_lib.cc dbl_vector_time.cc dbl_vector.h
 	$(CC) $(CXXFLAGS) $(LDFLAGS) dbl_vector_lib.cc dbl_vector_time.cc -o $@
 
+slist_main: slist_main.cc slist_lib.cc slist.h
+	$(CC) $(CXXFLAGS) $(LDFLAGS) slist_main.cc slist_lib.cc -o $@
+
+slist_lib_test: slist_lib.cc slist_lib_test.cc slist.h  $(GTEST_HEADERS)
+	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) slist_lib.cc slist_lib_test.cc -o $@
+
 test: reverse_char_stack_lib_test
 	./reverse_char_stack_lib_test
