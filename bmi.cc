@@ -1,7 +1,6 @@
 #include <cassert>
 #include <cstdlib>
 #include <iostream>
-#include <cassert>
 
 using namespace std;
 
@@ -14,12 +13,12 @@ const string category[3]{
 
 double inches_to_m(double length) {
   assert(length > 0.0);
-  return (length/inches_per_meter);
+  return (length / inches_per_meter);
 }
 
 double lbs_to_kg(double weight) {
   assert(weight > 0.0);
-  return (weight/lbs_per_kg);
+  return (weight / lbs_per_kg);
 }
 
 double calc_bmi(double height, double weight) {

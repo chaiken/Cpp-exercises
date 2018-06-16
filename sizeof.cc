@@ -9,7 +9,8 @@ int main(void) {
   cout << "bool: " << sizeof(bool) << " char: " << sizeof(char) << endl;
   cout << "short: " << sizeof(short) << " int: " << sizeof(int) << endl;
   cout << "long: " << sizeof(long) << " float: " << sizeof(float) << endl;
-  cout << "double: " << sizeof(double) << " long double: " << sizeof(long double) << endl;
+  cout << "double: " << sizeof(double)
+       << " long double: " << sizeof(long double) << endl;
   cout << "bounds: " << sizeof(bounds) << " suit: " << sizeof(suit) << endl;
 
   exit(0);

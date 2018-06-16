@@ -11,7 +11,7 @@ void foo(int n) {
     cout << "Count is " << ctr << endl;
     return;
   } else {
-    foo(n/3);
+    foo(n / 3);
   }
 }
 
@@ -21,7 +21,7 @@ void foo2(int n, int ctr) {
     cout << "Count is " << ctr << endl;
     return;
   } else {
-    foo2(n/3, ctr);
+    foo2(n / 3, ctr);
   }
 }
 

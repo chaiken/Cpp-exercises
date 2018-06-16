@@ -23,6 +23,4 @@ struct sister {
 // Why won't compile: multiple declarations of a.
 // } a;
 
-int main(void) {
-  exit(EXIT_SUCCESS);
-}
+int main(void) { exit(EXIT_SUCCESS); }

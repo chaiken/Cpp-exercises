@@ -59,9 +59,9 @@ void print_ave(long arr[], size_t len) {
 int main(void) {
 
   //  cout << "Start: " << endl;
-  //print_mem();
+  // print_mem();
 
-  long randarr[BIGSIZE*256];
+  long randarr[BIGSIZE * 256];
   for (int i = 0; i < BIGSIZE; i++) {
     randarr[i] = rand();
   }
@@ -96,15 +96,15 @@ int main(void) {
 
 ////////////////////////////////////////////////////////////////////////////
 //[alison@bonnet Pohl (master)]$ gdb -q stack_overflow
-//Reading symbols from stack_overflow...done.
+// Reading symbols from stack_overflow...done.
 //(gdb) run
-//Starting program: /home/alison/src/exercises/Pohl/stack_overflow 
+// Starting program: /home/alison/src/exercises/Pohl/stack_overflow
 //[Thread debugging using libthread_db enabled]
-//Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+// Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
 
-//Program received signal SIGSEGV, Segmentation fault.
-//0x0000555555559be4 in main () at stack_overflow.cc:61
-//61        cout << "Start: " << endl;
+// Program received signal SIGSEGV, Segmentation fault.
+// 0x0000555555559be4 in main () at stack_overflow.cc:61
+// 61        cout << "Start: " << endl;
 // ^^^ actual stack overflow.
 ///
 //	[alison@bonnet Pohl (master)]$ lpq				     //
@@ -196,6 +196,7 @@ int main(void) {
 //	Total mmapped space is 0 kB.					     //
 //	Total non-mmapped allocated space is 208 kB.			     //
 //									     //
-//	stack_overflow.cc:72:26: runtime error: signed integer overflow: 268435456 * 16 cannot be represented in type 'int'//
+//	stack_overflow.cc:72:26: runtime error: signed integer overflow:
+// 268435456 * 16 cannot be represented in type 'int'//
 //	[alison@bonnet Pohl (master)]$ 					     //
 ///////////////////////////////////////////////////////////////////////////////

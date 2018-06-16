@@ -9,8 +9,10 @@ unsigned gcd(unsigned a, unsigned b) {
 
   while (lesser > 0) {
     r = greater % lesser;
-    if (r) lesser = r;
-    else break;
+    if (r)
+      lesser = r;
+    else
+      break;
   }
   return lesser;
 }
@@ -27,6 +29,6 @@ int main() {
     if ((a * b) == 0)
       throw new exception();
     else
-      cout << "gcd(a,b) is " << gcd(a,b) << endl;
+      cout << "gcd(a,b) is " << gcd(a, b) << endl;
   }
 }

@@ -30,8 +30,8 @@ int main(int argc, char **argv) {
     assert(operand2 > 0ul);
     ans = calc_gcd(operand1, operand2, 0);
     cout << endl
-         << "GCD of " << operand1 << " and " << operand2 << " = " << ans
-         << endl << endl;
+         << "GCD of " << operand1 << " and " << operand2 << " = " << ans << endl
+         << endl;
   }
   exit(EXIT_SUCCESS);
 }

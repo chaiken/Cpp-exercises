@@ -1,7 +1,7 @@
 // Exercise 17, p. 64
 
-#include <iostream>
 #include <cstdlib>
+#include <iostream>
 
 using namespace std;
 

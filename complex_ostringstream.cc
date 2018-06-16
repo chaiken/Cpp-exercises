@@ -47,12 +47,12 @@ int main(int argc, char **argv) {
   double coeffs[3], realroot1, realroot2, sqrt_disc;
   ostringstream outbuf;
   while (get_coeffs(ifile, coeffs)) {
-    ofile << "coeffs: " << coeffs[0] << '\t' << coeffs[1]  << '\t' << coeffs[2]
-         << endl;
+    ofile << "coeffs: " << coeffs[0] << '\t' << coeffs[1] << '\t' << coeffs[2]
+          << endl;
     outbuf << "coeffs: " << coeffs[0] << '\t' << coeffs[1] << '\t' << coeffs[2]
-         << endl;
+           << endl;
     double discriminant = (coeffs[1] * coeffs[1]) - (4 * coeffs[0] * coeffs[2]),
-        denom = 1 / (2 * coeffs[0]);
+           denom = 1 / (2 * coeffs[0]);
     if ((discriminant > 0) && (sqrt_disc = sqrt(discriminant))) {
       realroot1 = (sqrt_disc - coeffs[1]) * denom;
       realroot2 = (-1 * sqrt_disc - coeffs[1]) * denom;
@@ -64,11 +64,13 @@ int main(int argc, char **argv) {
       complex<double> comproot1(-coeffs[1] * denom, -sqrt_disc * denom);
       complex<double> comproot2(-coeffs[1] * denom, sqrt_disc * denom);
       ofile << "roots: " << comproot1 << '\t' << comproot2 << endl;
-      outbuf << "roots: " << '\t' << comproot1 << '\t' << comproot2 << endl << endl;
+      outbuf << "roots: " << '\t' << comproot1 << '\t' << comproot2 << endl
+             << endl;
     }
     if (discriminant >= 0) {
       ofile << "roots: " << realroot1 << '\t' << realroot2 << endl;
-      outbuf << "roots: " << '\t' << realroot1 << '\t' << realroot2 << endl << endl;
+      outbuf << "roots: " << '\t' << realroot1 << '\t' << realroot2 << endl
+             << endl;
     }
   }
   // man std::ostringstream:

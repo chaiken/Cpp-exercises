@@ -1,5 +1,5 @@
-#include <iostream>
 #include <cstdlib>
+#include <iostream>
 
 using namespace std;
 
@@ -8,7 +8,7 @@ using namespace std;
 int main(void) {
   int consecutive = 0, current_run = 0;
   double heads = 0.0;
-  for (int i=ITERS; i > 0; i--) {
+  for (int i = ITERS; i > 0; i--) {
     //    if (rand() > (RAND_MAX/2)) {
     if (drand48() > 0.5) {
       heads += 1.0;
@@ -16,7 +16,7 @@ int main(void) {
       consecutive = (current_run > consecutive) ? current_run : consecutive;
     }
   }
-  cout << "Fractions HEADs is " << (heads/ITERS) << endl;
+  cout << "Fractions HEADs is " << (heads / ITERS) << endl;
   cout << "Consecutive HEADs is " << consecutive << endl;
   exit(EXIT_SUCCESS);
 }

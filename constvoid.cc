@@ -2,7 +2,7 @@
 
 using namespace std;
 
-void *memcpy(void* s1, const void* s2, unsigned n) {
+void *memcpy(void *s1, const void *s2, unsigned n) {
   char *from = s2, *to = s1;
 }
 

@@ -43,5 +43,6 @@ int main(void) {
 ///////////////////////////////////////////////////////////////////////////////
 //	[alison@bonnet Pohl (master)]$ ./time_recursive 		     //
 //	10 recursive iterations: 2432902008176640000 took 615 nanooseconds.  //
-//	10 non-recursive iterations: 2432902008176640000 took 508 nanooseconds.//
+//	10 non-recursive iterations: 2432902008176640000 took 508
+// nanooseconds.//
 ///////////////////////////////////////////////////////////////////////////////
