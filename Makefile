@@ -77,5 +77,9 @@ slist_main: slist_main.cc slist_lib.cc slist.h
 slist_lib_test: slist_lib.cc slist_lib_test.cc slist.h  $(GTEST_HEADERS)
 	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) slist_lib.cc slist_lib_test.cc -o $@
 
+slist_lib2_test: slist_lib2.cc slist_lib2_test.cc slist2.h  $(GTEST_HEADERS)
+	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) slist_lib2.cc slist_lib2_test.cc -o $@
+
+
 test: reverse_char_stack_lib_test
 	./reverse_char_stack_lib_test
