@@ -109,7 +109,6 @@ TEST(MatrixLibTest, SubmatrixConstructorSkipColumns) {
     testvec.push_back(i);
   }
   for (int i = 0; i < 5; i++) {
-    rows.push_back(1);
     if (is_even(i)) {
       cols.push_back(1);
     } else {
@@ -134,7 +133,6 @@ TEST(MatrixLibTest, SubmatrixConstructorSkipRows) {
     testvec.push_back(i);
   }
   for (int i = 0; i < 5; i++) {
-    cols.push_back(1);
     if (is_even(i)) {
       rows.push_back(1);
     } else {
@@ -150,6 +148,42 @@ TEST(MatrixLibTest, SubmatrixConstructorSkipRows) {
   ASSERT_EQ(tensor3.Element(0, 0), tensor2.Element(0, 0));
   ASSERT_EQ(tensor3.Element(1, 0), tensor2.Element(2, 0));
   ASSERT_EQ(tensor3.Element(2, 0), tensor2.Element(4, 0));
+}
+
+TEST(MatrixLibTest, TrivialDeterminantTest) {
+  vector<double> testvec;
+  for (int i = 0; i < 4; i++) {
+    testvec.push_back(i);
+  }
+  Matrix tensor2(2, 2, testvec);
+  PrintMatrix(tensor2);
+  ASSERT_EQ(-2, Determinant(tensor2, 0.0));
+}
+
+TEST(MatrixLibTest, DeterminantTest) {
+  vector<double> testvec;
+  for (int i = 0; i < 9; i++) {
+    testvec.push_back(i);
+  }
+  Matrix tensor2(3, 3, testvec);
+  PrintMatrix(tensor2);
+  ASSERT_EQ(0, Determinant(tensor2, 0.0));
+}
+
+TEST(MatrixLibTest, NonZeroDeterminantTest) {
+  vector<double> testvec;
+  for (int i = 0; i < 9; i++) {
+    if (is_even(i)) {
+      testvec.push_back(i);
+    } else {
+      testvec.push_back(2 * i);
+    }
+  }
+  Matrix tensor2(3, 3, testvec);
+  PrintMatrix(tensor2);
+  ASSERT_EQ(144, Determinant(tensor2, 0.0));
+  Matrix tensor3(tensor2, transpose);
+  ASSERT_EQ(144, Determinant(tensor3, 0.0));
 }
 
 } // testing

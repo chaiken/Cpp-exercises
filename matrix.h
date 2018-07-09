@@ -15,12 +15,12 @@ public:
   int ub1() const { return (size1_ - 1); }
   int ub2() const { return (size2_ - 1); }
   double &Element(int i, int j) const;
-  double Determinant(const Matrix &a);
 
 private:
   double **p_;
   int size1_, size2_;
 };
 
+double Determinant(const Matrix &a, double sum);
 void PrintMatrix(const Matrix &a);
 }

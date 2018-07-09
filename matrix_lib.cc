@@ -1,6 +1,7 @@
 #include "matrix.h"
 
 #include <cassert>
+#include <cmath>
 #include <cstdlib>
 
 #include <array>
@@ -131,6 +132,52 @@ Matrix::~Matrix() {
 double &Matrix::Element(int i, int j) const {
   assert(i >= 0 && i <= ub1() && j >= 0 && j <= ub2());
   return p_[i][j];
+}
+
+double Determinant(const Matrix &a, double sum) {
+  if (a.ub1() != a.ub2()) {
+    cout << "Only square matrices have determinants." << endl;
+    exit(EXIT_FAILURE);
+  }
+  if (a.ub1() < 1) {
+    return 0;
+  }
+  if (1 == (a.ub1())) {
+    cout << "Taking determinant of 2x2." << endl;
+    int val = ((a.Element(0, 0) * a.Element(1, 1)) -
+               (a.Element(0, 1) * a.Element(1, 0)));
+    cout << "Determinant of 2x2 is " << val << endl;
+    // For a 2x2 original matrix, the value below is the final result.
+    return val;
+  } else {
+    // A matrix of rank n has n-1 submatrices whose determinants must each be
+    // computed.
+    for (int i = 0; i <= a.ub1(); i++) {
+      // Initialize row-selection vector to all ones.
+      vector<int> rows;
+      for (int k = 0; k <= a.ub1(); k++) {
+        rows.push_back(1);
+      }
+      // We need to remove one row for each submatrix.
+      rows.at(i) = 0;
+
+      for (int j = 0; j <= a.ub2(); j++) {
+        // Initialize column-selection vector to all ones.
+        vector<int> cols;
+        for (int k = 0; k <= a.ub2(); k++) {
+          cols.push_back(1);
+        }
+        // We need to remove one column-vector for each submatrix.
+        cols.at(j) = 0;
+        Matrix submatrix(a, rows, cols);
+        cout << "Taking subdeterminant for " << i << "," << j << endl;
+        sum += pow(-1, j) * a.Element(i, j) * Determinant(submatrix, sum);
+        cout << "Sum is " << sum << " for i " << i << ",j " << j << endl;
+      }
+      cout << "Done with determinants for " << i << endl;
+    }
+  }
+  return sum;
 }
 
 void PrintMatrix(const Matrix &a) {
