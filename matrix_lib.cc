@@ -134,6 +134,18 @@ double &Matrix::Element(int i, int j) const {
   return p_[i][j];
 }
 
+// Helper function for submatrix definition.
+vector<int> ExcludeDesignatedElement(int elemnum, int to_exclude) {
+  // Initialize vector to all ones.
+  vector<int> vec;
+  for (int k = 0; k <= elemnum; k++) {
+    vec.push_back(1);
+  }
+  // We need to remove one element for each submatrix.
+  vec.at(to_exclude) = 0;
+  return (vec);
+}
+
 double Determinant(const Matrix &a, double sum) {
   if (a.ub1() != a.ub2()) {
     cout << "Only square matrices have determinants." << endl;
@@ -153,22 +165,14 @@ double Determinant(const Matrix &a, double sum) {
     // A matrix of rank n has n-1 submatrices whose determinants must each be
     // computed.
     for (int i = 0; i <= a.ub1(); i++) {
-      // Initialize row-selection vector to all ones.
-      vector<int> rows;
-      for (int k = 0; k <= a.ub1(); k++) {
-        rows.push_back(1);
-      }
-      // We need to remove one row for each submatrix.
-      rows.at(i) = 0;
+      // Initialize row-selection vector to all ones, then remove one row for
+      // each submatrix.
+      vector<int> rows = ExcludeDesignatedElement(a.ub1(), i);
 
       for (int j = 0; j <= a.ub2(); j++) {
-        // Initialize column-selection vector to all ones.
-        vector<int> cols;
-        for (int k = 0; k <= a.ub2(); k++) {
-          cols.push_back(1);
-        }
-        // We need to remove one column-vector for each submatrix.
-        cols.at(j) = 0;
+        // Initialize row-selection vector to all ones, then remove one row for
+        // each submatrix.
+        vector<int> cols = ExcludeDesignatedElement(a.ub2(), j);
         Matrix submatrix(a, rows, cols);
         cout << "Taking subdeterminant for " << i << "," << j << endl;
         sum += pow(-1, j) * a.Element(i, j) * Determinant(submatrix, sum);
