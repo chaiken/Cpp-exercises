@@ -5,6 +5,7 @@
 #include <cstdlib>
 
 #include <array>
+#include <complex>
 #include <iostream>
 #include <vector>
 
@@ -134,6 +135,15 @@ double &Matrix::Element(int i, int j) const {
   return p_[i][j];
 }
 
+double Trace(const Matrix &a) {
+  assert(a.ub1() == a.ub2());
+  double sum = 0.0;
+  for (int i = 0; i <= a.ub1(); i++) {
+    sum += a.Element(i, i);
+  }
+  return sum;
+}
+
 // Helper function for submatrix definition.
 vector<int> ExcludeDesignatedElement(int elemnum, int to_exclude) {
   // Initialize vector to all ones.
@@ -144,6 +154,53 @@ vector<int> ExcludeDesignatedElement(int elemnum, int to_exclude) {
   // We need to remove one element for each submatrix.
   vec.at(to_exclude) = 0;
   return (vec);
+}
+
+// x = -b/2a +- 1/2a * sqrt(b^2 - 4ac)
+// a = 0, b = 1, c = 2.
+array<complex<double>, 2> GetQuadraticRoots(const vector<double> coeffs) {
+  assert(3 == coeffs.size());
+  assert(coeffs.at(0) != 0.0);
+
+  complex<double> root1, root2;
+  array<complex<double>, 2> result;
+  double diff =
+      ((coeffs.at(1) * coeffs.at(1)) - (4 * coeffs.at(0) * coeffs.at(2)));
+  if (diff < 0) {
+    result[0] = {(-coeffs.at(1)) / (2 * coeffs.at(0)), sqrt(-diff)};
+    result[1] = {(-coeffs.at(1)) / (2 * coeffs.at(0)), -sqrt(-diff)};
+  } else {
+    double realroot0 = (-coeffs.at(1) + sqrt(diff)) / (2 * coeffs.at(0));
+    double realroot1 = (-coeffs.at(1) - sqrt(diff)) / (2 * coeffs.at(0));
+    result[0] = {realroot0, 0.0};
+    result[1] = {realroot1, 0.0};
+  }
+  // Notably, complex values are printed fine this way.
+  cout << "Eigenvalues are " << result[0] << '\t' << result[1] << endl;
+  return result;
+}
+
+vector<double> GetCharacteristicPolynomialCoefficients(const Matrix &a) {
+  assert(a.ub1() == a.ub2());
+  vector<double> coeffs;
+  // Coefficient of leading term is always (-)1.
+  coeffs.push_back(pow(-1.0, a.ub1() + 1));
+  // A 2x2 matrix with elements (a,b) in first row and (c,d) in second has
+  // characteristic polynomial (x^2 - (a+d)x + (ab-cd)).
+  if (1 == a.ub1()) {
+    coeffs.push_back(-1.0 * Trace(a));
+    coeffs.push_back(Determinant(a, 0.0));
+    cout << "Coefficients are " << coeffs.at(0) << '\t' << coeffs.at(1) << '\t'
+         << coeffs.at(2) << endl;
+    return coeffs;
+  }
+  for (int i = 0; i <= a.ub1(); i++) {
+    vector<int> excluded = ExcludeDesignatedElement(a.ub1(), i);
+    // Create the submatrix from which the coefficient will be calculated.
+    Matrix sub(a, excluded, excluded);
+    coeffs.push_back(Determinant(sub, 0.0));
+  }
+  return coeffs;
 }
 
 double Determinant(const Matrix &a, double sum) {

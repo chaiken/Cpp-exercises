@@ -2,6 +2,9 @@
 
 #include "gtest/gtest.h"
 
+#include <array>
+#include <complex>
+
 using namespace std;
 
 namespace matrix {
@@ -150,6 +153,16 @@ TEST(MatrixLibTest, SubmatrixConstructorSkipRows) {
   ASSERT_EQ(tensor3.Element(2, 0), tensor2.Element(4, 0));
 }
 
+TEST(MatrixLibTest, TraceTest) {
+  vector<double> testvec;
+  for (int i = 0; i < 25; i++) {
+    testvec.push_back(i);
+  }
+  Matrix tensor2(5, 5, testvec);
+  // {0, 6, 12, 18, 24}
+  ASSERT_EQ(60, Trace(tensor2));
+}
+
 TEST(MatrixLibTest, TrivialDeterminantTest) {
   vector<double> testvec;
   for (int i = 0; i < 4; i++) {
@@ -184,6 +197,21 @@ TEST(MatrixLibTest, NonZeroDeterminantTest) {
   ASSERT_EQ(144, Determinant(tensor2, 0.0));
   Matrix tensor3(tensor2, transpose);
   ASSERT_EQ(144, Determinant(tensor3, 0.0));
+}
+
+TEST(MatrixLibTest, TrivialCharacteristicPolynomialTest) {
+  // https://en.wikipedia.org/wiki/Eigenvalues_and_eigenvectors#Two-dimensional_matrix_example
+  vector<double> testvec = {2, 1, 1, 2};
+  Matrix tensor2(2, 2, testvec);
+  PrintMatrix(tensor2);
+  vector<double> coeffs = GetCharacteristicPolynomialCoefficients(tensor2);
+  ASSERT_EQ(1, coeffs.at(0));
+  ASSERT_EQ(-4, coeffs.at(1));
+  ASSERT_EQ(3, coeffs.at(2));
+
+  array<complex<double>, 2> roots = GetQuadraticRoots(coeffs);
+  ASSERT_EQ(3, roots[0].real());
+  ASSERT_EQ(1, roots[1].real());
 }
 
 } // testing

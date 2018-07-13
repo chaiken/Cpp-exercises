@@ -1,3 +1,5 @@
+#include <array>
+#include <complex>
 #include <vector>
 
 namespace matrix {
@@ -20,7 +22,14 @@ private:
   double **p_;
   int size1_, size2_;
 };
+// The characteristic polynomial is the sum of terms consisting of the diagonal
+// elements of the matrix minus lambda times the subdeterminant that multiples
+// that element.
 
+double Trace(const Matrix &a);
+::std::array<::std::complex<double>, 2>
+GetQuadraticRoots(const ::std::vector<double> coeffs);
+::std::vector<double> GetCharacteristicPolynomialCoefficients(const Matrix &a);
 double Determinant(const Matrix &a, double sum);
 void PrintMatrix(const Matrix &a);
 }
