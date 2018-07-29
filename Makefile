@@ -83,5 +83,8 @@ slist_lib2_test: slist_lib2.cc slist_lib2_test.cc slist2.h  $(GTEST_HEADERS)
 matrix_lib_test: matrix_lib.cc matrix_lib_test.cc matrix.h $(GTEST_HEADERS)
 	$(CC) $(CXXFLAGS) $(LDFLAGS) -lm $(GTESTLIBS) matrix_lib.cc matrix_lib_test.cc -o $@
 
+polynomial_lib_test: polynomial_lib.cc polynomial_lib_test.cc polynomial.h $(GTEST_HEADERS)
+	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) polynomial_lib.cc polynomial_lib_test.cc -o $@
+
 test: reverse_char_stack_lib_test
 	./reverse_char_stack_lib_test
