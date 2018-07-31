@@ -29,5 +29,24 @@ TEST(PolynomialTest, ReverseTest) {
   ASSERT_EQ(3, testpoly.Head().exponent);
   ASSERT_EQ(3.0, testpoly.Head().coefficient);
 }
+
+TEST(PolynomialTest, ReverseEmpty) {
+  Polynomial testpoly;
+  testpoly.Print();
+  testpoly.Reverse();
+}
+
+TEST(PolynomialTest, ReverseOneTerm) {
+  double coeffs[] = {1.0};
+  int expon[] = {1};
+  Polynomial testpoly(1, coeffs, expon);
+  testpoly.Print();
+  ASSERT_EQ(1, testpoly.Head().exponent);
+  ASSERT_EQ(1.0, testpoly.Head().coefficient);
+  testpoly.Reverse();
+  testpoly.Print();
+  ASSERT_EQ(1, testpoly.Head().exponent);
+  ASSERT_EQ(1.0, testpoly.Head().coefficient);
+}
 }
 }

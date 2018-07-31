@@ -15,7 +15,10 @@ public:
   Polynomial() : h_(0), degree_(0) {}
   Polynomial(const Polynomial &p);
   Polynomial(int size, double coef[], int expon[]);
-  ~Polynomial() { Release(); }
+  ~Polynomial() {
+    if (0 != h_)
+      Release();
+  }
   const term &Head() { return *h_; }
   void Print() const;
   void Reverse();

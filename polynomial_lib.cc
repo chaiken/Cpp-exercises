@@ -27,6 +27,9 @@ Polynomial::Polynomial(int size, double coef[], int expon[]) {
 
 void Polynomial::Release() {
   term *cursor, *t = h_;
+  if (!h_) {
+    return;
+  }
   while (t->next != 0) {
     cursor = t->next;
     delete t;
@@ -42,6 +45,9 @@ inline void Polynomial::Prepend(term *t) {
 
 void Polynomial::Print() const {
   term *cursor = h_;
+  if (!h_) {
+    return;
+  }
   cout << endl;
   do {
     cursor->print();
@@ -52,8 +58,12 @@ void Polynomial::Print() const {
   cout << endl;
 }
 
+// Far simpler than what appears in the text on p. 176.
 void Polynomial::Reverse() {
   term *predecessor = 0, *element, *successor = h_;
+  if (!h_) {
+    return;
+  }
   while (successor != 0) {
     element = successor;
     successor = successor->next;
