@@ -25,6 +25,22 @@ Polynomial::Polynomial(int size, double coef[], int expon[]) {
   degree_ = h_->exponent;
 }
 
+Polynomial::Polynomial(const Polynomial &p) {
+  degree_ = p.degree_;
+  h_ = new term(p.h_->exponent, p.h_->coefficient);
+  assert(h_ != 0);
+
+  term *cursor = p.h_->next;
+  term *t;
+  while (cursor != 0) {
+    t = new term(cursor->exponent, cursor->coefficient);
+    assert(t != 0);
+    Prepend(t);
+    cursor = cursor->next;
+  }
+  Reverse();
+}
+
 void Polynomial::Release() {
   term *cursor, *t = h_;
   if (!h_) {
