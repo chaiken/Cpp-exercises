@@ -12,24 +12,26 @@ struct term {
 
 class Polynomial {
 public:
-  Polynomial() : h_(0), degree_(0) {}
-  Polynomial(const Polynomial &p);
+  // Polynomial() : h_(0), degree_(0) {}
+  Polynomial() : h_(0) {}
   Polynomial(int size, double coef[], int expon[]);
+  // Copy constructor.
+  Polynomial(const Polynomial &p);
+  // Summing constructor.
+  Polynomial(const Polynomial &a, const Polynomial &b);
   ~Polynomial() {
     if (0 != h_)
       Release();
   }
-  const term &Head() { return *h_; }
+  const term &Head() const { return *h_; }
   void Print() const;
   void Reverse();
-  void Plus(Polynomial a, Polynomial b);
 
 private:
   term *h_;
-  int degree_;
-
-  void Prepend(term *t);
+  //  int degree_;
   void AddTerm(term *&a, term *&b);
+  void Prepend(term *t);
   void Release();
   void RestOf(term *rest);
 };

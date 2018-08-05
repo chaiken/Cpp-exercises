@@ -59,5 +59,18 @@ TEST(PolynomialTest, ReverseOneTerm) {
   ASSERT_EQ(1, testpoly.Head().exponent);
   ASSERT_EQ(1.0, testpoly.Head().coefficient);
 }
+
+TEST(PolynomialTest, AddTwoPolynomials) {
+  double coeffs[] = {1.0, 2.0, 3.0};
+  int expon[] = {1, 2, 3};
+  Polynomial testpoly1(3, coeffs, expon);
+  testpoly1.Print();
+  Polynomial testpoly2(testpoly1);
+  Polynomial sum(testpoly1, testpoly2);
+  sum.Print();
+  ASSERT_EQ(sum.Head().coefficient, 2 * testpoly1.Head().coefficient);
+  ASSERT_EQ(sum.Head().exponent, testpoly1.Head().exponent);
 }
-}
+
+} // testing
+} // polynomial

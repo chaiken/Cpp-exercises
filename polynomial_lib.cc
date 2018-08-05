@@ -7,6 +7,7 @@ using namespace std;
 namespace polynomial {
 
 // size is number of elements in coef[] and expon[].
+// degree_ is never used for anything, so ditch it.
 Polynomial::Polynomial(int size, double coef[], int expon[]) {
   // Head of list.
   term *temp = new term(expon[0], coef[0]);
@@ -22,11 +23,11 @@ Polynomial::Polynomial(int size, double coef[], int expon[]) {
     Prepend(temp);
   }
   // degree_ may have arbitary relationship to size if polynomial is sparse.
-  degree_ = h_->exponent;
+  // degree_ = h_->exponent;
 }
 
 Polynomial::Polynomial(const Polynomial &p) {
-  degree_ = p.degree_;
+  // degree_ = p.degree_;
   h_ = new term(p.h_->exponent, p.h_->coefficient);
   assert(h_ != 0);
 
@@ -37,6 +38,66 @@ Polynomial::Polynomial(const Polynomial &p) {
     assert(t != 0);
     Prepend(t);
     cursor = cursor->next;
+  }
+  Reverse();
+}
+
+void Polynomial::RestOf(term *t) {
+  while (t != 0) {
+    term *t = new term(t->exponent, t->coefficient);
+    assert(t != 0);
+    Prepend(t);
+    t = t->next;
+  }
+}
+
+// Instead of the stupid Plus() function.
+// FIX ME: going to bomb if one of the arguments is NULL.
+Polynomial::Polynomial(const Polynomial &a, const Polynomial &b) {
+  Polynomial sum;
+  term *cursorA = a.h_;
+  term *cursorB = b.h_;
+  if (cursorA->exponent > cursorB->exponent) {
+    h_ = new term(cursorA->exponent, cursorA->coefficient);
+    cursorA = cursorA->next;
+  } else if (cursorA->exponent < cursorB->exponent) {
+    h_ = new term(cursorB->exponent, cursorB->coefficient);
+    cursorB = cursorB->next;
+  } else {
+    // Exponents are equal.
+    h_ = new term(cursorA->exponent,
+                  cursorA->coefficient + cursorB->coefficient);
+    cursorA = cursorA->next;
+    cursorB = cursorB->next;
+  }
+
+  while ((cursorA != 0) && (cursorB != 0)) {
+    if (cursorA->exponent > cursorB->exponent) {
+      term *t = new term(cursorA->exponent, cursorA->coefficient);
+      assert(t != 0);
+      Prepend(t);
+      cursorA = cursorA->next;
+    } else if (cursorA->exponent < cursorB->exponent) {
+      term *t = new term(cursorB->exponent, cursorB->coefficient);
+      assert(t != 0);
+      Prepend(t);
+      cursorB = cursorB->next;
+    } else {
+      // Exponents are equal.
+      term *t = new term(cursorA->exponent,
+                         cursorA->coefficient + cursorB->coefficient);
+      assert(t != 0);
+      Prepend(t);
+      cursorA = cursorA->next;
+      cursorB = cursorB->next;
+    }
+  }
+
+  if (0 == cursorA) {
+    RestOf(cursorB);
+  }
+  if (0 == cursorB) {
+    RestOf(cursorA);
   }
   Reverse();
 }
