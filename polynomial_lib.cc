@@ -6,6 +6,29 @@ using namespace std;
 
 namespace polynomial {
 
+namespace {
+term *AddTerms(term **termAp, term **termBp) {
+  term *t;
+  if ((*termAp)->exponent > (*termBp)->exponent) {
+    t = new term((*termAp)->exponent, (*termAp)->coefficient);
+    assert(t != 0);
+    (*termAp) = (*termAp)->next;
+  } else if ((*termAp)->exponent < (*termBp)->exponent) {
+    t = new term((*termBp)->exponent, (*termBp)->coefficient);
+    assert(t != 0);
+    (*termBp) = (*termBp)->next;
+  } else {
+    // Exponents are equal.
+    t = new term((*termAp)->exponent,
+                 (*termAp)->coefficient + (*termBp)->coefficient);
+    assert(t != 0);
+    (*termAp) = (*termAp)->next;
+    (*termBp) = (*termBp)->next;
+  }
+  return t;
+}
+}
+
 // size is number of elements in coef[] and expon[].
 // degree_ is never used for anything, so ditch it.
 Polynomial::Polynomial(int size, double coef[], int expon[]) {
@@ -57,40 +80,12 @@ Polynomial::Polynomial(const Polynomial &a, const Polynomial &b) {
   Polynomial sum;
   term *cursorA = a.h_;
   term *cursorB = b.h_;
-  if (cursorA->exponent > cursorB->exponent) {
-    h_ = new term(cursorA->exponent, cursorA->coefficient);
-    cursorA = cursorA->next;
-  } else if (cursorA->exponent < cursorB->exponent) {
-    h_ = new term(cursorB->exponent, cursorB->coefficient);
-    cursorB = cursorB->next;
-  } else {
-    // Exponents are equal.
-    h_ = new term(cursorA->exponent,
-                  cursorA->coefficient + cursorB->coefficient);
-    cursorA = cursorA->next;
-    cursorB = cursorB->next;
-  }
+
+  h_ = AddTerms(&cursorA, &cursorB);
 
   while ((cursorA != 0) && (cursorB != 0)) {
-    if (cursorA->exponent > cursorB->exponent) {
-      term *t = new term(cursorA->exponent, cursorA->coefficient);
-      assert(t != 0);
-      Prepend(t);
-      cursorA = cursorA->next;
-    } else if (cursorA->exponent < cursorB->exponent) {
-      term *t = new term(cursorB->exponent, cursorB->coefficient);
-      assert(t != 0);
-      Prepend(t);
-      cursorB = cursorB->next;
-    } else {
-      // Exponents are equal.
-      term *t = new term(cursorA->exponent,
-                         cursorA->coefficient + cursorB->coefficient);
-      assert(t != 0);
-      Prepend(t);
-      cursorA = cursorA->next;
-      cursorB = cursorB->next;
-    }
+    term *t = AddTerms(&cursorA, &cursorB);
+    Prepend(t);
   }
 
   if (0 == cursorA) {
