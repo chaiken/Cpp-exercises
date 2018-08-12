@@ -7,13 +7,18 @@ using namespace std;
 namespace polynomial {
 
 namespace {
+
+// Add two Polynomial terms.  Since the terms are passed in and returned as
+// pointers, the function need not be a class member.
 term *AddTerms(term **termAp, term **termBp) {
   term *t;
-  if ((*termAp)->exponent > (*termBp)->exponent) {
+  // If the one of the terms passed in is NULL, return a copy of the one that is
+  // not.
+  if ((0 == *termBp) || ((*termAp)->exponent > (*termBp)->exponent)) {
     t = new term((*termAp)->exponent, (*termAp)->coefficient);
     assert(t != 0);
     (*termAp) = (*termAp)->next;
-  } else if ((*termAp)->exponent < (*termBp)->exponent) {
+  } else if ((0 == *termAp) || ((*termAp)->exponent < (*termBp)->exponent)) {
     t = new term((*termBp)->exponent, (*termBp)->coefficient);
     assert(t != 0);
     (*termBp) = (*termBp)->next;
@@ -65,11 +70,13 @@ Polynomial::Polynomial(const Polynomial &p) {
   Reverse();
 }
 
+// When adding two Polynomials, if one has terms of lower degree than the other,
+// just Prepend() all of them.
 void Polynomial::RestOf(term *t) {
   while (t != 0) {
-    term *t = new term(t->exponent, t->coefficient);
-    assert(t != 0);
-    Prepend(t);
+    term *copy = new term(t->exponent, t->coefficient);
+    assert(copy != 0);
+    Prepend(copy);
     t = t->next;
   }
 }
@@ -77,7 +84,6 @@ void Polynomial::RestOf(term *t) {
 // Instead of the stupid Plus() function.
 // FIX ME: going to bomb if one of the arguments is NULL.
 Polynomial::Polynomial(const Polynomial &a, const Polynomial &b) {
-  Polynomial sum;
   term *cursorA = a.h_;
   term *cursorB = b.h_;
 
@@ -88,10 +94,10 @@ Polynomial::Polynomial(const Polynomial &a, const Polynomial &b) {
     Prepend(t);
   }
 
-  if (0 == cursorA) {
+  if ((0 == cursorA) && (0 != cursorB)) {
     RestOf(cursorB);
   }
-  if (0 == cursorB) {
+  if ((0 == cursorB) && (0 != cursorA)) {
     RestOf(cursorA);
   }
   Reverse();
