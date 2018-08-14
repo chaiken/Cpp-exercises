@@ -1,6 +1,12 @@
+#include <array>
 #include <iostream>
 
 namespace polynomial {
+
+// Numerically sort array1, and reorder array2 the same way.
+template <long unsigned int N>
+void SyncSortTwoArrays(::std::array<int, N> *arr1,
+                       ::std::array<double, N> *arr2, int index);
 
 struct term {
   term(int e, double c, term *n = 0) : exponent(e), coefficient(c), next(n) {}
@@ -14,7 +20,8 @@ class Polynomial {
 public:
   // Polynomial() : h_(0), degree_(0) {}
   Polynomial() : h_(0) {}
-  Polynomial(int size, double coef[], int expon[]);
+  template <long unsigned int N>
+  Polynomial(::std::array<double, N> coef, ::std::array<int, N> expon);
   // Copy constructor.
   Polynomial(const Polynomial &p);
   // Summing constructor.
@@ -30,9 +37,11 @@ public:
 private:
   term *h_;
   //  int degree_;
-  void AddTerm(term *&a, term *&b);
   void Prepend(term *t);
   void Release();
   void RestOf(term *rest);
 };
-}
+
+} // namespace polynomial
+
+#include "polynomial_impl.h"

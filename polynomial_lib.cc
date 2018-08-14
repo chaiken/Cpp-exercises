@@ -32,27 +32,7 @@ term *AddTerms(term **termAp, term **termBp) {
   }
   return t;
 }
-}
-
-// size is number of elements in coef[] and expon[].
-// degree_ is never used for anything, so ditch it.
-Polynomial::Polynomial(int size, double coef[], int expon[]) {
-  // Head of list.
-  term *temp = new term(expon[0], coef[0]);
-  assert(temp != 0);
-  h_ = 0;
-  Prepend(temp);
-
-  // Other nodes.
-  for (int i = 1; i < size; i++) {
-    assert(expon[i - 1] < expon[i]);
-    term *temp = new term(expon[i], coef[i]);
-    assert(temp != 0);
-    Prepend(temp);
-  }
-  // degree_ may have arbitary relationship to size if polynomial is sparse.
-  // degree_ = h_->exponent;
-}
+} // namespace
 
 Polynomial::Polynomial(const Polynomial &p) {
   // degree_ = p.degree_;
@@ -150,4 +130,4 @@ void Polynomial::Reverse() {
   }
   h_ = element;
 }
-}
+} // namespace polynomial
