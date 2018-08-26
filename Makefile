@@ -12,6 +12,7 @@ USER_DIR = .
 # http://www.valgrind.org/docs/manual/quick-start.html#quick-start.prepare
 # Compile your program with -g . . . Using -O0 is also a good idea, 
 CXXFLAGS= -ggdb -Wall -Wextra -g -O0 -fno-inline -fsanitize=address -I$(GTEST_HEADERS)
+#CXXFLAGS= -ggdb -Wall -Wextra -g -O0 -fno-inline -I$(GTEST_HEADERS)
 # Set Google Test's header directory as a system directory, such that
 # the compiler doesn't generate warnings in Google Test headers.
 CPPFLAGS += -isystem $(GTEST_DIR)/include
@@ -83,8 +84,11 @@ slist_lib2_test: slist_lib2.cc slist_lib2_test.cc slist2.h  $(GTEST_HEADERS)
 matrix_lib_test: matrix_lib.cc matrix_lib_test.cc matrix.h $(GTEST_HEADERS)
 	$(CC) $(CXXFLAGS) $(LDFLAGS) -lm $(GTESTLIBS) matrix_lib.cc matrix_lib_test.cc -o $@
 
-polynomial_lib_test: polynomial_lib.cc polynomial_lib_test.cc polynomial.h $(GTEST_HEADERS)
+polynomial_lib_test: polynomial_lib.cc polynomial_lib_test.cc polynomial.h polynomial_impl.h $(GTEST_HEADERS)
 	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) polynomial_lib.cc polynomial_lib_test.cc -o $@
+
+reference_count_string_test: reference_count_string.h reference_count_string.cc reference_count_string_test.cc $(GTEST_HEADERS)
+	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) reference_count_string.cc reference_count_string_test.cc -o $@
 
 test: reverse_char_stack_lib_test
 	./reverse_char_stack_lib_test
