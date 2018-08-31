@@ -4,6 +4,8 @@ namespace rational {
 
 constexpr int kMult = 100;
 
+int GCD(int i, int j);
+
 class Rational {
 public:
   Rational(int n = 0) : a_(n), q_(1) {}

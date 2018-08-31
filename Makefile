@@ -90,8 +90,8 @@ polynomial_lib_test: polynomial_lib.cc polynomial_lib_test.cc polynomial.h polyn
 reference_count_string_test: reference_count_string.h reference_count_string.cc reference_count_string_test.cc $(GTEST_HEADERS)
 	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) reference_count_string.cc reference_count_string_test.cc -o $@
 
-rational_lib_test: rational_lib_test.cc rational.h $(GTEST_HEADERS)
-	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) rational_lib_test.cc -o $@
+rational_lib_test: rational_lib.cc rational_lib_test.cc rational.h $(GTEST_HEADERS)
+	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) rational_lib.cc rational_lib_test.cc -o $@
 
 
 test: reverse_char_stack_lib_test
