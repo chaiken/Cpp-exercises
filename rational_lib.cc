@@ -42,4 +42,16 @@ Rational::Rational(int i, int j) {
   }
 }
 
+bool Rational::operator<(const Rational &r) const {
+  assert(r.q_ != 0);
+  assert(q_ != 0);
+  return ((a_ / q_) < (r.a_ / r.q_));
+}
+
+bool Rational::operator>(const Rational &r) const {
+  assert(r.q_ != 0);
+  assert(q_ != 0);
+  return ((a_ / q_) > (r.a_ / r.q_));
+}
+
 } // namespace rational

@@ -49,5 +49,17 @@ TEST(RationalLibTest, RationalIntGreater) {
   EXPECT_EQ(i, Greater(static_cast<Rational>(i), z));
 }
 
+TEST(RationalLibTest, RationalsGreater) {
+  Rational a(40, 5), b(10, 2);
+  a.Print();
+  b.Print();
+  EXPECT_TRUE(a > b);
+}
+
+TEST(RationalLibTest, RationalsLess) {
+  Rational a(40, 5), b(10, 2);
+  EXPECT_TRUE(b < a);
+}
+
 } // namespace testing
 } // namespace rational

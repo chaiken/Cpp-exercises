@@ -37,6 +37,8 @@ public:
   bool operator==(const Rational &r) const {
     return ((r.a_ == a_) && (r.q_ == q_));
   }
+  bool operator>(const Rational &r) const;
+  bool operator<(const Rational &r) const;
 
 private:
   long a_, q_;
