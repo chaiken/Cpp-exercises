@@ -99,4 +99,4 @@ DoubleVector SumVectors(const DoubleVector &a, const DoubleVector &b) {
   DoubleVector c(a);
   return c.Add(b);
 }
-}
+} // namespace dbl_vect

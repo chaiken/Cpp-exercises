@@ -1,5 +1,7 @@
 #include "matrix.h"
 
+#include "dbl_vector.h"
+
 #include <cassert>
 #include <cmath>
 #include <cstdlib>
@@ -10,6 +12,12 @@
 #include <vector>
 
 using namespace std;
+
+// Needed so that the definition of the Multiply friend function compiles.   The
+// header file above is not enough!
+namespace dbl_vect {
+class DoubleVector;
+}
 
 namespace matrix {
 Matrix::Matrix(int d1, int d2) : size1_(d1), size2_(d2) {
@@ -251,4 +259,26 @@ void PrintMatrix(const Matrix &a) {
     cout << endl;
   }
 }
+
+// The friend function of both DoubleVector and Matrix, which is a member of
+// neither.
+dbl_vect::DoubleVector Multiply(const dbl_vect::DoubleVector &v,
+                                const Matrix &m) {
+  // v is a column vector.  We multiply it by the size1_ row vectors of m, each
+  // with size2_ elements.
+  assert(v.size_ == m.size2_);
+  dbl_vect::DoubleVector ans(m.size2_);
+  int i, j;
+
+  // Iterate over the row vectors in m.
+  for (i = 0; i <= m.ub1(); i++) {
+    ans.p_[i] = 0;
+    // Iterate over the columns of the given row vector.
+    for (j = 0; j <= m.ub2(); j++) {
+      ans.p_[i] += v.p_[j] * m.p_[i][j];
+    }
+  }
+  return ans;
 }
+
+} // namespace matrix

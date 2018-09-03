@@ -1,3 +1,4 @@
+#include "dbl_vector.h"
 #include "matrix.h"
 
 #include "gtest/gtest.h"
@@ -214,5 +215,31 @@ TEST(MatrixLibTest, TrivialCharacteristicPolynomialTest) {
   ASSERT_EQ(1, roots[1].real());
 }
 
-} // testing
-} // matrix
+TEST(MatrixLibTest, SquareMultiplyTest) {
+  double twofer_in[] = {1.0, 2.0};
+  dbl_vect::DoubleVector vec(twofer_in, 2);
+  vector<double> testvec = {1.0, 2.0, 3.0, 4.0};
+  Matrix tensor(2, 2, testvec);
+  PrintMatrix(tensor);
+  dbl_vect::DoubleVector ans = matrix::Multiply(vec, tensor);
+  EXPECT_EQ(vec.ub(), ans.ub());
+  EXPECT_EQ(5, ans.element(0));
+  EXPECT_EQ(11, ans.element(1));
+  EXPECT_EQ(16, ans.SumElements());
+}
+
+TEST(MatrixLibTest, RectangularMultiplyTest) {
+  double threefer_in[] = {1.0, 2.0, 3.0};
+  dbl_vect::DoubleVector vec(threefer_in, 3);
+  vector<double> testvec = {1.0, 2.0, 3.0, 4.0, 5.0, 6.0};
+  Matrix tensor(2, 3, testvec);
+  PrintMatrix(tensor);
+  dbl_vect::DoubleVector ans = matrix::Multiply(vec, tensor);
+  EXPECT_EQ(vec.ub(), ans.ub());
+  EXPECT_EQ(14, ans.element(0));
+  EXPECT_EQ(32, ans.element(1));
+  EXPECT_EQ(46.0, ans.SumElements());
+}
+
+} // namespace testing
+} // namespace matrix
