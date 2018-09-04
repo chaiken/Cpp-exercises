@@ -1,0 +1,89 @@
+https://stackoverflow.com/questions/16718166/friend-function-declaration-definition-inside-a-namespace
+Q.: Why do I have to declare a friend function twice?
+Because the friend declaration does not provide a usable declaration of the
+function in the namespace. It declares that, if that function is declared in
+that namespace, it will be a friend.
+
+How to add a cross-namespace friend function
+
+0. Add the function implementation to one of the namespaces, here matrix in matrix_lib.cc.
+
+// The friend function of both DoubleVector and Matrix, which is a member of
+// neither.
+  dbl_vect::DoubleVector Multiply(const dbl_vect::DoubleVector &v, const Matrix &m)
+
+Note the second namespace, dbl_vect, is explicitly given.
+
+1. Include the header file for the second class, here dbl_vector.h.
+
+2. Add the function to the header as is appropriate for a non-member function,
+here in matrix.h:
+
+  dbl_vect::DoubleVector Multiply(const dbl_vect::DoubleVector &v, const Matrix &m);
+
+3. Also list the function as a friend under methods of the class, here Matrix:
+
+  friend dbl_vect::DoubleVector Multiply(const dbl_vect::DoubleVector &v, const Matrix &m);
+
+4. Do NOT include the second namespace's header file (dbl_vector.h) in the first
+(matrix.h).  Instead, put a forward declaration of the object in the other
+namespace whose private elements will be accessed by the function:
+
+  namespace dbl_vect {
+  class DoubleVector;
+  }
+
+5. In the second class, no non-member declaration is needed, as that is provided
+by the first class.
+
+6. Do list the function under the second class' methods (here DoubleVector) as a friend:
+
+  friend DoubleVector matrix::Multiply(const DoubleVector &v, const matrix::Matrix &m);
+
+Here, the first namespace is explicitly called out both for the variables and
+the method itself.
+
+7. Do not include the header for the first class in the second header.
+Instead, forward-declare both the class that is defined in the second header
+(DoubleVector)
+
+  // This forward declaration is needed so that the forward declaration of
+  // Multiply compiles.
+  namespace dbl_vect {
+  class DoubleVector;
+  }
+
+and the second class (Matrix) plus the non-member function (Multiply):
+
+  // Both these forward declarations are needed so that the friend declaration
+  // inside DoubleVector compiles.  Note that we do not need to include the
+  // matrix.h header here even though we need to include dbl_vector.h inside
+  // matrix.h.  That's because the function definition is part of matrix_lib.cc
+  // and needs the symbols of dbl_vector.cc.
+  namespace matrix {
+  class Matrix;
+  dbl_vect::DoubleVector Multiply(const dbl_vect::DoubleVector &v, const Matrix &m);
+  } // namespace matrix
+
+Even though the file is dbl_vector.h, we must specify dbl_vect namespace inside
+the matrix namespace.
+
+8. Add the library for the second class (dbl_vector.cc) to the build rules for
+the binary for the first class (matrix_lib_test):
+
+matrix_lib_test: matrix_lib.cc matrix_lib_test.cc matrix.h dbl_vector.h dbl_vector_lib.cc $(GTEST_HEADERS)
+	$(CC) $(CXXFLAGS) $(LDFLAGS) -lm $(GTESTLIBS) matrix_lib.cc matrix_lib_test.cc dbl_vector_lib.cc -o $@
+
+9. Add the header for the second class (dbl_vector.h) to the binary for the
+first class (matrix_lib_test.cc):
+
+   #include "dbl_vector.h"
+
+10. Call the friend function and constructor of the second class (DoubleVector)
+from the binary:
+
+  dbl_vect::DoubleVector vec(threefer_in, 3);
+  dbl_vect::DoubleVector ans = matrix::Multiply(vec, tensor);
+
+
+
