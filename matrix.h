@@ -24,6 +24,7 @@ public:
   int ub1() const { return (size1_ - 1); }
   int ub2() const { return (size2_ - 1); }
   double &Element(int i, int j) const;
+  friend Matrix Add(const dbl_vect::DoubleVector &v, const Matrix &m);
   friend dbl_vect::DoubleVector Multiply(const dbl_vect::DoubleVector &v,
                                          const Matrix &m);
 
@@ -47,6 +48,7 @@ void PrintMatrix(const Matrix &a);
 // Because the friend declaration does not provide a usable declaration of the
 // function in the namespace. It declares that, if that function is declared in
 // that namespace, it will be a friend.
+Matrix Add(const dbl_vect::DoubleVector &v, const Matrix &m);
 dbl_vect::DoubleVector Multiply(const dbl_vect::DoubleVector &v,
                                 const Matrix &m);
 } // namespace matrix

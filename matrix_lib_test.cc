@@ -241,5 +241,19 @@ TEST(MatrixLibTest, RectangularMultiplyTest) {
   EXPECT_EQ(46.0, ans.SumElements());
 }
 
+TEST(MatrixLibTest, AddVectorTest) {
+  double threefer_in[] = {1.0, 2.0, 3.0};
+  dbl_vect::DoubleVector vec(threefer_in, 3);
+  vector<double> testvec = {1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0};
+  Matrix tensor(3, 3, testvec);
+  Matrix ans = Add(vec, tensor);
+  PrintMatrix(ans);
+  EXPECT_EQ(ans.ub1(), tensor.ub1());
+  EXPECT_EQ(ans.ub2(), tensor.ub2());
+  EXPECT_EQ(21.0, Trace(ans));
+  EXPECT_EQ(2.0, ans.Element(0, 0));
+  EXPECT_EQ(0, Determinant(ans, 0.0));
+}
+
 } // namespace testing
 } // namespace matrix

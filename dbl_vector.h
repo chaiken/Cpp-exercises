@@ -17,6 +17,7 @@ class DoubleVector;
 // and needs the symbols of dbl_vector.cc.
 namespace matrix {
 class Matrix;
+Matrix Add(const dbl_vect::DoubleVector &v, const Matrix &m);
 dbl_vect::DoubleVector Multiply(const dbl_vect::DoubleVector &v,
                                 const Matrix &m);
 } // namespace matrix
@@ -40,6 +41,8 @@ public:
   double DotProduct(const DoubleVector &v) const;
   double Amplitude() const;
   void Scale(const double scale);
+  friend matrix::Matrix matrix::Add(const DoubleVector &v,
+                                    const matrix::Matrix &m);
   friend DoubleVector matrix::Multiply(const DoubleVector &v,
                                        const matrix::Matrix &m);
 

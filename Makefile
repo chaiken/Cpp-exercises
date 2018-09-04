@@ -11,7 +11,7 @@ USER_DIR = .
 
 # http://www.valgrind.org/docs/manual/quick-start.html#quick-start.prepare
 # Compile your program with -g . . . Using -O0 is also a good idea, 
-CXXFLAGS= -ggdb -Wall -Wextra -g -O0 -fno-inline -fsanitize=address -I$(GTEST_HEADERS)
+CXXFLAGS= -ggdb -Wall -Wextra -g -O0 -fno-inline -fsanitize=undefined -I$(GTEST_HEADERS)
 #CXXFLAGS= -ggdb -Wall -Wextra -g -O0 -fno-inline -I$(GTEST_HEADERS)
 # Set Google Test's header directory as a system directory, such that
 # the compiler doesn't generate warnings in Google Test headers.

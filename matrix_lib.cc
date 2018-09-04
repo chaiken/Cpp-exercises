@@ -260,6 +260,20 @@ void PrintMatrix(const Matrix &a) {
   }
 }
 
+// Add the elements of v to each row of m.
+Matrix Add(const dbl_vect::DoubleVector &v, const Matrix &m) {
+  assert(v.size_ == m.size2_);
+  Matrix ans(m, copy);
+
+  int i, j;
+  for (i = 0; i <= m.ub1(); i++) {
+    for (j = 0; j <= m.ub2(); j++) {
+      ans.p_[i][j] = m.p_[i][j] + v.p_[j];
+    }
+  }
+  return ans;
+}
+
 // The friend function of both DoubleVector and Matrix, which is a member of
 // neither.
 dbl_vect::DoubleVector Multiply(const dbl_vect::DoubleVector &v,
