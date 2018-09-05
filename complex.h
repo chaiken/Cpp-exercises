@@ -48,6 +48,8 @@ public:
   // Make +, -, * and == friend functions, as a symmetric invocation for binary
   // operators is most natural.
   friend Complex operator+(const Complex &x, const Complex &y);
+  friend Complex operator+(const Complex &x, const double m);
+  friend Complex operator+(const double m, const Complex &x);
   friend Complex operator-(const Complex &x, const Complex &y);
   friend Complex operator*(const Complex &x, const Complex &y);
   friend bool operator==(const Complex &x, const Complex &y);
@@ -58,6 +60,10 @@ private:
 
 ::std::ostream &operator<<(::std::ostream &out, Complex x);
 Complex operator+(const Complex &x, const Complex &y);
+// Both versions are needed, as addition is commutative, but the compiler won't
+// match invocations with reversed parameters.
+Complex operator+(const Complex &x, const double m);
+Complex operator+(const double m, const Complex &x);
 Complex operator-(const Complex &x, const Complex &y);
 Complex operator*(const Complex &x, const Complex &y);
 bool operator==(const Complex &x, const Complex &y);

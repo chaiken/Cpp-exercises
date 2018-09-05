@@ -70,4 +70,11 @@ Complex operator*(const Complex &x, const Complex &y) {
   return product;
 }
 
+Complex operator+(const Complex &x, const double m) {
+  Complex sum(x.real_ + m, x.imag_ + m);
+  return sum;
+}
+
+Complex operator+(const double m, const Complex &x) { return (x + m); }
+
 } // namespace complex

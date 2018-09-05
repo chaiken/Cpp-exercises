@@ -69,5 +69,13 @@ TEST(ComplexLibTest, MultiplyTest) {
   EXPECT_TRUE(third == fourth);
 }
 
+TEST(ComplexLibTest, AddDoubleTest) {
+  Complex first(3.0, 4.0);
+  Complex second = first + -3.0;
+  Complex third = 3.0 + second;
+  EXPECT_FALSE(first == second);
+  EXPECT_TRUE(first == third);
+}
+
 } // namespace testing
 } // namespace complex
