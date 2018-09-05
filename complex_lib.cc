@@ -77,4 +77,10 @@ Complex operator+(const Complex &x, const double m) {
 
 Complex operator+(const double m, const Complex &x) { return (x + m); }
 
+// error: ‘double complex::operator=(double, const complex::Complex&)’ must be a
+// nonstatic member function
+// double operator=(double d, const Complex &x) {
+//  return x.real_;
+// }
+
 } // namespace complex

@@ -18,7 +18,9 @@ TEST(ComplexLibTest, DoubleTest) {
   -first;
   EXPECT_EQ(sqrt(25.0), double(first));
   // overloaded << operator.
-  cout << first;
+  // It was not obvious that "<< endl" would still work, but type resolution
+  // will choose the correct match.
+  cout << first << endl;
 }
 
 TEST(ComplexLibTest, DotProductTest) {
@@ -40,6 +42,7 @@ TEST(ComplexLibTest, InnerAngleTest) {
   EXPECT_EQ(M_PI_2, first.InnerAngle(third));
 }
 
+// Also tests overloaded == operator.
 TEST(ComplexLibTest, AddTest) {
   Complex first(3.0, 4.0);
   cout << first << endl;
@@ -75,6 +78,21 @@ TEST(ComplexLibTest, AddDoubleTest) {
   Complex third = 3.0 + second;
   EXPECT_FALSE(first == second);
   EXPECT_TRUE(first == third);
+}
+
+// No need to create Complex::operator=() or friend operator=(),
+// as compiler-generated assignment operator works fine.
+TEST(ComplexLibTest, AssignmentTest) {
+  Complex first(3.0, 4.0);
+  cout << first << endl;
+  Complex second(-1.0, -1.0);
+  // Also works: second=(first);
+  second = first;
+  cout << second << endl;
+  EXPECT_TRUE(second == first);
+  double d = first;
+  EXPECT_FALSE(3.0 == d);
+  EXPECT_TRUE(5.0 == d);
 }
 
 } // namespace testing

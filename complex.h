@@ -52,6 +52,10 @@ public:
   friend Complex operator+(const double m, const Complex &x);
   friend Complex operator-(const Complex &x, const Complex &y);
   friend Complex operator*(const Complex &x, const Complex &y);
+  // error: ‘double complex::operator=(double, const complex::Complex&)’ must be
+  // a nonstatic member function
+  // Overloading operator= requires two operands of the same type.
+  // friend double operator=(double d, const Complex &x);
   friend bool operator==(const Complex &x, const Complex &y);
 
 private:
@@ -66,6 +70,9 @@ Complex operator+(const Complex &x, const double m);
 Complex operator+(const double m, const Complex &x);
 Complex operator-(const Complex &x, const Complex &y);
 Complex operator*(const Complex &x, const Complex &y);
+// error: ‘double complex::operator=(double, const complex::Complex&)’ must be
+// a nonstatic member function
+// double operator=(double d, const Complex &x);
 bool operator==(const Complex &x, const Complex &y);
 } // namespace complex
 
