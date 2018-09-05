@@ -27,10 +27,12 @@ public:
   void print() const {
     ::std::cout << real_ << " + " << imag_ << "i" << ::std::endl;
   }
-  double DotProduct(const Complex &x);
+  double DotProduct(const Complex &x) const;
+  double InnerAngle(Complex &x);
   // The name of the operator must be double(), as "modulus" is not an operator
   // that can be overridden, and new operators cannot be created.
   operator double() { return (sqrt(real_ * real_ + imag_ * imag_)); }
+  // Reverse the vector.
   void operator-();
   friend ::std::ostream &operator<<(::std::ostream &out, Complex x);
 

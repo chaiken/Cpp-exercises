@@ -30,5 +30,15 @@ TEST(ComplexLibTest, DotProductTest) {
   EXPECT_EQ(-1 * amplitude, first.DotProduct(second));
 }
 
+TEST(ComplexLibTest, InnerAngleTest) {
+  Complex first(3.0, 4.0);
+  Complex second(3.0, 4.0);
+  EXPECT_EQ(0, first.InnerAngle(second));
+  -second;
+  EXPECT_EQ(M_PI, first.InnerAngle(second));
+  Complex third(4.0, -3.0);
+  EXPECT_EQ(M_PI_2, first.InnerAngle(third));
+}
+
 } // namespace testing
 } // namespace complex
