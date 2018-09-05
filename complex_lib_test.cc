@@ -40,5 +40,34 @@ TEST(ComplexLibTest, InnerAngleTest) {
   EXPECT_EQ(M_PI_2, first.InnerAngle(third));
 }
 
+TEST(ComplexLibTest, AddTest) {
+  Complex first(3.0, 4.0);
+  cout << first << endl;
+  Complex second(1.0, 2.0);
+  cout << second << endl;
+  Complex third(4.0, 6.0);
+  cout << third << endl;
+  Complex fourth = first + second;
+  cout << fourth << endl;
+  EXPECT_TRUE(third == fourth);
+}
+
+TEST(ComplexLibTest, SubtractTest) {
+  Complex first(3.0, 4.0);
+  Complex third;
+  cout << third << endl;
+  Complex fourth = first - first;
+  cout << fourth << endl;
+  EXPECT_TRUE(third == fourth);
+}
+
+TEST(ComplexLibTest, MultiplyTest) {
+  Complex first(3.0, 4.0);
+  Complex second(1.0 / 3.0, 1.0 / 4.0);
+  Complex third = first * second;
+  Complex fourth(1.0, 1.0);
+  EXPECT_TRUE(third == fourth);
+}
+
 } // namespace testing
 } // namespace complex

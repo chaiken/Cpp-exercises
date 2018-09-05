@@ -45,4 +45,29 @@ double Complex::InnerAngle(Complex &x) {
   return ans;
 }
 
+// These next two binary operator rely on the Complex(double ri[2]) constructor
+// to convert their return values to a Complex object.
+Complex operator+(const Complex &x, const Complex &y) {
+  double coeffs[2];
+  coeffs[0] = x.real_ + y.real_;
+  coeffs[1] = x.imag_ + y.imag_;
+  return coeffs;
+}
+
+Complex operator-(const Complex &x, const Complex &y) {
+  double coeffs[2];
+  coeffs[0] = x.real_ - y.real_;
+  coeffs[1] = x.imag_ - y.imag_;
+  return coeffs;
+}
+
+bool operator==(const Complex &x, const Complex &y) {
+  return ((x.real_ == y.real_) && (x.imag_ == y.imag_));
+}
+
+Complex operator*(const Complex &x, const Complex &y) {
+  Complex product(x.real_ * y.real_, x.imag_ * y.imag_);
+  return product;
+}
+
 } // namespace complex
