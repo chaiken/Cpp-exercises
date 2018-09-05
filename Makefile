@@ -93,6 +93,5 @@ reference_count_string_test: reference_count_string.h reference_count_string.cc 
 rational_lib_test: rational_lib.cc rational_lib_test.cc rational.h $(GTEST_HEADERS)
 	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) rational_lib.cc rational_lib_test.cc -o $@
 
-
-test: reverse_char_stack_lib_test
-	./reverse_char_stack_lib_test
+complex_lib_test: complex_lib.cc complex_lib_test.cc complex.h $(GTEST_HEADERS)
+	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) complex_lib.cc complex_lib_test.cc -o $@
