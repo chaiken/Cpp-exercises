@@ -11,13 +11,14 @@ USER_DIR = .
 
 # http://www.valgrind.org/docs/manual/quick-start.html#quick-start.prepare
 # Compile your program with -g . . . Using -O0 is also a good idea, 
-CXXFLAGS= -ggdb -Wall -Wextra -g -O0 -fno-inline -fsanitize=undefined -I$(GTEST_HEADERS)
+CXXFLAGS= -ggdb -Wall -Wextra -g -O0 -fno-inline -fsanitize=address -I$(GTEST_HEADERS)
 #CXXFLAGS= -ggdb -Wall -Wextra -g -O0 -fno-inline -I$(GTEST_HEADERS)
 # Set Google Test's header directory as a system directory, such that
 # the compiler doesn't generate warnings in Google Test headers.
 CPPFLAGS += -isystem $(GTEST_DIR)/include
 
-LDFLAGS= -ggdb -g -fsanitize=undefined -L$(GTESTLIBPATH) -lpthread
+LDFLAGS= -ggdb -g -fsanitize=address -L$(GTESTLIBPATH) -lpthread
+#LDFLAGS= -ggdb -g -L$(GTESTLIBPATH) -lpthread
 #THREADFLAGS= -D_REENTRANT -I/usr/include/ntpl -L/usr/lib/nptl -lpthread
 THREADFLAGS= -D_REENTRANT -lpthread
 #https://gcc.gnu.org/ml/gcc-help/2003-08/msg00128.html
@@ -95,3 +96,6 @@ rational_lib_test: rational_lib.cc rational_lib_test.cc rational.h $(GTEST_HEADE
 
 complex_lib_test: complex_lib.cc complex_lib_test.cc complex.h $(GTEST_HEADERS)
 	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) complex_lib.cc complex_lib_test.cc -o $@
+
+complex_vector_lib_test: complex_vector_lib.cc complex_vector_lib_test.cc complex_vector.h complex.h $(GTEST_HEADERS)
+	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) complex_vector_lib.cc complex_vector_lib_test.cc complex_lib.cc -o $@

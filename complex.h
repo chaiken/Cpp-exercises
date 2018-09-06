@@ -7,6 +7,10 @@
 
 #include <iostream>
 
+namespace complex_vec {
+class ComplexVector;
+}
+
 namespace complex {
 
 class Complex;
@@ -32,6 +36,7 @@ public:
     real_ = ri[0];
     imag_ = ri[1];
   }
+  friend class complex_vec::ComplexVector;
   void assign(double r, double i) {
     real_ = r;
     imag_ = i;
