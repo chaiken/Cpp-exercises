@@ -23,6 +23,20 @@ double Complex::DotProduct(const Complex &x) const {
   return ((x.real_ * real_) + (x.imag_ * imag_));
 }
 
+double Dot(const Complex &x, const Complex &y) {
+  return ((x.real_ * y.real_) + (x.imag_ * y.imag_));
+}
+
+// "If the function had been written to return void, it would not have allowed
+// multiple assignment." Namely, a=b=c would not then work.
+Complex &Complex::operator=(const Complex &x) {
+  if (this != &x) {
+    real_ = x.real_;
+    imag_ = x.imag_;
+  }
+  return *this;
+}
+
 // Can't be a const function:
 // error: invalid cast from type ‘const complex::Complex’ to type ‘double’
 //   double dp = DotProduct(x), mod = double(*this);

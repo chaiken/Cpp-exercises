@@ -9,6 +9,10 @@
 
 namespace complex {
 
+class Complex;
+
+double Dot(const Complex &x, const Complex &y);
+
 class Complex {
 public:
   Complex() {
@@ -36,14 +40,14 @@ public:
     ::std::cout << real_ << " + " << imag_ << "i" << ::std::endl;
   }
   double DotProduct(const Complex &x) const;
+  friend double Dot(const Complex &x, const Complex &y);
   double InnerAngle(Complex &x);
   // The name of the operator must be double(), as "modulus" is not an operator
   // that can be overridden, and new operators cannot be created.
   operator double() { return (sqrt(real_ * real_ + imag_ * imag_)); }
   // Reverse the vector.
   void operator-();
-  // Not needed: compiler-generated assignment operator works.
-  // Complex& operator=(const Complex& c);
+  Complex &operator=(const Complex &c);
   friend ::std::ostream &operator<<(::std::ostream &out, Complex x);
   // Make +, -, * and == friend functions, as a symmetric invocation for binary
   // operators is most natural.

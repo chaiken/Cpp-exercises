@@ -32,6 +32,15 @@ TEST(ComplexLibTest, DotProductTest) {
   EXPECT_EQ(-1 * amplitude, first.DotProduct(second));
 }
 
+TEST(ComplexLibTest, DotProductTest2) {
+  Complex first(3.0, 4.0);
+  Complex second(3.0, 4.0);
+  double amplitude = double(first) * double(first);
+  EXPECT_EQ(amplitude, Dot(first, second));
+  -second;
+  EXPECT_EQ(-1 * amplitude, Dot(first, second));
+}
+
 TEST(ComplexLibTest, InnerAngleTest) {
   Complex first(3.0, 4.0);
   Complex second(3.0, 4.0);
@@ -87,6 +96,7 @@ TEST(ComplexLibTest, AssignmentTest) {
   cout << first << endl;
   Complex second(-1.0, -1.0);
   // Also works: second=(first);
+  cout << second << endl;
   second = first;
   cout << second << endl;
   EXPECT_TRUE(second == first);
