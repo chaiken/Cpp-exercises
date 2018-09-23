@@ -11,11 +11,6 @@ DoubleVector::DoubleVector(int n) : size_(n) {
   assert(n > 0);
   p_ = new double[size_];
   assert(p_ != 0);
-  int i = 0;
-  while (i <= ub()) {
-    p_[i] = 0.0;
-    i++;
-  }
 }
 
 DoubleVector::DoubleVector(const DoubleVector &v) {
@@ -29,7 +24,7 @@ DoubleVector::DoubleVector(const DoubleVector &v) {
   }
 }
 
-DoubleVector::DoubleVector(const double *v, int sz) {
+DoubleVector::DoubleVector(const double *v, int sz) : size_(sz) {
   p_ = new double[sz];
   assert(p_ != 0);
   size_ = sz;
@@ -88,6 +83,35 @@ DoubleVector DoubleVector::Add(const DoubleVector &a) {
     p_[i] += a.p_[i];
   }
   return *this;
+}
+
+double &DoubleVector::operator[](int i) {
+  assert((i >= 0) && (i <= ub()));
+  return p_[i];
+}
+
+DoubleVector &DoubleVector::operator=(const DoubleVector &v) {
+  assert(ub() == v.ub());
+  if (this != &v) {
+    for (int i = 0; i <= ub(); i++) {
+      p_[i] = v.p_[i];
+    }
+  }
+  // To return a reference, we can't return 'this', as it is a pointer to an
+  // object, not the object itself.
+  return *this;
+}
+
+bool DoubleVector::operator==(DoubleVector &v) {
+  if (ub() != v.ub()) {
+    return false;
+  }
+  for (int i = 0; i < ub(); i++) {
+    if (p_[i] != v.p_[i]) {
+      return false;
+    }
+  }
+  return true;
 }
 
 // Below is the text's function signature, but it must be wrong.

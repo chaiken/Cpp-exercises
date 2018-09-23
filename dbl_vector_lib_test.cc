@@ -3,9 +3,8 @@
 #include <cmath>
 
 using namespace std;
-using namespace dbl_vect;
-
-namespace {
+namespace dbl_vect {
+namespace testing {
 
 class DoubleVectorTest : public ::testing::Test {
 public:
@@ -48,7 +47,27 @@ TEST_F(DoubleVectorTest, ScaleWorks) {
   ASSERT_EQ(a->SumElements(), b->SumElements());
 }
 
-} // namespace
+TEST_F(DoubleVectorTest, AddWorks) {
+  DoubleVector c(*b);
+  DoubleVector d = c.Add(*a);
+  ASSERT_EQ(a->SumElements() + b->SumElements(), d.SumElements());
+}
+
+TEST_F(DoubleVectorTest, SubscriptWorks) {
+  for (int i = 0; i <= a->ub(); i++) {
+    EXPECT_TRUE((*a)[i] == a->element(i));
+  }
+}
+
+TEST_F(DoubleVectorTest, AssignmentWorks) {
+  EXPECT_FALSE((*a) == (*b));
+  // a = b causes a failure when the destructor runs.
+  *a = *b;
+  EXPECT_TRUE((*a) == (*b));
+}
+
+} // namespace testing
+} // namespace dbl_vect
 
 // /home/alison/src/exercises/Pohl/dbl_vector_lib_test.cc:57: multiple
 // definition of `main'
@@ -71,12 +90,4 @@ TEST_F(DoubleVectorTest, ScaleWorks) {
 // TEST_F(DoubleVectorTest, CopyConstructorWorks) {
 //  DoubleVector c(a);
 //  ASSERT_EQ(a->SumElements(), c.SumElements());
-//}
-
-// Results in double free exception.
-// TEST_F(DoubleVectorTest, AddWorks) {
-//  DoubleVector c(*b);
-//  DoubleVector d = c.Add(static_cast<const DoubleVector>(*a));
-//  ::std::cout << "d: " << &d << "c: " << &c << ::std::endl;
-//  ASSERT_EQ(a->SumElements() + b->SumElements(), d.SumElements());
 //}

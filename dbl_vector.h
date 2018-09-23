@@ -26,6 +26,9 @@ namespace dbl_vect {
 
 class DoubleVector {
 public:
+  // https://stackoverflow.com/questions/121162/what-does-the-explicit-keyword-mean
+  // 'explicit' means that a cast is required if an int is provided when the
+  // matching function definition specifies a DoubleVector.
   explicit DoubleVector(int n = 10);
   DoubleVector(const DoubleVector &v);
   DoubleVector(const double *v, int sz);
@@ -41,6 +44,9 @@ public:
   double DotProduct(const DoubleVector &v) const;
   double Amplitude() const;
   void Scale(const double scale);
+  double &operator[](int i);
+  DoubleVector &operator=(const DoubleVector &v);
+  bool operator==(DoubleVector &v);
   friend matrix::Matrix matrix::Add(const DoubleVector &v,
                                     const matrix::Matrix &m);
   friend DoubleVector matrix::Multiply(const DoubleVector &v,
