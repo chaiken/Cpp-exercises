@@ -36,6 +36,10 @@ public:
     real_ = ri[0];
     imag_ = ri[1];
   }
+  Complex(const Complex &c) {
+    real_ = c.real_;
+    imag_ = c.imag_;
+  }
   friend class complex_vec::ComplexVector;
   void assign(double r, double i) {
     real_ = r;

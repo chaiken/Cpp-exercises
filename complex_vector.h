@@ -22,6 +22,8 @@ public:
   const complex::Complex &element(int i) const { return c_[i]; }
   complex::Complex &operator[](int i);
   bool operator==(ComplexVector &c);
+  bool operator!=(ComplexVector &c);
+  ComplexVector &operator=(const ComplexVector &c);
   friend ::std::ostream &operator<<(::std::ostream &out,
                                     const ComplexVector &v);
   friend ComplexVector operator+(const ComplexVector &v,
