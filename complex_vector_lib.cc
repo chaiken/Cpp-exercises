@@ -37,22 +37,41 @@ ComplexVector::ComplexVector(const vector<Complex> &x) {
   }
 }
 
+// If the function calls only public functions of the class like element(), it
+// could be a non-member, except that "Overloading assignment and subscription
+// functions share several characteristics.   Both must be done as nonstatic
+// member functions, and both usually involve a reference return type."
+Complex &ComplexVector::operator[](int i) {
+  assert((i >= 0) && (i < size_));
+  return c_[i];
+}
+
 bool ComplexVector::operator==(ComplexVector &c) {
   int i;
   if (ub() != c.ub()) {
     return false;
   }
   for (i = 0; i <= ub(); i++) {
-    if (element(i) != c.element(i)) {
+    if ((*this)[i] != c[i]) {
       return false;
     }
   }
   return true;
 }
 
-Complex &ComplexVector::operator[](int i) {
-  assert((i >= 0) && (i < size_));
-  return c_[i];
+bool ComplexVector::operator!=(ComplexVector &c) { return (!operator==(c)); }
+
+ComplexVector &ComplexVector::operator=(const ComplexVector &cv) {
+  // if (*this == c) results in
+  // "error: no match for ‘operator==’ (operand types are
+  // ‘complex_vec::ComplexVector’ and ‘const complex_vec::ComplexVector’)"
+  if (this != &cv) {
+    assert(ub() == cv.ub());
+    for (int i = 0; i <= cv.ub(); i++) {
+      c_[i] = cv.c_[i];
+    }
+  }
+  return *this;
 }
 
 // Use element() to access Complex objects from ComplexVector object, and then

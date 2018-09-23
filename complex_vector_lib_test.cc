@@ -32,19 +32,6 @@ TEST(ComplexVectorLibTest, VectorConstructorTest) {
   cout << cv << endl;
 }
 
-TEST(ComplexVectorLibTest, EqualityOperatorTest) {
-  vector<Complex> vec;
-  Complex first(1.0, 2.0);
-  vec.push_back(first);
-  Complex second(3.0, 4.0);
-  vec.push_back(second);
-  ComplexVector cv(vec);
-  cout << cv[0] << endl;
-  cout << cv[1] << endl;
-  EXPECT_TRUE(first == cv[0]);
-  EXPECT_TRUE(second == cv[1]);
-}
-
 TEST(ComplexVectorLibTest, ComplexConverterTest) {
   Complex second[] = {Complex(1.0, 2.0), Complex(3.0, 4.0)};
   ComplexVector cv(second, 2);
@@ -83,6 +70,35 @@ TEST(ComplexVectorLibTest, EqualityTest) {
   EXPECT_FALSE(cv1 == cv2);
   ComplexVector cv3(second, 2);
   EXPECT_TRUE(cv2 == cv3);
+  cout << cv2 << endl;
+  cout << cv3 << endl;
+}
+
+TEST(ComplexVectorLibTest, EqualitySubscriptingTest) {
+  vector<Complex> vec;
+  Complex first(1.0, 2.0);
+  vec.push_back(first);
+  Complex second(3.0, 4.0);
+  vec.push_back(second);
+  ComplexVector cv(vec);
+  cout << cv[0] << endl;
+  cout << cv[1] << endl;
+  EXPECT_TRUE(first == cv[0]);
+  EXPECT_TRUE(second == cv[1]);
+}
+
+TEST(ComplexVectorLibTest, AssignmentTest) {
+  Complex first[] = {Complex(3.0, 4.0), Complex(-1.0, -2.0)};
+  ComplexVector cv1(first, 2);
+  cout << cv1 << endl;
+  Complex second[] = {Complex(1.0, 2.0), Complex(3.0, 4.0)};
+  ComplexVector cv2(second, 2);
+  cout << cv2 << endl;
+  EXPECT_FALSE(cv1 == cv2);
+  cv1 = cv2;
+  cout << cv1 << endl;
+  cout << cv2 << endl;
+  EXPECT_TRUE(cv1 == cv2);
 }
 
 } // namespace testing
