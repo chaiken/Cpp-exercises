@@ -66,6 +66,7 @@ public:
   // Overloading operator= requires two operands of the same type.
   // friend double operator=(double d, const Complex &x);
   friend bool operator==(const Complex &x, const Complex &y);
+  friend bool operator!=(const Complex &x, const Complex &y);
 
 private:
   double real_, imag_;
@@ -83,6 +84,7 @@ Complex operator*(const Complex &x, const Complex &y);
 // a nonstatic member function
 // double operator=(double d, const Complex &x);
 bool operator==(const Complex &x, const Complex &y);
+bool operator!=(const Complex &x, const Complex &y);
 } // namespace complex
 
 #endif

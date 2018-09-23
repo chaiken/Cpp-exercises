@@ -105,5 +105,11 @@ TEST(ComplexLibTest, AssignmentTest) {
   EXPECT_TRUE(5.0 == d);
 }
 
+TEST(ComplexLibTest, InequalityTest) {
+  Complex first(3.0, 4.0);
+  Complex second(-1.0, -1.0);
+  EXPECT_TRUE(first != second);
+}
+
 } // namespace testing
 } // namespace complex

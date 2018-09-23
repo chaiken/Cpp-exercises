@@ -79,6 +79,10 @@ bool operator==(const Complex &x, const Complex &y) {
   return ((x.real_ == y.real_) && (x.imag_ == y.imag_));
 }
 
+bool operator!=(const Complex &x, const Complex &y) {
+  return ((x.real_ != y.real_) || (x.imag_ != y.imag_));
+}
+
 Complex operator*(const Complex &x, const Complex &y) {
   Complex product(x.real_ * y.real_, x.imag_ * y.imag_);
   return product;
