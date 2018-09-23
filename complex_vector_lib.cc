@@ -9,11 +9,6 @@ using namespace complex;
 
 namespace complex_vec {
 
-Complex &ComplexVector::operator[](int i) {
-  assert((i >= 0) && (i < size_));
-  return c_[i];
-}
-
 // Copy constructor.
 ComplexVector::ComplexVector(const Complex &x) {
   size_ = 1;
@@ -40,6 +35,24 @@ ComplexVector::ComplexVector(const vector<Complex> &x) {
     c_[i] = x.at(i);
     i++;
   }
+}
+
+bool ComplexVector::operator==(ComplexVector &c) {
+  int i;
+  if (ub() != c.ub()) {
+    return false;
+  }
+  for (i = 0; i <= ub(); i++) {
+    if (element(i) != c.element(i)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+Complex &ComplexVector::operator[](int i) {
+  assert((i >= 0) && (i < size_));
+  return c_[i];
 }
 
 // Use element() to access Complex objects from ComplexVector object, and then

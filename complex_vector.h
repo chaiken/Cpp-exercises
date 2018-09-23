@@ -21,6 +21,7 @@ public:
   int ub() const { return size_ - 1; }
   const complex::Complex &element(int i) const { return c_[i]; }
   complex::Complex &operator[](int i);
+  bool operator==(ComplexVector &c);
   friend ::std::ostream &operator<<(::std::ostream &out,
                                     const ComplexVector &v);
   friend ComplexVector operator+(const ComplexVector &v,

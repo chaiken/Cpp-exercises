@@ -75,5 +75,15 @@ TEST(ComplexVectorLibTest, DotProductTest) {
   EXPECT_EQ(-11.0, v[1]);
 }
 
+TEST(ComplexVectorLibTest, EqualityTest) {
+  Complex first[] = {Complex(3.0, 4.0), Complex(-1.0, -2.0)};
+  ComplexVector cv1(first, 2);
+  Complex second[] = {Complex(1.0, 2.0), Complex(3.0, 4.0)};
+  ComplexVector cv2(second, 2);
+  EXPECT_FALSE(cv1 == cv2);
+  ComplexVector cv3(second, 2);
+  EXPECT_TRUE(cv2 == cv3);
+}
+
 } // namespace testing
 } // namespace complex_vec
