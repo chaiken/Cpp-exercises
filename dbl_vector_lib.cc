@@ -24,6 +24,15 @@ DoubleVector::DoubleVector(const DoubleVector &v) {
   }
 }
 
+DoubleVector::DoubleVector(const vector<double> v) {
+  assert(v.size() > 0);
+  size_ = v.size();
+  p_ = new double[size_];
+  for (int i = 0; i < size_; i++) {
+    p_[i] = v.at(i);
+  }
+}
+
 DoubleVector::DoubleVector(const double *v, int sz) : size_(sz) {
   p_ = new double[sz];
   assert(p_ != 0);
@@ -123,4 +132,14 @@ DoubleVector SumVectors(const DoubleVector &a, const DoubleVector &b) {
   DoubleVector c(a);
   return c.Add(b);
 }
+
+DoubleVector operator+(DoubleVector &a, DoubleVector &b) {
+  assert(a.ub() == b.ub());
+  vector<double> temp;
+  for (int i = 0; i <= a.ub(); i++) {
+    temp.push_back(a[i] + b[i]);
+  }
+  return temp;
+}
+
 } // namespace dbl_vect

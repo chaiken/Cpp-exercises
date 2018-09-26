@@ -66,6 +66,12 @@ TEST_F(DoubleVectorTest, AssignmentWorks) {
   EXPECT_TRUE((*a) == (*b));
 }
 
+TEST_F(DoubleVectorTest, PlusWorks) {
+  DoubleVector c(*a);
+  c = *a + *b;
+  ASSERT_EQ(a->SumElements() + b->SumElements(), c.SumElements());
+}
+
 } // namespace testing
 } // namespace dbl_vect
 

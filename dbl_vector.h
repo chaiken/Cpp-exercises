@@ -3,6 +3,7 @@
 
 // Implementation of a safe array type dbl_vect.
 #include <iostream>
+#include <vector>
 
 // This forward declaration is needed so that the forward declaration of
 // Multiply compiles.
@@ -32,6 +33,7 @@ public:
   explicit DoubleVector(int n = 10);
   DoubleVector(const DoubleVector &v);
   DoubleVector(const double *v, int sz);
+  DoubleVector(const ::std::vector<double> v);
   ~DoubleVector() {
     ::std::cout << "Destructor." << ::std::endl;
     delete[] p_;
@@ -47,6 +49,7 @@ public:
   double &operator[](int i);
   DoubleVector &operator=(const DoubleVector &v);
   bool operator==(DoubleVector &v);
+  friend DoubleVector operator+(DoubleVector &a, DoubleVector &b);
   friend matrix::Matrix matrix::Add(const DoubleVector &v,
                                     const matrix::Matrix &m);
   friend DoubleVector matrix::Multiply(const DoubleVector &v,
@@ -57,6 +60,7 @@ private:
   int size_;
 };
 
+DoubleVector operator+(DoubleVector &a, DoubleVector &b);
 DoubleVector SumVectors(const DoubleVector &, const DoubleVector &);
 } // namespace dbl_vect
 
