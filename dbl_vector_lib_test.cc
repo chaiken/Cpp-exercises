@@ -14,8 +14,8 @@ public:
     assert(a->ub() == b->ub());
     int i = 0;
     while (i <= a->ub()) {
-      a->element(i) = 2.0 * i;
-      b->element(i) = 0.5 * i;
+      a->Element(i) = 2.0 * i;
+      b->Element(i) = 0.5 * i;
       i++;
     }
   }
@@ -55,7 +55,7 @@ TEST_F(DoubleVectorTest, AddWorks) {
 
 TEST_F(DoubleVectorTest, SubscriptWorks) {
   for (int i = 0; i <= a->ub(); i++) {
-    EXPECT_TRUE((*a)[i] == a->element(i));
+    EXPECT_TRUE((*a)[i] == a->Element(i));
   }
 }
 
@@ -69,7 +69,32 @@ TEST_F(DoubleVectorTest, AssignmentWorks) {
 TEST_F(DoubleVectorTest, PlusWorks) {
   DoubleVector c(*a);
   c = *a + *b;
+  PrintDblVector(c);
   ASSERT_EQ(a->SumElements() + b->SumElements(), c.SumElements());
+}
+
+TEST_F(DoubleVectorTest, IteratorWorks) {
+  for (int i = 0; i <= a->ub(); i++) {
+    double b = a->Iterate();
+    ASSERT_EQ(b, (*a)[i]);
+  }
+}
+
+TEST_F(DoubleVectorTest, DoubleVectorIteratorBasic) {
+  DoubleVectorIterator iter(*a), iter2(*b);
+  double val = iter.Iterate();
+  ASSERT_EQ(val, (*a)[1]);
+  double val2 = iter2.Iterate();
+  ASSERT_EQ(val2, (*b)[1]);
+
+  val = iter.Iterate();
+  ASSERT_EQ(val, (*a)[2]);
+}
+
+TEST_F(DoubleVectorTest, MaxWorks) {
+  // The array is monotonically increasing.
+  double c = (*a)[a->ub()];
+  ASSERT_EQ(c, Max(*a));
 }
 
 } // namespace testing

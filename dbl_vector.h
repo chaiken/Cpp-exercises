@@ -25,6 +25,22 @@ dbl_vect::DoubleVector Multiply(const dbl_vect::DoubleVector &v,
 
 namespace dbl_vect {
 
+double &Max(DoubleVector &);
+
+class DoubleVectorIterator {
+public:
+  // Can't be const argument, as then dv_ would have to be const, and the
+  // operator[] would fail to match.
+  DoubleVectorIterator(DoubleVector &v) : dv_(&v), position_(0) {}
+  // The text has this function as const, but that seems useless.  What's the
+  // point of only unmodifiable private variables?  The whole class was const.
+  double &Iterate();
+
+private:
+  DoubleVector *dv_;
+  int position_;
+};
+
 class DoubleVector {
 public:
   // https://stackoverflow.com/questions/121162/what-does-the-explicit-keyword-mean
@@ -38,7 +54,8 @@ public:
     ::std::cout << "Destructor." << ::std::endl;
     delete[] p_;
   }
-  double &element(int i);
+  double &Element(int i);
+  double &Iterate();
   int ub() const { return (size_ - 1); }
   void Print() const;
   double SumElements() const;
@@ -50,6 +67,7 @@ public:
   DoubleVector &operator=(const DoubleVector &v);
   bool operator==(DoubleVector &v);
   friend DoubleVector operator+(DoubleVector &a, DoubleVector &b);
+  friend double &Iterate();
   friend matrix::Matrix matrix::Add(const DoubleVector &v,
                                     const matrix::Matrix &m);
   friend DoubleVector matrix::Multiply(const DoubleVector &v,
@@ -60,6 +78,7 @@ private:
   int size_;
 };
 
+void PrintDblVector(DoubleVector &v);
 DoubleVector operator+(DoubleVector &a, DoubleVector &b);
 DoubleVector SumVectors(const DoubleVector &, const DoubleVector &);
 } // namespace dbl_vect

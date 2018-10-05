@@ -7,6 +7,25 @@ using namespace std;
 
 namespace dbl_vect {
 
+double &DoubleVectorIterator::Iterate() { return (*dv_)[++position_]; }
+
+double &Max(DoubleVector &v) {
+  DoubleVectorIterator iter(v);
+  double a = v[0];
+  int max = 0, i = 1;
+  // Start with i=1 since the first iteration gets the second value.
+  while (i <= v.ub()) {
+    double b = iter.Iterate();
+    if (b > a) {
+      a = b;
+      max = i;
+    }
+    i++;
+  }
+  assert(max >= 0 && max <= v.ub());
+  return v[max];
+}
+
 DoubleVector::DoubleVector(int n) : size_(n) {
   assert(n > 0);
   p_ = new double[size_];
@@ -42,9 +61,23 @@ DoubleVector::DoubleVector(const double *v, int sz) : size_(sz) {
   }
 }
 
-double &DoubleVector::element(int i) {
+double &DoubleVector::Element(int i) {
   assert(i >= 0 && i < size_);
   return p_[i];
+}
+
+double &DoubleVector::Iterate() {
+  static int i = 0;
+  // Wraps around.  Is that what users expect?
+  i = i % size_;
+  return p_[i++];
+}
+
+void PrintDblVector(DoubleVector &v) {
+  int i = 0;
+  while (i++ <= v.ub()) {
+    cout << i << "," << v.Iterate() << endl;
+  }
 }
 
 void DoubleVector::Print() const {
