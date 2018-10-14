@@ -20,6 +20,31 @@ class DoubleVector;
 }
 
 namespace matrix {
+
+double &MatrixIterator::Iterate() {
+  position_++;
+  // The row number is the integer part of the sequential position within the
+  // array.  The column number is the sequential position minus the number of
+  // elements in lower-position full rows.
+  int index1 = position_ / colnum_, index2 = position_ - (index1 * colnum_);
+  assert(index1 <= rownum_);
+  assert(index2 <= colnum_);
+  return elem_[index1][index2];
+}
+
+double Max(Matrix &m) {
+  MatrixIterator iter(m);
+  double val, max = m.Element(0, 0);
+  int end = (m.ub1() + 1) * (m.ub2() + 1);
+  for (int i = 1; i < end; i++) {
+    val = iter.Iterate();
+    if (val > max) {
+      max = val;
+    }
+  }
+  return max;
+}
+
 Matrix::Matrix(int d1, int d2) : size1_(d1), size2_(d2) {
   assert(d1 > 0 && d2 > 0);
   p_ = new double *[size1_];

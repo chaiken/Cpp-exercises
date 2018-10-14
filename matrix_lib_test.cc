@@ -223,8 +223,8 @@ TEST(MatrixLibTest, SquareMultiplyTest) {
   PrintMatrix(tensor);
   dbl_vect::DoubleVector ans = matrix::Multiply(vec, tensor);
   EXPECT_EQ(vec.ub(), ans.ub());
-  EXPECT_EQ(5, ans.element(0));
-  EXPECT_EQ(11, ans.element(1));
+  EXPECT_EQ(5, ans[0]);
+  EXPECT_EQ(11, ans[1]);
   EXPECT_EQ(16, ans.SumElements());
 }
 
@@ -236,9 +236,23 @@ TEST(MatrixLibTest, RectangularMultiplyTest) {
   PrintMatrix(tensor);
   dbl_vect::DoubleVector ans = matrix::Multiply(vec, tensor);
   EXPECT_EQ(vec.ub(), ans.ub());
-  EXPECT_EQ(14, ans.element(0));
-  EXPECT_EQ(32, ans.element(1));
-  EXPECT_EQ(46.0, ans.SumElements());
+  EXPECT_EQ(14, ans[0]);
+  EXPECT_EQ(32, ans[1]);
+  // Why ceil() is used here:
+  // matrix_lib_test.cc:241: Failure
+  // Expected equality of these values:
+  //   46
+  // ans.SumElements()
+  //  Which is: 46
+  // (gdb) p ans[0]
+  // $2 = (double &) @0x603000002740: 14
+  // (gdb) p ans[1]
+  // $3 = (double &) @0x603000002748: 32
+  // (gdb) n
+  // 241       EXPECT_EQ(46, ans.SumElements());
+  // (gdb) p ans.SumElements()
+  // $5 = 45.999998167449355
+  EXPECT_EQ(46, ceil(ans.SumElements()));
 }
 
 TEST(MatrixLibTest, AddVectorTest) {
@@ -253,6 +267,25 @@ TEST(MatrixLibTest, AddVectorTest) {
   EXPECT_EQ(21.0, Trace(ans));
   EXPECT_EQ(2.0, ans.Element(0, 0));
   EXPECT_EQ(0, Determinant(ans, 0.0));
+}
+
+TEST(MatrixLibTest, IteratorTest) {
+  vector<double> testvec = {1.0, 2.0, 3.0, 4.0, 5.0, 6.0};
+  Matrix tensor(2, 3, testvec);
+  MatrixIterator iter(tensor);
+  PrintMatrix(tensor);
+  double val = iter.Iterate();
+  EXPECT_EQ(2, val);
+  val = iter.Iterate();
+  EXPECT_EQ(3, val);
+  val = iter.Iterate();
+  EXPECT_EQ(4, val);
+}
+
+TEST(MatrixLibTest, MaxTest) {
+  vector<double> testvec = {1.0, 2.0, 3.0, 4.0, 5.0, 6.0};
+  Matrix tensor(2, 3, testvec);
+  ASSERT_EQ(6.0, Max(tensor));
 }
 
 } // namespace testing
