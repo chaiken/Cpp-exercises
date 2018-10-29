@@ -37,26 +37,36 @@ public:
   CountedString(const char *p) {
     str_ = new StringObject(p);
     assert(str_ != 0);
+    ::std::cout << "Char* constructor " << str_->s_ << ::std::endl;
+  }
+  CountedString(const ::std::string str) {
+    str_ = new StringObject(str.c_str());
+    assert(str_ != 0);
+    ::std::cout << "String constructor " << str_->s_ << ::std::endl;
   }
   CountedString(const CountedString &str) {
     // Because ref_cnt_ is not mutex-protected and could be decremented in
     // another thread.
     assert(0 != str.str_->ref_cnt_);
-    str_ = str.str_;
+    str_ = new StringObject(str.str_->s_);
+    assert(str_ != 0);
     // The following line has the effect of changing str->ref_cnt_, but str is
     // const?
     str_->ref_cnt_++;
+    ::std::cout << "Copy constructor " << str_->s_ << ::std::endl;
   }
   ~CountedString() {
     // Because ref_cnt_ is not mutex-protected and could be decremented in
     // another thread.
     assert(str_->ref_cnt_ >= 0);
     if (0 == --str_->ref_cnt_) {
-      ::std::cout << "Deleting CountedString " << str_ << ::std::endl;
+      ::std::cout << "Deleting CountedString " << str_->s_ << ::std::endl;
       delete str_;
     }
   }
-  void Assign(const CountedString &str);
+  friend CountedString operator+(const CountedString &str1,
+                                 const CountedString &str2);
+  void operator=(const CountedString &str);
   void Print() const { ::std::cout << str_->s_ << ::std::endl; }
   bool Compare(const CountedString &str) const {
     assert(str.str_->ref_cnt_ > 0);
@@ -66,5 +76,7 @@ public:
 private:
   StringObject *str_;
 };
+
+CountedString operator+(const CountedString &str1, const CountedString &str2);
 
 } // namespace reference_counted_string
