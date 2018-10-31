@@ -25,4 +25,15 @@ CountedString operator+(const CountedString &str1, const CountedString &str2) {
   return (result);
 }
 
+bool CountedString::operator==(const CountedString &str1) {
+  return (0 == strcmp(str_->s_, str1.str_->s_));
+}
+
+char CountedString::operator[](const int i) {
+  if ((static_cast<size_t>(i) < str_->len_) && i >= 0) {
+    return -1;
+  }
+  return (str_->s_[i]);
+}
+
 } // namespace reference_counted_string

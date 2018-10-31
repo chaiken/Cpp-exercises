@@ -24,7 +24,8 @@ public:
     delete[] s_;
   }
 
-  int len_, ref_cnt_;
+  size_t len_;
+  int ref_cnt_;
   char *s_;
 };
 
@@ -64,19 +65,17 @@ public:
       delete str_;
     }
   }
+  size_t length() { return str_->len_; }
   friend CountedString operator+(const CountedString &str1,
                                  const CountedString &str2);
+  bool operator==(const CountedString &str1);
   void operator=(const CountedString &str);
+  char operator[](const int i);
   void Print() const { ::std::cout << str_->s_ << ::std::endl; }
-  bool Compare(const CountedString &str) const {
-    assert(str.str_->ref_cnt_ > 0);
-    return (0 == strcmp(str_->s_, str.str_->s_));
-  }
 
 private:
   StringObject *str_;
 };
 
 CountedString operator+(const CountedString &str1, const CountedString &str2);
-
 } // namespace reference_counted_string
