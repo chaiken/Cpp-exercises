@@ -71,6 +71,7 @@ public:
   bool operator==(const CountedString &str1);
   void operator=(const CountedString &str);
   char operator[](const int i);
+  operator char *();
   void Print() const { ::std::cout << str_->s_ << ::std::endl; }
 
 private:

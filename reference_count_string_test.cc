@@ -43,5 +43,13 @@ TEST(ReferenceCountedStringTest, Subscript) {
   }
 }
 
+TEST(ReferenceCountedStringTest, CharPtrConversionOperator) {
+  CountedString test_string1("abcde");
+  ostringstream ostr;
+  // Note no trailing newline from endl.
+  ostr << test_string1;
+  EXPECT_EQ("abcde", ostr.str());
+}
+
 } // namespace testing
 } // namespace reference_counted_string

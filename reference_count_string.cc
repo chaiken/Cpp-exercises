@@ -36,4 +36,7 @@ char CountedString::operator[](const int i) {
   return (str_->s_[i]);
 }
 
+// Makes << operator work with CountedString objects.
+CountedString::operator char *() { return str_->s_; }
+
 } // namespace reference_counted_string
