@@ -30,6 +30,22 @@ TEST(ReferenceCountedStringTest, Concatenation) {
   EXPECT_EQ(true, (test_string4 == test_string1));
 }
 
+TEST(ReferenceCountedStringTest, CopyCtorAndEquals) {
+  CountedString test_string1("abcde"), test_string2(test_string1);
+  EXPECT_EQ(test_string1.length(), test_string2.length());
+  EXPECT_TRUE(test_string2 == test_string1);
+}
+
+TEST(ReferenceCountedStringTest, Assignment) {
+  CountedString test_string1("abcde");
+  CountedString test_string2("abcde12345");
+  EXPECT_NE(test_string1.length(), test_string2.length());
+  EXPECT_FALSE(test_string2 == test_string1);
+  test_string2 = test_string1;
+  EXPECT_EQ(test_string1.length(), test_string2.length());
+  EXPECT_TRUE(test_string2 == test_string1);
+}
+
 TEST(ReferenceCountedStringTest, Subscript) {
   CountedString test_string1("abcde");
   CountedString test_string2("edcba");
@@ -49,6 +65,18 @@ TEST(ReferenceCountedStringTest, CharPtrConversionOperator) {
   // Note no trailing newline from endl.
   ostr << test_string1;
   EXPECT_EQ("abcde", ostr.str());
+}
+
+TEST(ReferenceCountedStringTest, Swap) {
+  CountedString test_string1("try me");
+  CountedString test_string2("do not try me");
+  size_t len1 = test_string1.length();
+  Swap(test_string1, test_string1);
+  EXPECT_EQ(len1, test_string1.length());
+  size_t len2 = test_string2.length();
+  Swap(test_string1, test_string2);
+  EXPECT_EQ(len2, test_string1.length());
+  EXPECT_EQ(len1, test_string2.length());
 }
 
 } // namespace testing

@@ -13,7 +13,7 @@ void CountedString::operator=(const CountedString &str) {
     delete str_;
   }
   str_ = str.str_;
-  str_->ref_cnt_++;
+  str.str_->ref_cnt_++;
 }
 
 CountedString operator+(const CountedString &str1, const CountedString &str2) {
@@ -23,6 +23,15 @@ CountedString operator+(const CountedString &str1, const CountedString &str2) {
                        ::std::string(str2.str_->s_));
   // Invoke the implicit constructor.
   return (result);
+}
+
+void Swap(CountedString &str1, CountedString &str2) {
+  if (str1 == str2) {
+    return;
+  }
+  CountedString tmp(str1);
+  str1 = str2;
+  str2 = tmp;
 }
 
 bool CountedString::operator==(const CountedString &str1) {

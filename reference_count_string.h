@@ -5,6 +5,7 @@
 
 namespace reference_counted_string {
 
+// The ctor increments ref_cnt_, but the dtor does not decrement it.
 class StringObject {
 public:
   StringObject() : len_(0), ref_cnt_(1) {
@@ -29,6 +30,9 @@ public:
   char *s_;
 };
 
+// The CountedString constructor never increments ref_cnt_, as the StringObject
+// constructor does that.  It decrements ref_cnt_ upon manual StringObject
+// deletion.
 class CountedString {
 public:
   CountedString() {
@@ -51,9 +55,6 @@ public:
     assert(0 != str.str_->ref_cnt_);
     str_ = new StringObject(str.str_->s_);
     assert(str_ != 0);
-    // The following line has the effect of changing str->ref_cnt_, but str is
-    // const?
-    str_->ref_cnt_++;
     ::std::cout << "Copy constructor " << str_->s_ << ::std::endl;
   }
   ~CountedString() {
@@ -66,6 +67,7 @@ public:
     }
   }
   size_t length() { return str_->len_; }
+  friend void Swap(CountedString &str1, CountedString &str2);
   friend CountedString operator+(const CountedString &str1,
                                  const CountedString &str2);
   bool operator==(const CountedString &str1);
@@ -79,4 +81,5 @@ private:
 };
 
 CountedString operator+(const CountedString &str1, const CountedString &str2);
+void Swap(CountedString &str1, CountedString &str2);
 } // namespace reference_counted_string
