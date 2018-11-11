@@ -99,3 +99,11 @@ complex_lib_test: complex_lib.cc complex_lib_test.cc complex.h $(GTEST_HEADERS)
 
 complex_vector_lib_test: complex_vector_lib.cc complex_vector_lib_test.cc complex_vector.h complex.h $(GTEST_HEADERS)
 	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) complex_vector_lib.cc complex_vector_lib_test.cc complex_lib.cc -o $@
+
+
+reference_count_string_timer: reference_count_string_timer.cc reference_count_string.cc reference_count_string.h
+	$(CC) $(CXXFLAGS) $(LDFLAGS) reference_count_string_timer.cc reference_count_string.cc reference_count_string.h -o $@
+
+# make DEBUG=DEBUG reference_count_string_timer for verbosity
+reference_count_string_timer_debug: reference_count_string_timer.cc reference_count_string.cc reference_count_string.h
+	$(CC) $(CXXFLAGS) $(LDFLAGS) -DDEBUG="DEBUG" reference_count_string_timer.cc reference_count_string.cc reference_count_string.h -o $@

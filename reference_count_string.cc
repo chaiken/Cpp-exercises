@@ -38,11 +38,28 @@ bool CountedString::operator==(const CountedString &str1) {
   return (0 == strcmp(str_->s_, str1.str_->s_));
 }
 
+bool CountedString::operator==(const char *str) {
+  return (0 == strcmp(str_->s_, str));
+}
+
 char CountedString::operator[](const int i) {
   if ((static_cast<size_t>(i) < str_->len_) && i >= 0) {
     return -1;
   }
   return (str_->s_[i]);
+}
+
+CountedString CountedString::operator()(int from, int to) {
+  if ((to <= from) || (from >= static_cast<int>(length())) || (from < 0)) {
+    return "";
+  }
+  to = (to > static_cast<int>(length())) ? static_cast<int>(length()) : to;
+  CountedString temp(to - from);
+  for (int i = from; i < to; i++) {
+    temp.str_->s_[i - from] = str_->s_[i];
+  }
+  temp.str_->s_[to - from] = 0;
+  return temp;
 }
 
 // Makes << operator work with CountedString objects.

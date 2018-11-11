@@ -13,7 +13,13 @@ public:
     assert(s_ != 0);
     s_[0] = 0;
   }
-
+  StringObject(int n) : len_(n), ref_cnt_(1) {
+    s_ = new char[len_ + 1];
+    for (int i = 0; i <= n; i++) {
+      s_[i] = '\0';
+    }
+    assert(s_ != 0);
+  }
   StringObject(const char *p) : ref_cnt_(1) {
     len_ = strlen(p);
     s_ = new char[len_ + 1];
@@ -57,6 +63,11 @@ public:
     assert(str_ != 0);
     ::std::cout << "Copy constructor " << str_->s_ << ::std::endl;
   }
+  CountedString(int n) {
+    assert(n >= 0);
+    str_ = new StringObject(n);
+    assert(str_ != 0);
+  }
   ~CountedString() {
     // Because ref_cnt_ is not mutex-protected and could be decremented in
     // another thread.
@@ -73,6 +84,7 @@ public:
   bool operator==(const CountedString &str1);
   void operator=(const CountedString &str);
   char operator[](const int i);
+  CountedString operator()(int from, int to);
   operator char *();
   void Print() const { ::std::cout << str_->s_ << ::std::endl; }
 
