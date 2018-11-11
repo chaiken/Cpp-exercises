@@ -12,10 +12,10 @@ TEST(ReferenceCountStringTest, ConstructorAndAssignmentTest) {
   ts1.Print();
   CountedString ts2("12345");
   ts2.Print();
-  EXPECT_EQ(false, (ts1 == ts2));
+  EXPECT_FALSE(ts1 == ts2);
   ts1 = ts2;
   ts1.Print();
-  EXPECT_EQ(true, (ts1 == ts2));
+  EXPECT_TRUE(ts1 == ts2);
 }
 
 TEST(ReferenceCountedStringTest, Concatenation) {
@@ -23,11 +23,11 @@ TEST(ReferenceCountedStringTest, Concatenation) {
   CountedString ts2("12345");
   CountedString ts3("abcde12345");
   CountedString ts4 = ts1 + ts2;
-  EXPECT_EQ(true, (ts4 == ts3));
-  EXPECT_EQ(true, (ts3 == ts4));
+  EXPECT_TRUE((ts4 == ts3));
+  EXPECT_TRUE((ts3 == ts4));
   CountedString empty;
   ts4 = ts1 + empty;
-  EXPECT_EQ(true, (ts4 == ts1));
+  EXPECT_TRUE((ts4 == ts1));
 }
 
 TEST(ReferenceCountedStringTest, CopyCtorAndEquals) {
@@ -98,7 +98,7 @@ TEST(ReferenceCountedStringTest, OverloadedFunctionCallWholeString) {
   CountedString ts2("do not try me");
   CountedString str1 = ts1(0, ts1.length());
   EXPECT_EQ(ts1.length(), str1.length());
-  EXPECT_EQ(true, ts1 == str1);
+  EXPECT_TRUE(ts1 == str1);
 }
 
 TEST(ReferenceCountedStringTest, TooLongSubString) {
@@ -112,7 +112,7 @@ TEST(ReferenceCountedStringTest, OverloadedFunctionCallSubstringAtStart) {
   CountedString ts3("do not");
   CountedString str2 = ts2(0, ts3.length());
   EXPECT_EQ(ts3.length(), str2.length());
-  EXPECT_EQ(true, ts3 == str2);
+  EXPECT_TRUE(ts3 == str2);
   cout << str2 << endl;
 }
 
@@ -121,8 +121,34 @@ TEST(ReferenceCountedStringTest, OverloadedFunctionCallSubstringAtEnd) {
   CountedString ts2("do not try me");
   CountedString str3 = ts2(ts2.length() - ts1.length(), ts2.length());
   EXPECT_EQ(ts1.length(), str3.length());
-  EXPECT_EQ(true, ts1 == str3);
+  EXPECT_TRUE(ts1 == str3);
   cout << str3 << endl;
+}
+
+TEST(ReferenceCountedStringTest, EmptyStringAlwaysFound) {
+  CountedString ts1("try me");
+  // Trying Search("") results in error about inability to convert string to
+  // char*.
+  char empty[] = "";
+  EXPECT_TRUE(ts1.Search(empty));
+}
+
+TEST(ReferenceCountedStringTest, DuplicateIsFound) {
+  CountedString ts1("try me");
+  char ts2[] = "try me";
+  EXPECT_TRUE(ts1.Search(ts2));
+}
+
+TEST(ReferenceCountedStringTest, TooLongSubstring) {
+  CountedString ts1("try me");
+  CountedString ts2("do not try me");
+  EXPECT_FALSE(ts1.Search(ts2));
+}
+
+TEST(ReferenceCountedStringTest, SubstringFindingCorrect) {
+  CountedString ts1("try me");
+  CountedString ts2("do not try me");
+  EXPECT_TRUE(ts2.Search(ts1));
 }
 
 } // namespace testing

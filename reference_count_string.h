@@ -85,6 +85,7 @@ public:
   void operator=(const CountedString &str);
   char operator[](const int i);
   CountedString operator()(int from, int to);
+  bool Search(char *str);
   operator char *();
   void Print() const { ::std::cout << str_->s_ << ::std::endl; }
 

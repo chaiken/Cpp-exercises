@@ -65,4 +65,30 @@ CountedString CountedString::operator()(int from, int to) {
 // Makes << operator work with CountedString objects.
 CountedString::operator char *() { return str_->s_; }
 
+bool CountedString::Search(char *str) {
+  int slen = static_cast<int>(strlen(str)), len = static_cast<int>(length());
+  // Empty string always found.
+  if (!slen) {
+    return true;
+  }
+  if (len < slen) {
+    return false;
+  }
+  CountedString ts(str);
+  int i = 0;
+  while (i <= (len - slen)) {
+    // Violates const-correctness.
+    //  if (ts == *this(i, i+slen)) {
+    // Hits ASAN due to use-after-free when the StringObject Dtor runs for temp
+    // in operator() above.
+    // char *substr = (*this)(i, i+slen).str_->s_;
+    CountedString temp = (*this)(i, i + slen);
+    if (!strcmp(ts, temp.str_->s_)) {
+      return true;
+    }
+    i++;
+  }
+  return false;
+}
+
 } // namespace reference_counted_string
