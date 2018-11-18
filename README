@@ -1,0 +1,11 @@
+The source files here are my solutions to the exercises in _C++ for C Programmers, Third Edition_ by Richard Pohl.   Unsurprisingly, some code snippets were part of the exercises' problem statement, and so were not written by me.   The rest is my own work.  If you are sceptical, try reading the code (snort).
+
+The programs are written with C++11 in mind, as that's what my employer has selected.  I thank the poor code reviewers who read my programs that predate the ones here for their immense patience.
+
+The files called *_test.cc will not compile without a copy of the googletest sources placed at the path GTEST_DIR:
+
+GTEST_DIR = $(HOME)/gitsrc/googletest/googletest
+
+googletest is available at git@github.com:google/googletest.git
+
+As a compiler, as of 11/18/18, I'm using g++ (Debian 8.2.0-9) 8.2.0.  Note that the Makefile incorporates -fsanitize=address for the default CXXFLAGS.
