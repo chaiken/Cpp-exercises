@@ -1,7 +1,7 @@
 # See ~/gitsrc/googletest/googletest/make/Makefile
 # Points to the root of Google Test, relative to where this file is.
 # Remember to tweak this if you move this file.
-GTEST_DIR = /home/alison/gitsrc/googletest/googletest
+GTEST_DIR = $(HOME)/gitsrc/googletest/googletest
 # Wrong: do not include $(GTEST_DIR)/include/gtest/internal/*.h
 GTEST_HEADERS = $(GTEST_DIR)/include
 GTESTLIBPATH=$(GTEST_DIR)/make
