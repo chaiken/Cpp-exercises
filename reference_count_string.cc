@@ -54,11 +54,14 @@ CountedString CountedString::operator()(int from, int to) {
     return "";
   }
   to = (to > static_cast<int>(length())) ? static_cast<int>(length()) : to;
-  CountedString temp(to - from);
+  // Leaks memory; temp is not destroyed on exit.
+  // char *temp = new char[to - from + 1];
+  char temp[to - from + 1];
   for (int i = from; i < to; i++) {
-    temp.str_->s_[i - from] = str_->s_[i];
+    temp[i - from] = str_->s_[i];
   }
-  temp.str_->s_[to - from] = 0;
+  temp[to - from] = 0;
+  // Calls implicit char* Ctor of CountedString.
   return temp;
 }
 

@@ -52,4 +52,12 @@ Comparison done in 12.44 s.
 $ ./reference_count_string_timer
 Comparison done in 13 s.
 Comparison done in 12.724 s.
- */
+
+With implicit call to char* Ctor of CountedString in operator().
+$ ./reference_count_string_timer
+Comparison done in 13 s.
+Comparison done in 13.124 s.
+$ ./reference_count_string_timer
+Comparison done in 13 s.
+Comparison done in 13.577 s.
+*/
