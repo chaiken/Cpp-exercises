@@ -27,7 +27,9 @@ public:
     strcpy(s_, p);
   }
   ~StringObject() {
+#ifdef DEBUG
     ::std::cout << "Deleting StringObject " << s_ << ::std::endl;
+#endif
     delete[] s_;
   }
 
@@ -48,12 +50,16 @@ public:
   CountedString(const char *p) {
     str_ = new StringObject(p);
     assert(str_ != 0);
+#ifdef DEBUG
     ::std::cout << "Char* constructor " << str_->s_ << ::std::endl;
+#endif
   }
   CountedString(const ::std::string str) {
     str_ = new StringObject(str.c_str());
     assert(str_ != 0);
+#ifdef DEBUG
     ::std::cout << "String constructor " << str_->s_ << ::std::endl;
+#endif
   }
   CountedString(const CountedString &str) {
     // Because ref_cnt_ is not mutex-protected and could be decremented in
@@ -61,7 +67,9 @@ public:
     assert(0 != str.str_->ref_cnt_);
     str_ = new StringObject(str.str_->s_);
     assert(str_ != 0);
+#ifdef DEBUG
     ::std::cout << "Copy constructor " << str_->s_ << ::std::endl;
+#endif
   }
   CountedString(int n) {
     assert(n >= 0);
@@ -73,7 +81,9 @@ public:
     // another thread.
     assert(str_->ref_cnt_ >= 0);
     if (0 == --str_->ref_cnt_) {
+#ifdef DEBUG
       ::std::cout << "Deleting CountedString " << str_->s_ << ::std::endl;
+#endif
       delete str_;
     }
   }
@@ -82,6 +92,7 @@ public:
   friend CountedString operator+(const CountedString &str1,
                                  const CountedString &str2);
   bool operator==(const CountedString &str1);
+  bool operator==(const char *str);
   void operator=(const CountedString &str);
   char operator[](const int i);
   CountedString operator()(int from, int to);
