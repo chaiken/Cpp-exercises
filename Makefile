@@ -107,3 +107,7 @@ reference_count_string_timer: reference_count_string_timer.cc reference_count_st
 # make DEBUG=DEBUG reference_count_string_timer for verbosity
 reference_count_string_timer_debug: reference_count_string_timer.cc reference_count_string.cc reference_count_string.h
 	$(CC) $(CXXFLAGS) $(LDFLAGS) -DDEBUG="DEBUG" reference_count_string_timer.cc reference_count_string.cc reference_count_string.h -o $@
+
+# Does not compile.
+#generic_stack_lib_test: generic_stack_lib.cc generic_stack.h generic_stack_lib_test.cc $(GTEST_HEADERS)
+#      $(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) generic_stack_lib.cc generic_stack_lib_test.cc -o $@
