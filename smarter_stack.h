@@ -34,18 +34,30 @@ public:
       data_[i] = data.at(i);
     }
   }
+  // Copy ctor.
+  SmarterStack(const SmarterStack &st) : size_(st.size_), top_(st.size_) {
+    data_ = new double[size_];
+    assert(nullptr != data_);
+    for (int i = 0; i < size_; i++) {
+      data_[i] = st.data_[i];
+    }
+  }
+
   ~SmarterStack() { delete[] data_; }
 
   void Push(double datum);
   double Pop();
+  void Reverse();
 
   friend ::std::ostream &operator<<(::std::ostream &out,
                                     const SmarterStack &st);
+  friend bool operator==(SmarterStack &a, SmarterStack &b);
   friend bool operator==(const SmarterStack &a, const SmarterStack &b);
 
   bool full() const { return (top_ == size_); }
   bool empty() const { return (top_ == 0); }
   double operator[](int i);
+  double operator[](int i) const;
 
 private:
   int size_, top_;
@@ -53,5 +65,6 @@ private:
 };
 
 ::std::ostream &operator<<(::std::ostream &out, const SmarterStack &st);
+bool operator==(SmarterStack &a, SmarterStack &b);
 bool operator==(const SmarterStack &a, const SmarterStack &b);
 } // namespace smarter_stack

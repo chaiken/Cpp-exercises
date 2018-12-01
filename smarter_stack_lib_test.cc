@@ -66,5 +66,30 @@ TEST_F(SmarterStackDeathTest, Full) {
   EXPECT_DEATH(st3->Push(6.0), "No space left on device.");
 }
 
+TEST_F(SmarterStackTest, Equality) {
+  vector<double> data1 = {0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0};
+  SmarterStack st4(data1);
+  EXPECT_EQ(*st1, st4);
+}
+
+TEST_F(SmarterStackTest, CopyCtor) {
+  SmarterStack st4(*st1);
+  EXPECT_EQ(*st1, st4);
+}
+
+TEST_F(SmarterStackTest, Reverse) {
+  EXPECT_FALSE(*st1 == *st2);
+  (*st2).Reverse();
+  EXPECT_EQ(*st1, *st2);
+}
+
+TEST_F(SmarterStackTest, DoubleReverseIsIdempotent) {
+  SmarterStack st4(*st1);
+  st4.Reverse();
+  EXPECT_FALSE(*st1 == st4);
+  st4.Reverse();
+  EXPECT_EQ(*st1, st4);
+}
+
 } // namespace testing
 } // namespace smarter_stack

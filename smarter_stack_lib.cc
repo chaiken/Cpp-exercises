@@ -3,6 +3,7 @@
 #include <cassert>
 #include <cerrno>
 
+#include <iostream>
 #include <ostream>
 
 using namespace std;
@@ -22,6 +23,39 @@ double SmarterStack::operator[](int i) {
   return data_[i];
 }
 
+double SmarterStack::operator[](int i) const {
+  assert((i < top_) && (i >= 0));
+  return data_[i];
+}
+
+bool operator==(SmarterStack &a, SmarterStack &b) {
+  if (a.size_ != b.size_) {
+    return false;
+  }
+  int i = 0;
+  while (i < a.size_) {
+    if (a[i] != b[i]) {
+      return false;
+    }
+    i++;
+  }
+  return true;
+}
+
+bool operator==(const SmarterStack &a, const SmarterStack &b) {
+  if (a.size_ != b.size_) {
+    return false;
+  }
+  int i = 0;
+  while (i < a.size_) {
+    if (a[i] != b[i]) {
+      return false;
+    }
+    i++;
+  }
+  return true;
+}
+
 void SmarterStack::Push(double datum) {
   if (full()) {
     assert_perror(ENOSPC);
@@ -36,6 +70,21 @@ double SmarterStack::Pop() {
   }
   // The last element that can be popped is at index 0.
   return (data_[--top_]);
+}
+
+void SmarterStack::Reverse() {
+  SmarterStack temp(size_);
+  int i = 0;
+  while (!empty()) {
+    temp.Push(data_[i]);
+    Pop();
+    i++;
+  }
+  assert(temp.full());
+  assert(empty());
+  while (!temp.empty()) {
+    Push(temp.Pop());
+  }
 }
 
 } // namespace smarter_stack
