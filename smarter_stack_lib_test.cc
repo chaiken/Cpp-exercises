@@ -91,5 +91,22 @@ TEST_F(SmarterStackTest, DoubleReverseIsIdempotent) {
   EXPECT_EQ(*st1, st4);
 }
 
+TEST_F(SmarterStackTest, EmptySubsequence) {
+  SmarterStack teststack = (*st1)(0);
+  EXPECT_TRUE(teststack.empty());
+}
+
+TEST_F(SmarterStackTest, SubsequenceTest) {
+  SmarterStack teststack = (*st1)(3);
+  EXPECT_FALSE(teststack.empty());
+  EXPECT_EQ(2.0, teststack.Pop());
+}
+
+TEST_F(SmarterStackTest, OverlongSubsequence) {
+  SmarterStack teststack = (*st1)(100);
+  EXPECT_FALSE(teststack.empty());
+  EXPECT_EQ(6.0, teststack.Pop());
+}
+
 } // namespace testing
 } // namespace smarter_stack

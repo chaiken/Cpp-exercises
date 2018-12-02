@@ -56,6 +56,17 @@ bool operator==(const SmarterStack &a, const SmarterStack &b) {
   return true;
 }
 
+// Overload the function operator to provide subsequences of the stack.
+SmarterStack SmarterStack::operator()(int i) const {
+  const int numelem = (i > top_) ? top_ : i;
+  vector<double> temp;
+  for (int j = 0; j < numelem; j++) {
+    temp.push_back(data_[j]);
+  }
+  // Implicitly convert the vector to a SmarterStack.
+  return temp;
+}
+
 void SmarterStack::Push(double datum) {
   if (full()) {
     assert_perror(ENOSPC);
@@ -77,6 +88,7 @@ void SmarterStack::Reverse() {
   int i = 0;
   while (!empty()) {
     temp.Push(data_[i]);
+    // Pushing Pop()'ed data on temp directly results in two reversals.
     Pop();
     i++;
   }

@@ -58,6 +58,8 @@ public:
   bool empty() const { return (top_ == 0); }
   double operator[](int i);
   double operator[](int i) const;
+  // Return a subsequence of the stack.
+  SmarterStack operator()(int i) const;
 
 private:
   int size_, top_;
