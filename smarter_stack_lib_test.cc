@@ -1,6 +1,7 @@
 #include "smarter_stack.h"
 
 #include <cstdio>
+#include <cstring>
 
 #include "gtest/gtest.h"
 
@@ -29,9 +30,14 @@ protected:
 };
 
 TEST_F(SmarterStackTest, Ctors) {
-  cout << *st1;
+  ostringstream ost, ost1;
+  ost << *st1;
+  // Taking the str() member forces the compiler to resolve the overload of
+  // operator<<() to the STL definition.
+  EXPECT_EQ("0123456", ost.str());
   EXPECT_TRUE(st1->full());
-  cout << *st2;
+  ost1 << *st2;
+  EXPECT_EQ("6543210", ost1.str());
   EXPECT_FALSE(st2->empty());
 }
 
@@ -87,25 +93,85 @@ TEST_F(SmarterStackTest, DoubleReverseIsIdempotent) {
   SmarterStack st4(*st1);
   st4.Reverse();
   EXPECT_FALSE(*st1 == st4);
+  ostringstream ost;
+  ost << st4;
+  EXPECT_EQ("6543210", ost.str());
   st4.Reverse();
   EXPECT_EQ(*st1, st4);
+  ostringstream ost1;
+  ost1 << st4;
+  EXPECT_EQ("0123456", ost1.str());
 }
 
-TEST_F(SmarterStackTest, EmptySubsequence) {
-  SmarterStack teststack = (*st1)(0);
-  EXPECT_TRUE(teststack.empty());
+TEST_F(SmarterStackDeathTest, EmptySingleEndedSubsequence) {
+  EXPECT_DEATH(SmarterStack teststack = (*st1)(-1), "Invalid argument.");
 }
 
-TEST_F(SmarterStackTest, SubsequenceTest) {
+TEST_F(SmarterStackDeathTest, OverlongSingleEndedSubsequence) {
+  EXPECT_DEATH(SmarterStack teststack = (*st1)(100), "Invalid argument.");
+}
+
+TEST_F(SmarterStackTest, SingleEndedSubsequenceTest) {
   SmarterStack teststack = (*st1)(3);
   EXPECT_FALSE(teststack.empty());
-  EXPECT_EQ(2.0, teststack.Pop());
+  EXPECT_EQ(4, teststack.depth());
+  ostringstream ost;
+  ost << teststack;
+  EXPECT_EQ("0123", ost.str());
+  EXPECT_EQ(3.0, teststack.Pop());
+
+  // The top element of st1 has index st1->depth()-1, so the 'to' parameter of
+  // the subsequence points to the last element of st1.
+  SmarterStack teststack2 = (*st1)(st1->depth() - 1);
+  ostringstream ost1;
+  ost1 << teststack2;
+  EXPECT_EQ("0123456", ost1.str());
+  EXPECT_EQ(st1->depth(), teststack2.depth());
+  EXPECT_EQ(st1->Pop(), teststack2.Pop());
 }
 
-TEST_F(SmarterStackTest, OverlongSubsequence) {
-  SmarterStack teststack = (*st1)(100);
+TEST_F(SmarterStackTest, EmptyDoubleEndedSubsequence) {
+  EXPECT_DEATH(SmarterStack teststack = (*st1)(-1, 0), "Invalid argument.");
+  // Produces a subsequence with element 0.
+  //  EXPECT_DEATH(SmarterStack teststack = (*st1)(0, 0), "Invalid argument.");
+  EXPECT_DEATH(SmarterStack teststack = (*st1)(5, 0), "Invalid argument.");
+}
+
+TEST_F(SmarterStackTest, OverlongDoubleEndedSubsequence) {
+  EXPECT_DEATH(SmarterStack teststack = (*st1)(100), "Invalid argument.");
+}
+
+TEST_F(SmarterStackTest, DoubleEndedSubsequenceTest) {
+  ostringstream ost;
+  SmarterStack teststack = (*st1)(0, 3);
   EXPECT_FALSE(teststack.empty());
-  EXPECT_EQ(6.0, teststack.Pop());
+  ASSERT_EQ(4, teststack.depth());
+  ost << teststack;
+  EXPECT_EQ("0123", ost.str());
+  EXPECT_EQ(3.0, teststack.Pop());
+
+  // Reusing the teststack variable causes a use-after-free error.
+  SmarterStack teststack2 = (*st1)(1, 4);
+  ASSERT_EQ(4, teststack2.depth());
+  ostringstream ost1;
+  ost1 << teststack2;
+  EXPECT_EQ("1234", ost1.str());
+  EXPECT_EQ(4.0, teststack2.Pop());
+
+  SmarterStack teststack3 = (*st1)(0, st1->depth() - 1);
+  ostringstream ost2;
+  ost2 << teststack3;
+  EXPECT_EQ("0123456", ost2.str());
+  ASSERT_EQ(st1->depth(), teststack3.depth());
+  EXPECT_EQ(st1->Pop(), teststack3.Pop());
+}
+
+TEST_F(SmarterStackTest, IncreasingSubsequences) {
+  vector<double> vec = {7, 9, 3, 2, 6, 8, 9, 2};
+  SmarterStack st(vec);
+  ostringstream ost;
+  PrintIncreasingSubsequences(ost, st);
+  EXPECT_EQ("(79),(3),(2689),(2),", ost.str());
 }
 
 } // namespace testing
