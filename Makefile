@@ -114,3 +114,6 @@ reference_count_string_timer_debug: reference_count_string_timer.cc reference_co
 
 smarter_stack_lib_test: smarter_stack_lib.cc smarter_stack_lib_test.cc smarter_stack.h $(GTEST_HEADERS)
 	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) smarter_stack_lib.cc smarter_stack_lib_test.cc -o $@
+
+smarter_queue_lib_test: smarter_queue_lib.cc smarter_queue_lib_test.cc smarter_queue.h $(GTEST_HEADERS)
+	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) smarter_queue_lib.cc smarter_queue_lib_test.cc -o $@
