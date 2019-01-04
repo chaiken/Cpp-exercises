@@ -21,6 +21,7 @@ void SmarterQueue::Push(double dat) {
     for (int i = reader_cursor_; i < size_; i++) {
       data_[i - reader_cursor_] = data_[i];
     }
+    reader_cursor_ = 0;
     return;
   }
   data_[writer_cursor_++] = dat;

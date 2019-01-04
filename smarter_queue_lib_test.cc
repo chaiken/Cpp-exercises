@@ -59,5 +59,12 @@ TEST_F(SmarterQueueTest, PushandPop) {
   ASSERT_TRUE(st2.is_empty());
 }
 
+TEST_F(SmarterQueueTest, Rebalance) {
+  st1_->Pop();
+  ASSERT_FALSE(st1_->is_full());
+  st1_->Push(-11.0);
+  ASSERT_TRUE(st1_->is_full());
+}
+
 } // namespace testing
 } // namespace smarter_queue

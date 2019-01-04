@@ -31,7 +31,7 @@ public:
   ~SmarterQueue() { delete[] data_; }
   bool is_empty() const { return reader_cursor_ == writer_cursor_; }
   bool is_full() const {
-    return (writer_cursor_ == size_) && (0 == reader_cursor_);
+    return ((writer_cursor_ == size_) && (0 == reader_cursor_));
   }
   // Must be a friend rather than class-member operator<< can take only one
   // argument. and needs access to private data.
