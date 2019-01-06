@@ -33,6 +33,7 @@ TEST_F(SmarterQueueTest, VectorConstructor) {
   ASSERT_NE(nullptr, vec_);
   ASSERT_TRUE(st1_->is_full());
   ASSERT_FALSE(st1_->is_empty());
+  cout << *st1_ << endl;
   for (double x : *vec_) {
     EXPECT_EQ(x, st1_->Pop());
   }
@@ -79,6 +80,23 @@ TEST_F(SmarterQueueTest, Equality) {
 TEST_F(SmarterQueueTest, Subsequence) {
   SmarterQueue st2({1.0, 2.0});
   EXPECT_TRUE(st2 == (*st1_)(1, 2));
+}
+
+TEST_F(SmarterQueueTest, CopyCtor) {
+  SmarterQueue st2(*st1_);
+  EXPECT_TRUE(st2 == *st1_);
+}
+
+TEST_F(SmarterQueueTest, IsIncreasing) {
+  EXPECT_TRUE(SequenceIsIncreasing(*vec_));
+  EXPECT_FALSE(SequenceIsIncreasing({6.0, 5.0, 4.0}));
+}
+
+TEST_F(SmarterQueueTest, IncreasingSubsequences) {
+  ostringstream out;
+  SmarterQueue sq({7.0, 9.0, 3.0, 2.0, 6.0, 8.0, 9.0, 2.0});
+  FindIncreasingSubsequences(out, sq);
+  EXPECT_EQ("(7 9 ), (3 ), (2 6 8 9 ), (2 )", out.str());
 }
 
 using SmarterQueueDeathTest = SmarterQueueTest;

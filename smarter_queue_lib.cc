@@ -23,12 +23,12 @@ SmarterQueue SmarterQueue::operator()(int begin, int end) {
   return vec;
 }
 
-bool SmarterQueue::operator==(const SmarterQueue &sq) {
-  if (sq.size_ != size_) {
+bool operator==(const SmarterQueue &sq1, const SmarterQueue &sq2) {
+  if (sq1.size_ != sq2.size_) {
     return false;
   }
-  for (int i = 0; i < size_; i++) {
-    if (sq.data_[i] != data_[i]) {
+  for (int i = 0; i < sq1.size_; i++) {
+    if (sq1.data_[i] != sq2.data_[i]) {
       return false;
     }
   }
@@ -56,6 +56,52 @@ double SmarterQueue::Pop() {
     assert_perror(ENODATA);
   }
   return data_[reader_cursor_++];
+}
+
+// Pass the argument by value to avoid const-conversion with the iterator.
+bool SequenceIsIncreasing(vector<double> vec) {
+  if (vec.empty() || (1 == vec.size())) {
+    return true;
+  }
+  double last = vec.front();
+  for (vector<double>::iterator it = vec.begin(); it < vec.end(); it++) {
+    if ((*it) < last) {
+      return false;
+    }
+    last = *it;
+  }
+  return true;
+}
+
+void FindIncreasingSubsequences(ostream &out, const SmarterQueue &sq) {
+  // Get mutable copy.
+  SmarterQueue sq1(sq);
+  out << "(";
+  vector<double> vec;
+  while (!sq1.is_empty()) {
+    double save;
+    // Save the increasing subsequences in a vector.
+    vec.push_back(sq1.Pop());
+    if (!SequenceIsIncreasing(vec)) {
+      // Putting decreasing element back on FIFO Queue doesn't work, since
+      // reader and writer are at different ends by design.
+      // sq1.Push(vec.pop_back());
+      // Remove and save the decreasing element.
+      save = vec.back();
+      vec.pop_back();
+      out << vec;
+      out << "), (";
+
+      // Start next iteration with decreasing element.
+      vec.clear();
+      vec.push_back(save);
+    }
+  }
+  // Make sure last element gets printed.
+  if (!vec.empty()) {
+    out << vec;
+    out << ")";
+  }
 }
 
 } // namespace smarter_queue
