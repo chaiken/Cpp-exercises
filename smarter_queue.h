@@ -33,6 +33,11 @@ public:
   bool is_full() const {
     return ((writer_cursor_ == size_) && (0 == reader_cursor_));
   }
+  // subsequence overload of the function operator.
+  // Number of elements in the new SmarterQueue is (end - begin + 1) since both
+  // bounds are included.
+  SmarterQueue operator()(int begin, int end);
+  bool operator==(const SmarterQueue &sq);
   // Must be a friend rather than class-member operator<< can take only one
   // argument. and needs access to private data.
   friend ::std::ostream &operator<<(::std::ostream &out,

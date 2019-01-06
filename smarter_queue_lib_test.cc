@@ -60,10 +60,36 @@ TEST_F(SmarterQueueTest, PushandPop) {
 }
 
 TEST_F(SmarterQueueTest, Rebalance) {
-  st1_->Pop();
+  EXPECT_EQ(0.0, st1_->Pop());
+  EXPECT_EQ(1.0, st1_->Pop());
   ASSERT_FALSE(st1_->is_full());
   st1_->Push(-11.0);
   ASSERT_TRUE(st1_->is_full());
+}
+
+TEST_F(SmarterQueueTest, Equality) {
+  SmarterQueue st2(*vec_);
+  EXPECT_TRUE(*st1_ == st2);
+  SmarterQueue st3({1.0, 2.0});
+  EXPECT_FALSE(*st1_ == st3);
+  SmarterQueue st4(3), st5(3);
+  EXPECT_TRUE(st4 == st5);
+}
+
+TEST_F(SmarterQueueTest, Subsequence) {
+  SmarterQueue st2({1.0, 2.0});
+  EXPECT_TRUE(st2 == (*st1_)(1, 2));
+}
+
+using SmarterQueueDeathTest = SmarterQueueTest;
+
+TEST_F(SmarterQueueDeathTest, EmptyPop) {
+  SmarterQueue st2;
+  EXPECT_DEATH(st2.Pop(), "No data available");
+}
+
+TEST_F(SmarterQueueDeathTest, BadBounds) {
+  EXPECT_DEATH((*st1_)(-1, -3), "Invalid argument");
 }
 
 } // namespace testing
