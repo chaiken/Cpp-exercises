@@ -10,9 +10,9 @@ namespace smarter_list {
 
 // Callers of the function must check that the return value is not null and
 // refrain from calling the function again if it is.
-const ListNode *SmarterList::operator++() {
+const ListNode *SmarterList::operator++() const {
+  assert(nullptr != head_);
   static ListNode *current = head_;
-  assert(nullptr != current);
   current = cursor_->next;
   cursor_ = current;
   return (cursor_);

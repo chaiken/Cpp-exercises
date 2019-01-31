@@ -44,17 +44,25 @@ public:
     assert(nullptr != head_);
     assert(nullptr != head_->next);
   }
-  // Copy constructor.
+  // Copy constructor.  The constructor could save the node number and provide
+  // that for bounds checking of the index operator[], but that's not a common
+  // list idiom.
   SmarterList(const SmarterList &sl) : head_(nullptr) {
     if (nullptr != sl.head_) {
       head_ = new ListNode(sl.head_);
       assert(nullptr != head_);
+      head_->next = sl.head_->next;
 
       ListNode *current = head_;
-      while (current->next) {
-        ListNode *ln = new ListNode(current->next);
+      // Only changes cursor_, which is mutable.
+      sl.reset();
+      while (sl.cursor_->next) {
+        ListNode *ln = new ListNode(*(sl.cursor_->next));
+        assert(nullptr != ln);
         current->next = ln;
         current = current->next;
+        // Only changes cursor_, which is mutable.
+        ++sl;
       }
     }
     cursor_ = head_;
@@ -70,21 +78,24 @@ public:
     head_ = nullptr;
   }
   // Reset the list cursor to the head.
-  void reset() { cursor_ = head_; }
+  // Only changes cursor_, which is mutable.
+  void reset() const { cursor_ = head_; }
   // Retrieve the list head.
   ListNode *begin() {
     reset();
     assert(nullptr != head_);
     return cursor_;
   }
+  bool empty() { return (nullptr == head_); }
   ListNode &operator[](int i);
 
-  const ListNode *operator++();
+  // Only changes cursor_, which is mutable.
+  const ListNode *operator++() const;
   friend ::std::ostream &operator<<(::std::ostream &out, SmarterList &sl);
 
 private:
   ListNode *head_;
-  ListNode *cursor_;
+  mutable ListNode *cursor_;
 };
 
 ::std::ostream &operator<<(::std::ostream &out, const SmarterList &sl);

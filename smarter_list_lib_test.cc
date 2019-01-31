@@ -34,7 +34,20 @@ TEST_F(SmarterListTest, ArrayConstructor) {
   EXPECT_EQ("A, B, C, D, E, F, \n", output.str());
 }
 
-TEST_F(SmarterListTest, IndexOperator) { EXPECT_EQ("A", (*sl1_)[0].name); }
+TEST_F(SmarterListTest, IndexOperator) {
+  int i = 0;
+  for (auto it = vec_->begin(); it != vec_->end(); it++, i++) {
+    EXPECT_EQ((*it), (*sl1_)[i].name);
+  }
+}
+
+TEST_F(SmarterListTest, CopyConstructor) {
+  SmarterList sl2(*sl1_);
+  ASSERT_FALSE(sl2.empty());
+  ostringstream output;
+  output << sl2;
+  EXPECT_EQ("A, B, C, D, E, F, \n", output.str());
+}
 
 } // namespace testing
 } // namespace smarter_list
