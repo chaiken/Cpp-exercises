@@ -49,5 +49,20 @@ TEST_F(SmarterListTest, CopyConstructor) {
   EXPECT_EQ("A, B, C, D, E, F, \n", output.str());
 }
 
+TEST_F(SmarterListTest, DeleteNode) {
+  --(*sl1_);
+  ostringstream output;
+  output << (*sl1_);
+  EXPECT_EQ("A, B, C, D, E, \n", output.str());
+}
+
+TEST_F(SmarterListTest, AppendNode) {
+  ListNode ln("G");
+  (*sl1_) + (ln);
+  ostringstream output;
+  output << (*sl1_);
+  EXPECT_EQ("A, B, C, D, E, F, G, \n", output.str());
+}
+
 } // namespace testing
 } // namespace smarter_list

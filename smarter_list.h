@@ -87,6 +87,8 @@ public:
     return cursor_;
   }
   bool empty() { return (nullptr == head_); }
+  SmarterList &operator+(const ListNode &ln);
+  SmarterList &operator--();
   ListNode &operator[](int i);
 
   // Only changes cursor_, which is mutable.
