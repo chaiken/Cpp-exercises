@@ -43,36 +43,42 @@ ListNode &SmarterList::operator[](int i) {
 }
 
 SmarterList &SmarterList::operator+(const ListNode &ln) {
-  // No need to reset(), as we want the last node anyway.
-  while (nullptr != cursor_->next) {
-    cursor_ = cursor_->next;
-  }
   // Does this violate RAII?   If so, what is an RAII way to accomplish the same
   // thing?  The two lines below result in SEGV.
   // unique_ptr<ListNode> newln = make_unique<ListNode>(ln);
   // cursor_->next = newln.get();
   ListNode *newln = new ListNode(ln);
-  cursor_->next = newln;
+  // No need to reset(), as we want the last node anyway.
+  if (nullptr != head_) {
+    while (nullptr != cursor_->next) {
+      cursor_ = cursor_->next;
+    }
+    cursor_->next = newln;
+  } else {
+    head_ = newln;
+  }
   // Should be processed by copy constructor.  That seems inefficient, but how
   // else to do it?
   return *this;
 }
 
 SmarterList &SmarterList::operator--() {
-  // In case the list contains only one element, we need to initialize save.
-  ListNode *save = head_;
-  save->next = head_->next;
-  // No need to reset(), as it's okay if cursor_ is at list end.
-  while (nullptr != cursor_->next) {
-    save = cursor_;
-    cursor_ = cursor_->next;
+  if (!empty()) {
+    // In case the list contains only one element, we need to initialize save.
+    ListNode *save = head_;
+    save->next = head_->next;
+    // No need to reset(), as it's okay if cursor_ is at list end.
+    while (nullptr != cursor_->next) {
+      save = cursor_;
+      cursor_ = cursor_->next;
+    }
+    // Does this violate RAII?   If so, what is an RAII way to accomplish the
+    // same thing?
+    delete cursor_;
+    save->next = nullptr;
+    // So cursor_ is not left NULL for next caller.
+    reset();
   }
-  // Does this violate RAII?   If so, what is an RAII way to accomplish the same
-  // thing?
-  delete cursor_;
-  save->next = nullptr;
-  // So cursor_ is not left NULL for next caller.
-  reset();
   return *this;
 }
 

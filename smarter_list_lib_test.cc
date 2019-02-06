@@ -58,10 +58,28 @@ TEST_F(SmarterListTest, DeleteNode) {
 
 TEST_F(SmarterListTest, AppendNode) {
   ListNode ln("G");
-  (*sl1_) + (ln);
+  (*sl1_) + ln;
   ostringstream output;
   output << (*sl1_);
   EXPECT_EQ("A, B, C, D, E, F, G, \n", output.str());
+}
+
+TEST_F(SmarterListTest, EmptyList) {
+  SmarterList sl;
+  ASSERT_TRUE(sl.empty());
+  --sl;
+  ASSERT_TRUE(sl.empty());
+  ListNode ln("G");
+  sl + ln;
+  ASSERT_FALSE(sl.empty());
+  ostringstream output;
+  output << sl;
+  EXPECT_EQ("G, \n", output.str());
+}
+
+TEST(SmarterListDeathTest, IndexEmptyList) {
+  SmarterList sl;
+  EXPECT_DEATH(sl[0], "No data available.");
 }
 
 } // namespace testing

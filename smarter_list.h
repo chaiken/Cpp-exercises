@@ -68,14 +68,15 @@ public:
     cursor_ = head_;
   }
   ~SmarterList() {
-    assert(nullptr != head_);
-    ListNode *node = head_, *next = head_;
-    while (nullptr != node) {
-      next = node->next;
-      delete node;
-      node = next;
+    if (nullptr != head_) {
+      ListNode *node = head_, *next = head_;
+      while (nullptr != node) {
+        next = node->next;
+        delete node;
+        node = next;
+      }
+      head_ = nullptr;
     }
-    head_ = nullptr;
   }
   // Reset the list cursor to the head.
   // Only changes cursor_, which is mutable.
