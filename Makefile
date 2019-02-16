@@ -120,3 +120,6 @@ smarter_queue_lib_test: smarter_queue_lib.cc smarter_queue_lib_test.cc smarter_q
 
 smarter_list_lib_test: smarter_list_lib.cc smarter_list_lib_test.cc smarter_list.h $(GTEST_HEADERS)
 	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) smarter_list_lib.cc smarter_list_lib_test.cc -o $@
+
+new_clock_lib_test: new_clock_lib.cc new_clock_lib_test.cc new_clock.h $(GTEST_HEADERS)
+	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) new_clock_lib.cc new_clock_lib_test.cc -o $@
