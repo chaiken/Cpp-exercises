@@ -12,17 +12,19 @@ namespace new_clock {
 
 class NewClock {
 public:
-  NewClock() {
-    const time_point<system_clock, duration<int>> tp_seconds(duration<int>(0));
-    system_clock::time_point time_(tp_seconds);
+  NewClock(int start = 0) {
+    const duration<int> dur(start);
+    time_ = new time_point<system_clock, duration<int>>(dur);
+    assert(nullptr != time_);
   }
+  ~NewClock() { delete time_; }
   void operator++(int seconds = 1);
   void operator--(int seconds = 1);
   friend ::std::ostream &operator<<(::std::ostream &out, const NewClock &nc);
-  long int get_seconds() const;
+  long int GetSeconds() const;
 
 private:
-  time_point<system_clock, duration<int>> time_;
+  time_point<system_clock, duration<int>> *time_;
 };
 
 ::std::ostream &operator<<(::std::ostream &out, const NewClock &nc);
