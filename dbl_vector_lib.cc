@@ -7,7 +7,7 @@ using namespace std;
 
 namespace dbl_vect {
 
-double &DoubleVectorIterator::Iterate() { return (*dv_)[++position_]; }
+double &DoubleVectorIterator::Iterate() const { return (*dv_)[++position_]; }
 
 double &Max(DoubleVector &v) {
   DoubleVectorIterator iter(v);

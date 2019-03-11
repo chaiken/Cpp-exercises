@@ -32,13 +32,11 @@ public:
   // Can't be const argument, as then dv_ would have to be const, and the
   // operator[] would fail to match.
   DoubleVectorIterator(DoubleVector &v) : dv_(&v), position_(0) {}
-  // The text has this function as const, but that seems useless.  What's the
-  // point of only unmodifiable private variables?  The whole class was const.
-  double &Iterate();
+  double &Iterate() const;
 
 private:
   DoubleVector *dv_;
-  int position_;
+  mutable int position_;
 };
 
 class DoubleVector {
