@@ -97,6 +97,13 @@ TEST_F(DoubleVectorTest, MaxWorks) {
   ASSERT_EQ(c, Max(*a));
 }
 
+TEST_F(DoubleVectorTest, MemberOperatorTest) {
+  DoubleVectorIterator c(*a);
+  // Call DoubleVector's ub() method via the member-access operator overload of
+  // DoubleVectorIterator.
+  EXPECT_EQ(4, c->ub());
+}
+
 } // namespace testing
 } // namespace dbl_vect
 

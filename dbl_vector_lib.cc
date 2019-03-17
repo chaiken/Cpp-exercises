@@ -14,7 +14,8 @@ double &Max(DoubleVector &v) {
   double a = v[0];
   int max = 0, i = 1;
   // Start with i=1 since the first iteration gets the second value.
-  while (i <= v.ub()) {
+  // v.ub() would use the DoubleVector object's call directly.
+  while (i <= iter->ub()) {
     double b = iter.Iterate();
     if (b > a) {
       a = b;
@@ -22,7 +23,9 @@ double &Max(DoubleVector &v) {
     }
     i++;
   }
-  assert(max >= 0 && max <= v.ub());
+  // iter->ub() uses DoubleVector's member-access overload operator->().
+  // v.ub() would use the DoubleVector object's call directly.
+  assert(max >= 0 && max <= iter->ub());
   return v[max];
 }
 

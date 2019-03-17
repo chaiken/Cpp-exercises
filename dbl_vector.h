@@ -32,6 +32,11 @@ public:
   // Can't be const argument, as then dv_ would have to be const, and the
   // operator[] would fail to match.
   DoubleVectorIterator(DoubleVector &v) : dv_(&v), position_(0) {}
+  // https://stackoverflow.com/questions/4928557/how-do-i-create-and-use-a-class-arrow-operator
+  // The member-access operator provides access to the methods of the
+  // DoubleVector class to users of DoubleVectorIterator that don't have
+  // information about DoubleVector itself.
+  DoubleVector *operator->() { return dv_; }
   double &Iterate() const;
 
 private:
