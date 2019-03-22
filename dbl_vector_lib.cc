@@ -7,18 +7,17 @@ using namespace std;
 
 namespace dbl_vect {
 
-double &DoubleVectorIterator::Iterate() const { return (*dv_)[++position_]; }
+double &DoubleVectorIterator::operator++() const { return (*dv_)[++position_]; }
 
 double &Max(DoubleVector &v) {
   DoubleVectorIterator iter(v);
-  double a = v[0];
-  int max = 0, i = 1;
-  // Start with i=1 since the first iteration gets the second value.
-  // v.ub() would use the DoubleVector object's call directly.
-  while (i <= iter->ub()) {
-    double b = iter.Iterate();
-    if (b > a) {
-      a = b;
+  int max = 0, i = 0;
+  double a = *(v.begin());
+  // The begin() and end() are those of DoubleVector and are accessed via
+  // operator->().  The -> here does not indicate a pointer-based lookup.
+  for (double *b = iter->begin(); b != iter->end(); b++) {
+    if (*b > a) {
+      a = *b;
       max = i;
     }
     i++;
@@ -69,26 +68,15 @@ double &DoubleVector::Element(int i) {
   return p_[i];
 }
 
-double &DoubleVector::Iterate() {
-  static int i = 0;
-  // Wraps around.  Is that what users expect?
-  i = i % size_;
-  return p_[i++];
-}
-
-void PrintDblVector(DoubleVector &v) {
+ostream &operator<<(ostream &out, DoubleVector &dv) {
   int i = 0;
-  while (i++ <= v.ub()) {
-    cout << i << "," << v.Iterate() << endl;
+  DoubleVectorIterator iter(dv);
+  // -> is once again associated with operator->() override.
+  for (double *a = iter->begin(); a != iter->end(); a++, i++) {
+    out << i << "," << *a << " ";
   }
-}
-
-void DoubleVector::Print() const {
-  cout << "vector of size " << size_ << endl;
-  for (int i = 0; i < size_; i++) {
-    cout << p_[i] << "\t";
-  }
-  cout << endl;
+  out << endl;
+  return out;
 }
 
 double DoubleVector::DotProduct(const DoubleVector &v) const {

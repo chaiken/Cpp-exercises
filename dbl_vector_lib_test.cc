@@ -20,7 +20,6 @@ public:
     }
   }
   virtual ~DoubleVectorTest() {
-    cout << "Test destructor." << endl;
     assert(a != b);
     delete a;
     delete b;
@@ -66,28 +65,31 @@ TEST_F(DoubleVectorTest, AssignmentWorks) {
   EXPECT_TRUE((*a) == (*b));
 }
 
+TEST_F(DoubleVectorTest, PrintingWorks) {
+  ostringstream out;
+  out << *a;
+  EXPECT_EQ("0,0 1,2 2,4 3,6 4,8 \n", out.str());
+}
+
 TEST_F(DoubleVectorTest, PlusWorks) {
   DoubleVector c(*a);
   c = *a + *b;
-  PrintDblVector(c);
+  ASSERT_EQ(c.ub(), a->ub());
   ASSERT_EQ(a->SumElements() + b->SumElements(), c.SumElements());
-}
-
-TEST_F(DoubleVectorTest, IteratorWorks) {
-  for (int i = 0; i <= a->ub(); i++) {
-    double b = a->Iterate();
-    ASSERT_EQ(b, (*a)[i]);
-  }
+  // Prints the leading string with ::std::cout, then calls the operator<<() for
+  // the DoubleVector.
+  cout << "a: " << *a;
+  cout << "b: " << *b;
+  cout << "Sum: " << c;
 }
 
 TEST_F(DoubleVectorTest, DoubleVectorIteratorBasic) {
   DoubleVectorIterator iter(*a), iter2(*b);
-  double val = iter.Iterate();
+  double val = ++iter;
   ASSERT_EQ(val, (*a)[1]);
-  double val2 = iter2.Iterate();
+  double val2 = ++iter2;
   ASSERT_EQ(val2, (*b)[1]);
-
-  val = iter.Iterate();
+  val = ++iter;
   ASSERT_EQ(val, (*a)[2]);
 }
 

@@ -37,7 +37,7 @@ public:
   // DoubleVector class to users of DoubleVectorIterator that don't have
   // information about DoubleVector itself.
   DoubleVector *operator->() { return dv_; }
-  double &Iterate() const;
+  double &operator++() const;
 
 private:
   DoubleVector *dv_;
@@ -53,22 +53,25 @@ public:
   DoubleVector(const DoubleVector &v);
   DoubleVector(const double *v, int sz);
   DoubleVector(const ::std::vector<double> v);
-  ~DoubleVector() {
-    ::std::cout << "Destructor." << ::std::endl;
-    delete[] p_;
-  }
+  ~DoubleVector() { delete[] p_; }
   double &Element(int i);
   double &Iterate();
   int ub() const { return (size_ - 1); }
-  void Print() const;
   double SumElements() const;
   DoubleVector Add(const DoubleVector &);
   double DotProduct(const DoubleVector &v) const;
   double Amplitude() const;
   void Scale(const double scale);
   double &operator[](int i);
+  double *begin() const { return &p_[0]; }
+  // http://www.cplusplus.com/reference/iterator/end/
+  // Returns an iterator pointing to the past-the-end element in the sequence:
+  // Array: The function returns arr+N.
+  double *end() const { return &p_[ub() + 1]; }
   DoubleVector &operator=(const DoubleVector &v);
   bool operator==(DoubleVector &v);
+  // Not an overload but a friend, since the function signature doesn't match.
+  friend ::std::ostream &operator<<(::std::ostream &out, DoubleVector &dv);
   friend DoubleVector operator+(DoubleVector &a, DoubleVector &b);
   friend double &Iterate();
   friend matrix::Matrix matrix::Add(const DoubleVector &v,
@@ -81,7 +84,7 @@ private:
   int size_;
 };
 
-void PrintDblVector(DoubleVector &v);
+::std::ostream &operator<<(::std::ostream &out, DoubleVector &dv);
 DoubleVector operator+(DoubleVector &a, DoubleVector &b);
 DoubleVector SumVectors(const DoubleVector &, const DoubleVector &);
 } // namespace dbl_vect
