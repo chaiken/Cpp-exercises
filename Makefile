@@ -5,14 +5,19 @@ GTEST_DIR = $(HOME)/gitsrc/googletest/googletest
 # Wrong: do not include $(GTEST_DIR)/include/gtest/internal/*.h
 GTEST_HEADERS = $(GTEST_DIR)/include
 GTESTLIBPATH=$(GTEST_DIR)/make
-GTESTLIBS= $(GTESTLIBPATH)/libgtest.a $(GTESTLIBPATH)/gtest_main.a
+# See ~/gitsrc/googletest/googletest/README.md.
+# export GTEST_DIR=/home/alison/gitsrc/googletest/
+# g++ -std=c++11 -isystem ${GTEST_DIR}/include -I${GTEST_DIR} -pthread -c ${GTEST_DIR}/src/gtest-all.cc
+# cd make; make all
+# 'make' in the README.md above doesn't create libgtest_main.a.  'make all' does.
+GTESTLIBS= $(GTESTLIBPATH)/libgtest.a $(GTESTLIBPATH)/libgtest_main.a
 # Where to find user code.
 USER_DIR = .
 
 # http://www.valgrind.org/docs/manual/quick-start.html#quick-start.prepare
 # Compile your program with -g . . . Using -O0 is also a good idea, 
-CXXFLAGS= -ggdb -Wall -Wextra -g -O0 -fno-inline -fsanitize=address -I$(GTEST_HEADERS)
-#CXXFLAGS= -ggdb -Wall -Wextra -g -O0 -fno-inline -I$(GTEST_HEADERS)
+CXXFLAGS= -std=c++11 -ggdb -Wall -Wextra -g -O0 -fno-inline -fsanitize=address -I$(GTEST_HEADERS)
+#CXXFLAGS= -std=c++11 -ggdb -Wall -Wextra -g -O0 -fno-inline -I$(GTEST_HEADERS)
 # Set Google Test's header directory as a system directory, such that
 # the compiler doesn't generate warnings in Google Test headers.
 CPPFLAGS += -isystem $(GTEST_DIR)/include
