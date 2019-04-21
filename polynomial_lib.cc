@@ -3,88 +3,37 @@
 #include <cassert>
 
 using namespace std;
+using namespace term;
 
 namespace polynomial {
 
-namespace {
-
-// Add two Polynomial terms.  Since the terms are passed in and returned as
-// pointers, the function need not be a class member.
-term *AddTerms(term **termAp, term **termBp) {
-  term *t;
-  // If the one of the terms passed in is NULL, return a copy of the one that is
-  // not.
-  if ((0 == *termBp) || ((*termAp)->exponent > (*termBp)->exponent)) {
-    t = new term((*termAp)->exponent, (*termAp)->coefficient);
-    assert(t != 0);
-    (*termAp) = (*termAp)->next;
-  } else if ((0 == *termAp) || ((*termAp)->exponent < (*termBp)->exponent)) {
-    t = new term((*termBp)->exponent, (*termBp)->coefficient);
-    assert(t != 0);
-    (*termBp) = (*termBp)->next;
-  } else {
-    // Exponents are equal.
-    t = new term((*termAp)->exponent,
-                 (*termAp)->coefficient + (*termBp)->coefficient);
-    assert(t != 0);
-    (*termAp) = (*termAp)->next;
-    (*termBp) = (*termBp)->next;
-  }
-  return t;
-}
-} // namespace
-
-Polynomial::Polynomial(const Polynomial &p) {
-  // degree_ = p.degree_;
-  h_ = new term(p.h_->exponent, p.h_->coefficient);
+// Termlist constructor.
+Polynomial::Polynomial(const Term &tlist) {
+  log("Polynomial termlist constructor");
+  // An earlier version included the next pointer as an argument to the Term
+  // constructor.  That resulted in h_ have a non-NULL next pointer, which after
+  // reversal meant that the original trailing Terms were now at the head of the
+  // list.
+  h_ = new Term(tlist.exponent, tlist.coefficient);
   assert(h_ != 0);
 
-  term *cursor = p.h_->next;
-  term *t;
+  Term *cursor = tlist.next;
   while (cursor != 0) {
-    t = new term(cursor->exponent, cursor->coefficient);
-    assert(t != 0);
+    Term *t = new Term(move(*cursor));
     Prepend(t);
     cursor = cursor->next;
   }
   Reverse();
 }
 
-// When adding two Polynomials, if one has terms of lower degree than the other,
-// just Prepend() all of them.
-void Polynomial::RestOf(term *t) {
-  while (t != 0) {
-    term *copy = new term(t->exponent, t->coefficient);
-    assert(copy != 0);
-    Prepend(copy);
-    t = t->next;
-  }
-}
-
-// Instead of the stupid Plus() function.
-// FIX ME: going to bomb if one of the arguments is NULL.
-Polynomial::Polynomial(const Polynomial &a, const Polynomial &b) {
-  term *cursorA = a.h_;
-  term *cursorB = b.h_;
-
-  h_ = AddTerms(&cursorA, &cursorB);
-
-  while ((cursorA != 0) && (cursorB != 0)) {
-    term *t = AddTerms(&cursorA, &cursorB);
-    Prepend(t);
-  }
-
-  if ((0 == cursorA) && (0 != cursorB)) {
-    RestOf(cursorB);
-  }
-  if ((0 == cursorB) && (0 != cursorA)) {
-    RestOf(cursorA);
-  }
-  Reverse();
+Polynomial &Polynomial::operator=(Polynomial &&p) {
+  log("Polynomial assignment operator");
+  swap(h_, p.h_);
+  return *this;
 }
 
 void Polynomial::Release() {
-  term *cursor, *t = h_;
+  Term *cursor, *t = h_;
   if (!h_) {
     return;
   }
@@ -96,29 +45,14 @@ void Polynomial::Release() {
   delete t;
 }
 
-inline void Polynomial::Prepend(term *t) {
+inline void Polynomial::Prepend(Term *t) {
   t->next = h_;
   h_ = t;
 }
 
-void Polynomial::Print() const {
-  term *cursor = h_;
-  if (!h_) {
-    return;
-  }
-  cout << endl;
-  do {
-    cursor->print();
-    if (cursor->next != 0) {
-      cout << " + ";
-    }
-  } while ((cursor = cursor->next) != 0);
-  cout << endl;
-}
-
 // Far simpler than what appears in the text on p. 176.
 void Polynomial::Reverse() {
-  term *predecessor = 0, *element, *successor = h_;
+  Term *predecessor = 0, *element, *successor = h_;
   if (!h_) {
     return;
   }
@@ -130,4 +64,19 @@ void Polynomial::Reverse() {
   }
   h_ = element;
 }
+
+ostream &operator<<(ostream &out, const Polynomial &pn) {
+  if (!pn.h_) {
+    return out;
+  }
+  Term *cursor = pn.h_;
+  do {
+    out << *cursor;
+    if (cursor->next != 0) {
+      out << "+ ";
+    }
+  } while ((cursor = cursor->next) != 0);
+  return out;
+}
+
 } // namespace polynomial

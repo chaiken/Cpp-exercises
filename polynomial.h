@@ -1,47 +1,52 @@
+#ifndef POLYNOMIAL_H
+#define POLYNOMIAL_H
+
+#include "term.h"
+
 #include <array>
 #include <iostream>
 
 namespace polynomial {
 
-// Numerically sort array1, and reorder array2 the same way.
-template <long unsigned int N>
-void SyncSortTwoArrays(::std::array<int, N> *arr1,
-                       ::std::array<double, N> *arr2, int index);
-
-struct term {
-  term(int e, double c, term *n = 0) : exponent(e), coefficient(c), next(n) {}
-  void print() { std::cout << coefficient << "x^" << exponent << " "; }
-  int exponent;
-  double coefficient;
-  term *next;
-};
-
 class Polynomial {
 public:
   // Polynomial() : h_(0), degree_(0) {}
-  Polynomial() : h_(0) {}
+  Polynomial() : h_(0) { log("default constructor"); }
   template <long unsigned int N>
   Polynomial(::std::array<double, N> coef, ::std::array<int, N> expon);
-  // Copy constructor.
-  Polynomial(const Polynomial &p);
-  // Summing constructor.
-  Polynomial(const Polynomial &a, const Polynomial &b);
+  // List constructor
+  Polynomial(const term::Term &termlist);
+  // Move constructor.
+  Polynomial(Polynomial &&p) : Polynomial() {
+    ::std::cout << "term polynomial move constructor" << ::std::endl;
+    *this = ::std::move(p);
+  }
   ~Polynomial() {
     if (0 != h_)
       Release();
   }
-  const term &Head() const { return *h_; }
-  void Print() const;
+  const term::Term *head() const { return h_; }
   void Reverse();
+  Polynomial &operator=(Polynomial &&p);
+  friend ::std::ostream &operator<<(::std::ostream &out, const Polynomial &pn);
+  friend Polynomial operator+(const Polynomial &a, const Polynomial &b);
 
 private:
-  term *h_;
+  term::Term *h_;
   //  int degree_;
-  void Prepend(term *t);
+  void Prepend(term::Term *t);
   void Release();
-  void RestOf(term *rest);
+  // from
+  // https://eli.thegreenplace.net/2011/12/15/understanding-lvalues-and-rvalues-in-c-and-c/
+  void log(const char *msg) {
+    //    ::std::cout << "[" << *this << "] " << msg << "\n";
+    ::std::cout << msg << "\n";
+  }
 };
 
+::std::ostream &operator<<(::std::ostream &out, const Polynomial &pn);
 } // namespace polynomial
 
 #include "polynomial_impl.h"
+
+#endif
