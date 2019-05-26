@@ -1,5 +1,6 @@
 #include "polynomial.h"
 #include "term.h"
+#include "term_vector.h"
 
 #include "gtest/gtest.h"
 
@@ -7,9 +8,46 @@
 
 using namespace std;
 using namespace term;
+using namespace termvector;
 
 namespace polynomial {
 namespace testing {
+
+TEST(TermVectorTest, ArrayConstructorTest) {
+  array<int, 3> expon = {{1, 2, 3}};
+  array<double, 3> coeffs = {{1.0, 2.0, 3.0}};
+  TermVector tv(coeffs, expon);
+  EXPECT_EQ(3, tv.size());
+  cout << "head: " << *(tv.begin()) << endl;
+  int i = 0;
+  while (i < tv.size()) {
+    EXPECT_EQ(1.0 * (i + 1), tv.at(i).coefficient);
+    EXPECT_EQ(i + 1, tv.at(i).exponent);
+    cout << "i: " << i << ", tv[i] " << tv.at(i) << endl;
+    i++;
+  }
+}
+
+TEST(TermVectorTest, VectorConstructorTest) {
+  array<int, 3> expon = {{1, 2, 3}};
+  array<double, 3> coeffs = {{1.0, 2.0, 3.0}};
+  vector<double> dv;
+  vector<int> iv;
+  for (int i = 0; i < 3; i++) {
+    dv.push_back(coeffs[i]);
+    iv.push_back(expon[i]);
+  }
+  TermVector tv(dv, iv);
+  EXPECT_EQ(3, tv.size());
+  cout << "head: " << *(tv.begin()) << endl;
+  int i = 0;
+  while (i < tv.size()) {
+    EXPECT_EQ(1.0 * (i + 1), tv.at(i).coefficient);
+    EXPECT_EQ(i + 1, tv.at(i).exponent);
+    cout << "i: " << i << ", tv[i] " << tv.at(i) << endl;
+    i++;
+  }
+}
 
 class PolynomialSimpleTest : public ::testing::Test {};
 

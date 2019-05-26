@@ -7,6 +7,7 @@
 
 #include "term.h"
 #include "term_impl.h"
+#include "term_vector.h"
 
 #include <cassert>
 
@@ -34,5 +35,27 @@ Polynomial::Polynomial(::std::array<double, N> coef,
   // degree_ = h_->exponent;
 }
 } // namespace polynomial
+
+// I tried placing the following code in a term_vector_impl.h and then referring
+// to it in a term_vector_lib_test.cc, but could not get rid of either linker
+// failures or compilation failures (could not find class TermVector) depending
+// on the order of header files.
+namespace termvector {
+
+template <long unsigned int N>
+TermVector::TermVector(::std::array<double, N> coeff,
+                       ::std::array<int, N> expon) {
+  ::std::cout << "TermVector arrays constructor" << ::std::endl;
+  term::SyncSortTwoArrays(&expon, &coeff, 0);
+  size_ = N;
+  termvec_ = new term::Term[size_];
+  termvec_[0] = term::Term(expon[0], coeff[0]);
+
+  for (unsigned i = 1; i < static_cast<unsigned>(size_); i++) {
+    assert(expon[i - 1] < expon[i]);
+    termvec_[i] = term::Term(expon[i], coeff[i]);
+  }
+}
+} // namespace termvector
 
 #endif

@@ -20,7 +20,7 @@ class Term {
 public:
   Term() : exponent(0), coefficient(0), next(0){};
   Term(int e, double c, Term *n = 0) : exponent(e), coefficient(c), next(n) {
-    ::std::cout << "term members constructor" << ::std::endl;
+    //    ::std::cout << "term members constructor" << ::std::endl;
   }
   // Implicitly called by operator+().
   Term(const struct termprops tp)
