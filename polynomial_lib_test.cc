@@ -177,5 +177,80 @@ TEST_F(PolynomialTest, AssignmentTest) {
   ASSERT_EQ(3.0, testpoly2.head()->coefficient);
 }
 
+TEST_F(PolynomialTest, TermVectorCtorTest) {
+  TermVector tv(coeffs, expon);
+  Polynomial poly(tv);
+  ostringstream out;
+  out << poly;
+  ASSERT_EQ("x + 2.000000x^2 + 3.000000x^3 ", out.str());
+  ASSERT_EQ(1, poly.head()->exponent);
+  ASSERT_EQ(1.0, poly.head()->coefficient);
+}
+
+TEST_F(PolynomialTest, AddEmptyPolynomial) {
+  Polynomial testpoly2;
+  cout << "Empty polynomial: " << testpoly2 << endl;
+  Polynomial sum = *testpoly + testpoly2;
+  cout << "Sum: " << sum << endl;
+  EXPECT_EQ(sum.head()->coefficient, copy2->head()->coefficient);
+  EXPECT_EQ(sum.head()->exponent, copy2->head()->exponent);
+  EXPECT_EQ(sum.head()->next->coefficient, copy2->head()->next->coefficient);
+  EXPECT_EQ(sum.head()->next->exponent, copy2->head()->next->exponent);
+  EXPECT_EQ(sum.head()->next->next->coefficient,
+            copy2->head()->next->next->coefficient);
+  EXPECT_EQ(sum.head()->next->next->exponent,
+            copy2->head()->next->next->exponent);
+}
+
+TEST_F(PolynomialTest, AddIntToPolynomial) {
+  array<double, 1> anothercoeff = {9.0};
+  array<int, 1> anotherexpon = {0};
+  Polynomial testpoly2(anothercoeff, anotherexpon);
+  cout << "This polynomial is an int: " << testpoly2 << endl;
+  Polynomial sum = *testpoly + testpoly2;
+  cout << sum << endl;
+  cout << "Sum: " << sum << endl;
+  EXPECT_EQ(sum.head()->coefficient, copy2->head()->coefficient);
+  EXPECT_EQ(sum.head()->exponent, copy2->head()->exponent);
+  EXPECT_EQ(sum.head()->next->coefficient, copy2->head()->next->coefficient);
+  EXPECT_EQ(sum.head()->next->exponent, copy2->head()->next->exponent);
+  EXPECT_EQ(sum.head()->next->next->coefficient,
+            copy2->head()->next->next->coefficient);
+  EXPECT_EQ(sum.head()->next->next->exponent,
+            copy2->head()->next->next->exponent);
+}
+
+TEST_F(PolynomialTest, AddTermToPolynomial) {
+  array<double, 1> anothercoeff = {9.0};
+  array<int, 1> anotherexpon = {1};
+  Polynomial testpoly2(anothercoeff, anotherexpon);
+  cout << testpoly2 << endl;
+  Polynomial sum = *testpoly + testpoly2;
+  cout << sum << endl;
+  ASSERT_EQ(sum.head()->coefficient, testpoly->head()->coefficient);
+  ASSERT_EQ(sum.head()->exponent, testpoly->head()->exponent);
+  ASSERT_EQ(sum.head()->next->coefficient, testpoly->head()->next->coefficient);
+  ASSERT_EQ(sum.head()->next->exponent, testpoly->head()->next->exponent);
+  ASSERT_EQ(sum.head()->next->next->exponent,
+            testpoly->head()->next->next->exponent);
+  ASSERT_EQ(sum.head()->next->next->coefficient,
+            9 + testpoly->head()->next->next->coefficient);
+}
+
+TEST_F(PolynomialTest, DoubleAPolynomial) {
+  cout << "testpoly is " << *testpoly << endl;
+  Polynomial sum = *testpoly + *testpoly;
+  cout << "testpoly added to itself is " << sum << endl;
+  ASSERT_EQ(sum.head()->coefficient, 2 * testpoly->head()->coefficient);
+  ASSERT_EQ(sum.head()->exponent, testpoly->head()->exponent);
+  ASSERT_EQ(sum.head()->next->coefficient,
+            2 * testpoly->head()->next->coefficient);
+  ASSERT_EQ(sum.head()->next->exponent, testpoly->head()->next->exponent);
+  ASSERT_EQ(sum.head()->next->next->coefficient,
+            2 * testpoly->head()->next->next->coefficient);
+  ASSERT_EQ(sum.head()->next->next->exponent,
+            testpoly->head()->next->next->exponent);
+}
+
 } // namespace testing
 } // namespace polynomial

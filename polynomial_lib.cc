@@ -1,11 +1,23 @@
 #include "polynomial.h"
+#include "term_vector.h"
 
 #include <cassert>
 
 using namespace std;
 using namespace term;
+using namespace termvector;
 
 namespace polynomial {
+
+Polynomial::Polynomial(const TermVector &tv) {
+  log("Polynomial TermVector constructor");
+  h_ = new Term(tv.at(0).exponent, tv.at(0).coefficient);
+  for (int i = 1; i < tv.size(); i++) {
+    Term *t = new Term(tv.at(i).exponent, tv.at(i).coefficient);
+    Prepend(t);
+  }
+  Reverse();
+}
 
 // Termlist constructor.
 Polynomial::Polynomial(const Term &tlist) {
@@ -30,6 +42,55 @@ Polynomial &Polynomial::operator=(Polynomial &&p) {
   log("Polynomial assignment operator");
   swap(h_, p.h_);
   return *this;
+}
+
+// A binary operator for an object must itself return by value a different kind
+// of object that is constructible into the object that the operator returns.
+// Implicitly calls TermVector constructor.
+Polynomial operator+(const Polynomial &a, const Polynomial &b) {
+  Term *cursorA = a.h_;
+  Term *cursorB = b.h_;
+  int i = 0;
+  vector<double> coeffs;
+  vector<int> expon;
+
+  cout << "Entering operator+() loop" << endl;
+  while ((0 != cursorA) && (0 != cursorB)) {
+    if (cursorA->exponent > cursorB->exponent) {
+      Term *A_next = cursorA->next;
+      coeffs.push_back(cursorA->coefficient);
+      expon.push_back(cursorA->coefficient);
+      cursorA = A_next;
+    } else if (cursorB->exponent > cursorA->exponent) {
+      Term *B_next = cursorB->next;
+      coeffs.push_back(cursorB->coefficient);
+      expon.push_back(cursorB->exponent);
+      cursorB = B_next;
+    } else {
+      Term *A_next = cursorA->next;
+      Term *B_next = cursorB->next;
+      coeffs.push_back(cursorA->coefficient + cursorB->coefficient);
+      expon.push_back(cursorA->exponent);
+      cursorA = A_next;
+      cursorB = B_next;
+    }
+    i++;
+  }
+  while (0 != cursorB) {
+    Term *B_next = cursorB->next;
+    coeffs.push_back(cursorB->coefficient);
+    expon.push_back(cursorB->exponent);
+    cursorB = B_next;
+  }
+  while (0 != cursorA) {
+    Term *A_next = cursorA->next;
+    coeffs.push_back(cursorA->coefficient);
+    expon.push_back(cursorA->coefficient);
+    cursorA = A_next;
+  }
+  // Implicitly call TermVector constructor.
+  TermVector tv(coeffs, expon);
+  return tv;
 }
 
 void Polynomial::Release() {

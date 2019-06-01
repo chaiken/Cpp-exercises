@@ -2,6 +2,7 @@
 #define POLYNOMIAL_H
 
 #include "term.h"
+#include "term_vector.h"
 
 #include <array>
 #include <iostream>
@@ -16,6 +17,8 @@ public:
   Polynomial(::std::array<double, N> coef, ::std::array<int, N> expon);
   // List constructor
   Polynomial(const term::Term &termlist);
+  // TermVector constructor.
+  Polynomial(const termvector::TermVector &tv);
   // Move constructor.
   Polynomial(Polynomial &&p) : Polynomial() {
     ::std::cout << "term polynomial move constructor" << ::std::endl;
