@@ -46,7 +46,11 @@ Polynomial &Polynomial::operator=(Polynomial &&p) {
 
 // A binary operator for an object must itself return by value a different kind
 // of object that is constructible into the object that the operator returns.
-// Implicitly calls TermVector constructor.
+// https://eli.thegreenplace.net/2011/12/15/understanding-lvalues-and-rvalues-in-c-and-c/
+// "the binary addition operator '+' takes two rvalues as arguments and returns
+// an rvalue" That's why a binary operator must not allocate memory, as there's
+// no way to free it via the returned rvalue. Implicitly calls TermVector
+// constructor.
 Polynomial operator+(const Polynomial &a, const Polynomial &b) {
   Term *cursorA = a.h_;
   Term *cursorB = b.h_;
@@ -104,6 +108,9 @@ void Polynomial::Release() {
     t = cursor;
   }
   delete t;
+  // Following
+  // https://eli.thegreenplace.net/2011/12/15/understanding-lvalues-and-rvalues-in-c-and-c/
+  t = 0;
 }
 
 inline void Polynomial::Prepend(Term *t) {

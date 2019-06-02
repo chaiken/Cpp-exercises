@@ -19,6 +19,13 @@ TermVector::TermVector(vector<double> coeff, vector<int> expon) {
   }
 }
 
+TermVector::~TermVector() {
+  delete[] termvec_;
+  // Following
+  // https://eli.thegreenplace.net/2011/12/15/understanding-lvalues-and-rvalues-in-c-and-c/
+  termvec_ = 0;
+}
+
 const term::Term &TermVector::at(int n) const {
   assert((n >= 0) && (n < size_));
   return termvec_[n];

@@ -16,7 +16,7 @@ public:
   TermVector(::std::vector<double> coeff, ::std::vector<int> expon);
   template <long unsigned int N>
   TermVector(::std::array<double, N> coeff, ::std::array<int, N> expon);
-  ~TermVector() { delete[] termvec_; }
+  ~TermVector();
   term::Term *begin() { return &termvec_[0]; }
   term::Term *end() { return &termvec_[size_]; }
   bool empty() const { return (0 == size_); }

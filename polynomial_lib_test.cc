@@ -77,12 +77,37 @@ TEST_F(PolynomialTest, ArraysConstructor) {
 
 // Relies on Reverse().
 TEST_F(PolynomialTest, CopyConstructor) {
+  // Runtime failure:
   // AddressSanitizer: stack-use-after-scope on address 0x7fffdd0ce680 at pc
   // 0x55b2243ef4c8 bp 0x7fffdd0ce5e0 sp 0x7fffdd0ce5d8 READ of size 8 at
   // 0x7fffdd0ce680 thread T0
   //    #0 0x55b2243ef4c7 in polynomial::Polynomial::Reverse()
   //    /home/alison/gitsrc/Cpp-Exercises/polynomial_lib.cc:151
   //  Polynomial testpoly2(move(*testpoly));
+  // move() removes the contents of testpoly so that testpoly->head() can no
+  // longer be evaluated.
+  //
+  // Compiler failure:
+  // http://thbecker.net/articles/rvalue_references/section_03.html
+  // if you implement
+  // void foo(X&&);
+  // but neither one of
+  // void foo(X&); and void foo(X const &);
+  // then, according to the final version of C++11, foo can be called on
+  // r-values, but trying to call it on an l-value will trigger a compile error.
+  //
+  // polynomial_lib_test.cc:87:33: error: use of deleted function ‘constexpr
+  // polynomial::Polynomial::Polynomial(const polynomial::Polynomial&)’
+  // Polynomial testpoly2(*testpoly);
+  //
+  // Runtime failure:
+  // Polynomial &testpoly2(*testpoly);
+  // term polynomial move constructor
+  // Polynomial assignment operator
+  // polynomial_lib_test.cc:95:3: runtime error: member access within null
+  // pointer of type 'const struct Term' polynomial_lib_test.cc:95:3: runtime
+  // error: reference binding to null pointer of type 'const int' We have
+  // removed the contents of testpoly and can no longer evaluate them.
   const Polynomial &testpoly2(*testpoly);
   ostringstream out;
   out << testpoly2;
@@ -90,6 +115,43 @@ TEST_F(PolynomialTest, CopyConstructor) {
   cout << testpoly2 << endl;
   ASSERT_EQ(testpoly2.head()->exponent, testpoly->head()->exponent);
   ASSERT_EQ(testpoly2.head()->coefficient, testpoly->head()->coefficient);
+  // Runtime failure:
+  // term polynomial move constructor
+  // Polynomial assignment operator
+  // polynomial_lib_test.cc:102:3: runtime error: member access within null
+  // pointer of type 'const struct Term' polynomial_lib_test.cc:102:3: runtime
+  // error: reference binding to null pointer of type 'const int' We still can't
+  // remove the contents of testpoly, as testpoly2 refers to it. Polynomial
+  // testpoly3(move(*testpoly)); ASSERT_EQ(testpoly3.head()->exponent,
+  // testpoly2.head()->exponent); ASSERT_EQ(testpoly3.head()->coefficient,
+  // testpoly2.head()->coefficient);
+}
+
+// https://eli.thegreenplace.net/2011/12/15/understanding-lvalues-and-rvalues-in-c-and-c/
+// 'The && syntax is the new rvalue reference. It does exactly what it sounds it
+// does - gives us a reference to an rvalue, which is going to be destroyed
+// after the call. We can use this fact to just "steal" the internals of the
+// rvalue - it won't need them anyway! The operator simply switches the rvalue's
+// internal buffer with its own, arranging it so the rvalue's destructor will
+// release our object's own buffer, which is no longer used.'
+//
+// http://thbecker.net/articles/rvalue_references/section_04.html
+// "If move semantics are implemented as a simple swap, then the effect of this
+// is that the objects held by A and B are being exchanged between A and B.
+// Nothing is being destructed yet. The object formerly held by A will of course
+// be destructed eventually, namely, when B goes out of scope."
+TEST_F(PolynomialTest, MoveConstructor) {
+  cout << "in test" << endl;
+  Polynomial testpoly2(move(*testpoly));
+  ostringstream out;
+  out << testpoly2;
+  ASSERT_EQ("3.000000x^3 + 2.000000x^2 + x ", out.str());
+  cout << testpoly2 << endl;
+  ASSERT_EQ(testpoly2.head()->exponent, copy2->head()->exponent);
+  ASSERT_EQ(testpoly2.head()->coefficient, copy2->head()->coefficient);
+  // testpoly->head() is now essentially empty, as we have actually moved the
+  // contents. ASSERT_EQ(testpoly->head()->exponent, 0);
+  // ASSERT_EQ(testpoly->head()->coefficient, 0);
 }
 
 TEST(PolynomialSimpleTest, ListConstructor) {
@@ -119,20 +181,6 @@ TEST(PolynomialSimpleTest, ListConstructor) {
     t = t->next;
     delete save;
   }
-}
-
-TEST_F(PolynomialTest, MoveConstructor) {
-  cout << "in test" << endl;
-  Polynomial testpoly2(move(*testpoly));
-  ostringstream out;
-  out << testpoly2;
-  ASSERT_EQ("3.000000x^3 + 2.000000x^2 + x ", out.str());
-  cout << testpoly2 << endl;
-  ASSERT_EQ(testpoly2.head()->exponent, copy2->head()->exponent);
-  ASSERT_EQ(testpoly2.head()->coefficient, copy2->head()->coefficient);
-  // testpoly->head() is now essentially empty, as we have actually moved the
-  // contents. ASSERT_EQ(testpoly->head()->exponent, 0);
-  // ASSERT_EQ(testpoly->head()->coefficient, 0);
 }
 
 TEST_F(PolynomialTest, ReverseTest) {
