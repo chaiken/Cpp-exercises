@@ -41,6 +41,7 @@ public:
   MatrixIterator(Matrix &m)
       : elem_(m.p_), position_(0), rownum_(m.size1_), colnum_(m.size2_) {}
   double &Iterate();
+  friend ::std::ostream &operator<<(::std::ostream &out, const Matrix &a);
 
 private:
   double **elem_;
@@ -55,7 +56,7 @@ double Trace(const Matrix &a);
 GetQuadraticRoots(const ::std::vector<double> coeffs);
 ::std::vector<double> GetCharacteristicPolynomialCoefficients(const Matrix &a);
 double Determinant(const Matrix &a, double sum);
-void PrintMatrix(const Matrix &a);
+::std::ostream &operator<<(::std::ostream &out, const Matrix &a);
 double Max(Matrix &m);
 
 // https://stackoverflow.com/questions/16718166/friend-function-declaration-definition-inside-a-namespace

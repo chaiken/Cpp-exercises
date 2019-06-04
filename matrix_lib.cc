@@ -2,7 +2,9 @@
 
 #include "dbl_vector.h"
 
+#ifdef DEBUG
 #include <cassert>
+#endif
 #include <cmath>
 #include <cstdlib>
 
@@ -27,8 +29,10 @@ double &MatrixIterator::Iterate() {
   // array.  The column number is the sequential position minus the number of
   // elements in lower-position full rows.
   int index1 = position_ / colnum_, index2 = position_ - (index1 * colnum_);
+#ifdef DEBUG
   assert(index1 <= rownum_);
   assert(index2 <= colnum_);
+#endif
   return elem_[index1][index2];
 }
 
@@ -46,19 +50,26 @@ double Max(Matrix &m) {
 }
 
 Matrix::Matrix(int d1, int d2) : size1_(d1), size2_(d2) {
-  assert(d1 > 0 && d2 > 0);
   p_ = new double *[size1_];
+#ifdef DEBUG
+  assert(d1 > 0 && d2 > 0);
   assert(p_ != 0);
+#endif
   for (int i = 0; i < size1_; i++) {
     p_[i] = new double[size2_];
+#ifdef DEBUG
     assert(p_[i] != 0);
+#endif
   }
 }
+
 Matrix::Matrix(int d1, int d2, vector<double> inputs) : size1_(d1), size2_(d2) {
+  p_ = new double *[size1_];
+#ifdef DEBUG
+  assert(p_ != 0);
   assert(d1 > 0 && d2 > 0);
   assert(static_cast<size_t>(d1 * d2) <= inputs.size());
-  p_ = new double *[size1_];
-  assert(p_ != 0);
+#endif
   for (int i = 0; i < size1_; i++) {
     p_[i] = new double[size2_];
     for (int j = 0; j < size2_; j++) {
@@ -69,13 +80,24 @@ Matrix::Matrix(int d1, int d2, vector<double> inputs) : size1_(d1), size2_(d2) {
 }
 
 // The 1 below is needed because ub1 and ub2 are decremented.
-Matrix::Matrix(const Matrix &a, transform t)
-    : size1_(a.ub1() + 1), size2_(a.ub2() + 1) {
+Matrix::Matrix(const Matrix &a, transform t) {
+  if (transpose == t) {
+    size1_ = a.ub2() + 1;
+    size2_ = a.ub1() + 1;
+  } else {
+    size1_ = a.ub1() + 1;
+    size2_ = a.ub2() + 1;
+  }
+
   p_ = new double *[size1_];
+#ifdef DEBUG
   assert(p_ != 0);
+#endif
   for (int i = 0; i < size1_; i++) {
     p_[i] = new double[size2_];
+#ifdef DEBUG
     assert(p_[i] != 0);
+#endif
     for (int j = 0; j < size2_; j++) {
       switch (t) {
       case copy:
@@ -95,7 +117,7 @@ Matrix::Matrix(const Matrix &a, transform t)
         }
         break;
       default:
-        cout << "Illegal constructor parameter." << endl;
+        cerr << "Illegal constructor parameter." << endl;
         exit(EXIT_FAILURE);
       }
     }
@@ -107,7 +129,9 @@ Matrix::Matrix(const Matrix &a, transform t)
 Matrix::Matrix(const Matrix &a, vector<int> rows, vector<int> cols) {
   // Empty rows vector means use all rows.
   if (!rows.empty()) {
+#ifdef DEBUG
     assert(static_cast<int>(rows.size()) == (a.ub1() + 1));
+#endif
     size1_ = 0;
     for (int i = 0; i < static_cast<int>(rows.size()); i++) {
       if (rows.at(i) != 0) {
@@ -119,7 +143,9 @@ Matrix::Matrix(const Matrix &a, vector<int> rows, vector<int> cols) {
   }
   // Empty cols vector means use all cols.
   if (!cols.empty()) {
+#ifdef DEBUG
     assert(static_cast<int>(cols.size()) == (a.ub2() + 1));
+#endif
     size2_ = 0;
     for (int i = 0; i < static_cast<int>(cols.size()); i++) {
       if (cols.at(i) != 0) {
@@ -129,11 +155,13 @@ Matrix::Matrix(const Matrix &a, vector<int> rows, vector<int> cols) {
   } else {
     size2_ = a.ub2() + 1;
   }
+  p_ = new double *[size1_];
+#ifdef DEBUG
+  assert(p_ != 0);
   cout << endl
        << "Creating " << size1_ << " by " << size2_ << " submatrix from "
        << a.size1_ << " by " << a.size2_ << " matrix." << endl;
-  p_ = new double *[size1_];
-  assert(p_ != 0);
+#endif
   int out_row = 0;
   for (int i = 0; i <= a.ub1(); i++, out_row++) {
     // skip this row
@@ -143,7 +171,9 @@ Matrix::Matrix(const Matrix &a, vector<int> rows, vector<int> cols) {
     }
     // We need to allocate the row vectors at the index of the output array.
     p_[out_row] = new double[size2_];
+#ifdef DEBUG
     assert(p_[out_row] != 0);
+#endif
     int out_col = 0;
     for (int j = 0; j <= a.ub2(); j++, out_col++) {
       // skip some columns
@@ -164,12 +194,16 @@ Matrix::~Matrix() {
 }
 
 double &Matrix::Element(int i, int j) const {
+#ifdef DEBUG
   assert(i >= 0 && i <= ub1() && j >= 0 && j <= ub2());
+#endif
   return p_[i][j];
 }
 
 double Trace(const Matrix &a) {
+#ifdef DEBUG
   assert(a.ub1() == a.ub2());
+#endif
   double sum = 0.0;
   for (int i = 0; i <= a.ub1(); i++) {
     sum += a.Element(i, i);
@@ -192,8 +226,10 @@ vector<int> ExcludeDesignatedElement(int elemnum, int to_exclude) {
 // x = -b/2a +- 1/2a * sqrt(b^2 - 4ac)
 // a = 0, b = 1, c = 2.
 array<complex<double>, 2> GetQuadraticRoots(const vector<double> coeffs) {
+#ifdef DEBUG
   assert(3 == coeffs.size());
   assert(coeffs.at(0) != 0.0);
+#endif
 
   complex<double> root1, root2;
   array<complex<double>, 2> result;
@@ -208,13 +244,17 @@ array<complex<double>, 2> GetQuadraticRoots(const vector<double> coeffs) {
     result[0] = {realroot0, 0.0};
     result[1] = {realroot1, 0.0};
   }
+#ifdef DEBUG
   // Notably, complex values are printed fine this way.
   cout << "Eigenvalues are " << result[0] << '\t' << result[1] << endl;
+#endif
   return result;
 }
 
 vector<double> GetCharacteristicPolynomialCoefficients(const Matrix &a) {
+#ifdef DEBUG
   assert(a.ub1() == a.ub2());
+#endif
   vector<double> coeffs;
   // Coefficient of leading term is always (-)1.
   coeffs.push_back(pow(-1.0, a.ub1() + 1));
@@ -223,8 +263,10 @@ vector<double> GetCharacteristicPolynomialCoefficients(const Matrix &a) {
   if (1 == a.ub1()) {
     coeffs.push_back(-1.0 * Trace(a));
     coeffs.push_back(Determinant(a, 0.0));
+#ifdef DEBUG
     cout << "Coefficients are " << coeffs.at(0) << '\t' << coeffs.at(1) << '\t'
          << coeffs.at(2) << endl;
+#endif
     return coeffs;
   }
   for (int i = 0; i <= a.ub1(); i++) {
@@ -238,17 +280,18 @@ vector<double> GetCharacteristicPolynomialCoefficients(const Matrix &a) {
 
 double Determinant(const Matrix &a, double sum) {
   if (a.ub1() != a.ub2()) {
-    cout << "Only square matrices have determinants." << endl;
+    cerr << "Only square matrices have determinants." << endl;
     exit(EXIT_FAILURE);
   }
   if (a.ub1() < 1) {
     return 0;
   }
   if (1 == (a.ub1())) {
-    cout << "Taking determinant of 2x2." << endl;
     int val = ((a.Element(0, 0) * a.Element(1, 1)) -
                (a.Element(0, 1) * a.Element(1, 0)));
+#ifdef DEBUG
     cout << "Determinant of 2x2 is " << val << endl;
+#endif
     // For a 2x2 original matrix, the value below is the final result.
     return val;
   } else {
@@ -264,30 +307,37 @@ double Determinant(const Matrix &a, double sum) {
         // each submatrix.
         vector<int> cols = ExcludeDesignatedElement(a.ub2(), j);
         Matrix submatrix(a, rows, cols);
-        cout << "Taking subdeterminant for " << i << "," << j << endl;
         sum += pow(-1, j) * a.Element(i, j) * Determinant(submatrix, sum);
-        cout << "Sum is " << sum << " for i " << i << ",j " << j << endl;
+#ifdef DEBUG
+        cout << "Determinant: sum is " << sum << " for i " << i << ",j " << j
+             << endl;
+#endif
       }
+#ifdef DEBUG
       cout << "Done with determinants for " << i << endl;
+#endif
     }
   }
   return sum;
 }
 
-void PrintMatrix(const Matrix &a) {
-  cout << endl
-       << "Matrix of size " << (a.ub1() + 1) << "x" << (a.ub2() + 1) << endl;
+ostream &operator<<(ostream &out, const Matrix &a) {
+  out << endl
+      << "Matrix of size " << (a.ub1() + 1) << "x" << (a.ub2() + 1) << endl;
   for (int i = 0; i <= a.ub1(); i++) {
     for (int j = 0; j <= a.ub2(); j++) {
       cout << a.Element(i, j) << "\t";
     }
-    cout << endl;
+    out << endl;
   }
+  return out;
 }
 
 // Add the elements of v to each row of m.
 Matrix Add(const dbl_vect::DoubleVector &v, const Matrix &m) {
+#ifdef DEBUG
   assert(v.size_ == m.size2_);
+#endif
   Matrix ans(m, copy);
 
   int i, j;
@@ -305,7 +355,9 @@ dbl_vect::DoubleVector Multiply(const dbl_vect::DoubleVector &v,
                                 const Matrix &m) {
   // v is a column vector.  We multiply it by the size1_ row vectors of m, each
   // with size2_ elements.
+#ifdef DEBUG
   assert(v.size_ == m.size2_);
+#endif
   dbl_vect::DoubleVector ans(m.size2_);
   int i, j;
 

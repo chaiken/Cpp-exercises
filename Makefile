@@ -90,6 +90,9 @@ slist_lib2_test: slist_lib2.cc slist_lib2_test.cc slist2.h  $(GTEST_HEADERS)
 matrix_lib_test: matrix_lib.cc matrix_lib_test.cc matrix.h dbl_vector.h dbl_vector_lib.cc $(GTEST_HEADERS)
 	$(CC) $(CXXFLAGS) $(LDFLAGS) -lm $(GTESTLIBS) matrix_lib.cc matrix_lib_test.cc dbl_vector_lib.cc -o $@
 
+matrix_lib_test_debug: matrix_lib.cc matrix_lib_test.cc matrix.h dbl_vector.h dbl_vector_lib.cc $(GTEST_HEADERS)
+	$(CC) $(CXXFLAGS) -DDEBUG $(LDFLAGS) -lm $(GTESTLIBS) matrix_lib.cc matrix_lib_test.cc dbl_vector_lib.cc -o $@
+
 term_lib_test: term_lib.cc term_lib_test.cc term.h term_impl.h $(GTEST_HEADERS)
 	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) term_lib.cc term_lib_test.cc -o $@
 

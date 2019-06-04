@@ -1,5 +1,7 @@
 #include "dbl_vector.h"
+#ifdef DEBUG
 #include <cassert>
+#endif
 #include <cmath>
 #include <iostream>
 
@@ -24,20 +26,26 @@ double &Max(DoubleVector &v) {
   }
   // iter->ub() uses DoubleVector's member-access overload operator->().
   // v.ub() would use the DoubleVector object's call directly.
+#ifdef DEBUG
   assert(max >= 0 && max <= iter->ub());
+#endif
   return v[max];
 }
 
 DoubleVector::DoubleVector(int n) : size_(n) {
-  assert(n > 0);
   p_ = new double[size_];
+#ifdef DEBUG
+  assert(n > 0);
   assert(p_ != 0);
+#endif
 }
 
 DoubleVector::DoubleVector(const DoubleVector &v) {
   p_ = new double[v.size_];
   size_ = v.size_;
+#ifdef DEBUG
   assert(p_ != 0);
+#endif
   int i = 0;
   while (i <= v.ub()) {
     p_[i] = v.p_[i];
@@ -46,7 +54,9 @@ DoubleVector::DoubleVector(const DoubleVector &v) {
 }
 
 DoubleVector::DoubleVector(const vector<double> v) {
+#ifdef DEBUG
   assert(v.size() > 0);
+#endif
   size_ = v.size();
   p_ = new double[size_];
   for (int i = 0; i < size_; i++) {
@@ -56,7 +66,9 @@ DoubleVector::DoubleVector(const vector<double> v) {
 
 DoubleVector::DoubleVector(const double *v, int sz) : size_(sz) {
   p_ = new double[sz];
+#ifdef DEBUG
   assert(p_ != 0);
+#endif
   size_ = sz;
   for (int i = 0; i < sz; i++) {
     p_[i] = *(v + i);
@@ -64,7 +76,9 @@ DoubleVector::DoubleVector(const double *v, int sz) : size_(sz) {
 }
 
 double &DoubleVector::Element(int i) {
+#ifdef DEBUG
   assert(i >= 0 && i < size_);
+#endif
   return p_[i];
 }
 
@@ -80,7 +94,9 @@ ostream &operator<<(ostream &out, DoubleVector &dv) {
 }
 
 double DoubleVector::DotProduct(const DoubleVector &v) const {
+#ifdef DEBUG
   assert(size_ == v.size_);
+#endif
   double sum = 0.0;
   for (int i = 0; i < size_; i++) {
     sum += p_[i] * v.p_[i];
@@ -111,7 +127,9 @@ void DoubleVector::Scale(const double scale) {
 }
 
 DoubleVector DoubleVector::Add(const DoubleVector &a) {
+#ifdef DEBUG
   assert(ub() == a.ub());
+#endif
   for (int i = 0; i <= ub(); i++) {
     p_[i] += a.p_[i];
   }
@@ -119,12 +137,16 @@ DoubleVector DoubleVector::Add(const DoubleVector &a) {
 }
 
 double &DoubleVector::operator[](int i) {
+#ifdef DEBUG
   assert((i >= 0) && (i <= ub()));
+#endif
   return p_[i];
 }
 
 DoubleVector &DoubleVector::operator=(const DoubleVector &v) {
+#ifdef DEBUG
   assert(ub() == v.ub());
+#endif
   if (this != &v) {
     for (int i = 0; i <= ub(); i++) {
       p_[i] = v.p_[i];
@@ -152,13 +174,17 @@ bool DoubleVector::operator==(DoubleVector &v) {
 // what good is it?
 // void SumVectors(const DoubleVector &a, const DoubleVector &b) {
 DoubleVector SumVectors(const DoubleVector &a, const DoubleVector &b) {
+#ifdef DEBUG
   assert(a.ub() == b.ub());
+#endif
   DoubleVector c(a);
   return c.Add(b);
 }
 
 DoubleVector operator+(DoubleVector &a, DoubleVector &b) {
+#ifdef DEBUG
   assert(a.ub() == b.ub());
+#endif
   vector<double> temp;
   for (int i = 0; i <= a.ub(); i++) {
     temp.push_back(a[i] + b[i]);
