@@ -34,18 +34,33 @@ namespace {
 bool is_even(int i) { return (2 * (i / 2) == i); }
 } // namespace
 
-TEST(MatrixLibTest, DefaultConstructor) {
+class MatrixLibTest : public ::testing::Test {
+public:
+  MatrixLibTest() {
+    testvec1 = new vector<double>({1.0, 2.0, 3.0, 4.0, 5.0, 6.0});
+    assert(nullptr != testvec1);
+    testvec2 = new vector<double>();
+    assert(nullptr != testvec1);
+    for (int i = 0; i < kLimit1 * kLimit2; i++) {
+      testvec2->push_back(i);
+    }
+  }
+  ~MatrixLibTest() {
+    delete testvec1;
+    delete testvec2;
+  }
+
+  vector<double> *testvec1, *testvec2;
+};
+
+TEST(MatrixLibSimpleTest, DefaultConstructor) {
   Matrix tensor1(3, 4);
   ASSERT_EQ(2, tensor1.ub1());
   ASSERT_EQ(3, tensor1.ub2());
 }
 
-TEST(MatrixLibTest, VectorConstructor) {
-  vector<double> testvec;
-  for (int i = 0; i < kLimit1 * kLimit2; i++) {
-    testvec.push_back(i);
-  }
-  Matrix tensor2(kLimit1, kLimit2, testvec);
+TEST_F(MatrixLibTest, VectorConstructor) {
+  Matrix tensor2(kLimit1, kLimit2, *testvec2);
 #ifdef DEBUG
   cout << tensor2;
 #endif
@@ -59,12 +74,8 @@ TEST(MatrixLibTest, VectorConstructor) {
             tensor2.Element(tensor2.ub1(), tensor2.ub2() - 1));
 }
 
-TEST(MatrixLibTest, TransformConstructorCopyTest) {
-  vector<double> testvec;
-  for (int i = 0; i < kLimit1 * kLimit2; i++) {
-    testvec.push_back(i);
-  }
-  Matrix tensor2(kLimit1, kLimit2, testvec);
+TEST_F(MatrixLibTest, TransformConstructorCopyTest) {
+  Matrix tensor2(kLimit1, kLimit2, *testvec2);
   Matrix tensor3(tensor2, copy);
   ASSERT_EQ(tensor2.ub1(), tensor3.ub1());
   ASSERT_EQ(tensor2.ub2(), tensor3.ub2());
@@ -74,12 +85,8 @@ TEST(MatrixLibTest, TransformConstructorCopyTest) {
             tensor3.Element(tensor3.ub1(), tensor3.ub2() - 1));
 }
 
-TEST(MatrixLibTest, TransformConstructorTranposeTest) {
-  vector<double> testvec;
-  for (int i = 0; i < kLimit2 * kLimit2; i++) {
-    testvec.push_back(i);
-  }
-  Matrix tensor2(kLimit2, kLimit2, testvec);
+TEST_F(MatrixLibTest, TransformConstructorTranposeTest) {
+  Matrix tensor2(kLimit1, kLimit2, *testvec2);
   Matrix tensor3(tensor2, transpose);
 #ifdef DEBUG
   cout << tensor2;
@@ -89,15 +96,13 @@ TEST(MatrixLibTest, TransformConstructorTranposeTest) {
   ASSERT_EQ(tensor2.ub1(), tensor3.ub2());
   ASSERT_EQ(tensor2.Element(0, 1), tensor3.Element(1, 0));
   ASSERT_EQ(tensor2.Element(tensor2.ub1(), 0),
-            tensor3.Element(0, tensor3.ub1()));
+            tensor3.Element(0, tensor3.ub2()));
+  ASSERT_EQ(tensor2.Element(0, tensor2.ub2()),
+            tensor3.Element(tensor3.ub1(), 0));
 }
 
-TEST(MatrixLibTest, TransformConstructorNegativeTest) {
-  vector<double> testvec;
-  for (int i = 0; i < kLimit1 * kLimit2; i++) {
-    testvec.push_back(i);
-  }
-  Matrix tensor2(kLimit1, kLimit2, testvec);
+TEST_F(MatrixLibTest, TransformConstructorNegativeTest) {
+  Matrix tensor2(kLimit1, kLimit2, *testvec2);
   Matrix tensor3(tensor2, negative);
 #ifdef DEBUG
   cout << tensor2;
@@ -108,12 +113,8 @@ TEST(MatrixLibTest, TransformConstructorNegativeTest) {
   ASSERT_EQ(tensor2.Element(0, 0), -1 * tensor3.Element(0, 0));
 }
 
-TEST(MatrixLibTest, TransformConstructorUpperTest) {
-  vector<double> testvec;
-  for (int i = 0; i < kLimit1 * kLimit2; i++) {
-    testvec.push_back(i);
-  }
-  Matrix tensor2(kLimit1, kLimit2, testvec);
+TEST_F(MatrixLibTest, TransformConstructorUpperTest) {
+  Matrix tensor2(kLimit1, kLimit2, *testvec2);
   Matrix tensor3(tensor2, upper);
 #ifdef DEBUG
   cout << tensor2;
@@ -123,13 +124,10 @@ TEST(MatrixLibTest, TransformConstructorUpperTest) {
   ASSERT_EQ(tensor2.Element(0, 0), tensor3.Element(0, 0));
 }
 
-TEST(MatrixLibTest, SubmatrixConstructionCopiesWithEmptyVectors) {
+TEST_F(MatrixLibTest, SubmatrixConstructionCopiesWithEmptyVectors) {
   vector<double> testvec;
   vector<int> rows, cols;
-  for (int i = 0; i < kLimit1 * kLimit2; i++) {
-    testvec.push_back(i);
-  }
-  Matrix tensor2(kLimit1, kLimit2, testvec);
+  Matrix tensor2(kLimit1, kLimit2, *testvec2);
   Matrix tensor3(tensor2, rows, cols);
 #ifdef DEBUG
   cout << tensor2;
@@ -141,12 +139,8 @@ TEST(MatrixLibTest, SubmatrixConstructionCopiesWithEmptyVectors) {
   ASSERT_EQ(tensor3.Element(2, 1), tensor2.Element(2, 1));
 }
 
-TEST(MatrixLibTest, SubmatrixConstructorSkipColumns) {
-  vector<double> testvec;
+TEST_F(MatrixLibTest, SubmatrixConstructorSkipColumns) {
   vector<int> rows, cols;
-  for (int i = 0; i < kLimit1 * kLimit2; i++) {
-    testvec.push_back(i);
-  }
   for (int i = 0; i < kLimit2; i++) {
     if (is_even(i)) {
       cols.push_back(1);
@@ -154,7 +148,7 @@ TEST(MatrixLibTest, SubmatrixConstructorSkipColumns) {
       cols.push_back(0);
     }
   }
-  Matrix tensor2(kLimit1, kLimit2, testvec);
+  Matrix tensor2(kLimit1, kLimit2, *testvec2);
   Matrix tensor3(tensor2, rows, cols);
 #ifdef DEBUG
   cout << tensor2;
@@ -171,12 +165,8 @@ TEST(MatrixLibTest, SubmatrixConstructorSkipColumns) {
   ASSERT_EQ(tensor3.Element(0, 2), tensor2.Element(0, 4));
 }
 
-TEST(MatrixLibTest, SubmatrixConstructorSkipRows) {
-  vector<double> testvec;
+TEST_F(MatrixLibTest, SubmatrixConstructorSkipRows) {
   vector<int> rows, cols;
-  for (int i = 0; i < kLimit1 * kLimit2; i++) {
-    testvec.push_back(i);
-  }
   for (int i = 0; i < kLimit1; i++) {
     if (is_even(i)) {
       rows.push_back(1);
@@ -184,7 +174,7 @@ TEST(MatrixLibTest, SubmatrixConstructorSkipRows) {
       rows.push_back(0);
     }
   }
-  Matrix tensor2(kLimit1, kLimit2, testvec);
+  Matrix tensor2(kLimit1, kLimit2, *testvec2);
   Matrix tensor3(tensor2, rows, cols);
 #ifdef DEBUG
   cout << tensor2;
@@ -201,12 +191,8 @@ TEST(MatrixLibTest, SubmatrixConstructorSkipRows) {
   ASSERT_EQ(tensor3.Element(1, 0), tensor2.Element(2, 0));
 }
 
-TEST(MatrixLibTest, TraceTest) {
-  vector<double> testvec;
-  for (int i = 0; i < kLimit1 * kLimit1; i++) {
-    testvec.push_back(i);
-  }
-  Matrix tensor2(kLimit1, kLimit1, testvec);
+TEST_F(MatrixLibTest, TraceTest) {
+  Matrix tensor2(kLimit1, kLimit1, *testvec2);
   double sum = 0.0;
   for (int i = 0; i <= tensor2.ub1(); i++) {
     sum += tensor2.Element(i, i);
@@ -214,52 +200,48 @@ TEST(MatrixLibTest, TraceTest) {
   ASSERT_EQ(sum, Trace(tensor2));
 }
 
-TEST(MatrixLibTest, TrivialDeterminantTest) {
-  vector<double> testvec;
+TEST(MatrixLibSimpleTest, TrivialDeterminantTest) {
+  vector<double> testvec3;
   for (int i = 0; i < 4; i++) {
-    testvec.push_back(i);
+    testvec3.push_back(i);
   }
-  Matrix tensor2(2, 2, testvec);
+  Matrix tensor2(2, 2, testvec3);
 #ifdef DEBUG
   cout << tensor2;
 #endif
   ASSERT_EQ(-2, Determinant(tensor2, 0.0));
 }
 
-TEST(MatrixLibTest, DeterminantTest) {
-  vector<double> testvec;
-  for (int i = 0; i < kLimit1 * kLimit1; i++) {
-    testvec.push_back(i);
-  }
-  Matrix tensor2(kLimit1, kLimit1, testvec);
+TEST_F(MatrixLibTest, DeterminantTest) {
+  Matrix tensor2(kLimit1, kLimit1, *testvec2);
 #ifdef DEBUG
   cout << tensor2;
 #endif
   ASSERT_EQ(0, Determinant(tensor2, 0.0));
 }
 
-TEST(MatrixLibTest, NonZeroDeterminantTest) {
-  vector<double> testvec;
+TEST(MatrixLibSimpleTest, NonZeroDeterminantTest) {
+  vector<double> testvec3;
   for (int i = 0; i < 9; i++) {
     if (is_even(i)) {
-      testvec.push_back(i);
+      testvec3.push_back(i);
     } else {
-      testvec.push_back(2 * i);
+      testvec3.push_back(2 * i);
     }
   }
-  Matrix tensor2(3, 3, testvec);
+  Matrix tensor(3, 3, testvec3);
 #ifdef DEBUG
-  cout << tensor2;
+  cout << tensor;
 #endif
+  ASSERT_EQ(144, Determinant(tensor, 0.0));
+  Matrix tensor2(tensor, transpose);
   ASSERT_EQ(144, Determinant(tensor2, 0.0));
-  Matrix tensor3(tensor2, transpose);
-  ASSERT_EQ(144, Determinant(tensor3, 0.0));
 }
 
-TEST(MatrixLibTest, TrivialCharacteristicPolynomialTest) {
+TEST(MatrixLibSimpleTest, TrivialCharacteristicPolynomialTest) {
   // https://en.wikipedia.org/wiki/Eigenvalues_and_eigenvectors#Two-dimensional_matrix_example
-  vector<double> testvec = {2, 1, 1, 2};
-  Matrix tensor2(2, 2, testvec);
+  vector<double> testvec3 = {2, 1, 1, 2};
+  Matrix tensor2(2, 2, testvec3);
 #ifdef DEBUG
   cout << tensor2;
 #endif
@@ -273,11 +255,11 @@ TEST(MatrixLibTest, TrivialCharacteristicPolynomialTest) {
   ASSERT_EQ(1, roots[1].real());
 }
 
-TEST(MatrixLibTest, SquareMultiplyTest) {
+TEST(MatrixLibSimpleTest, SquareMultiplyTest) {
   double twofer_in[] = {1.0, 2.0};
   dbl_vect::DoubleVector vec(twofer_in, 2);
-  vector<double> testvec = {1.0, 2.0, 3.0, 4.0};
-  Matrix tensor(2, 2, testvec);
+  vector<double> testvec3 = {1.0, 2.0, 3.0, 4.0};
+  Matrix tensor(2, 2, testvec3);
 #ifdef DEBUG
   cout << tensor;
 #endif
@@ -288,11 +270,10 @@ TEST(MatrixLibTest, SquareMultiplyTest) {
   EXPECT_EQ(16, ans.SumElements());
 }
 
-TEST(MatrixLibTest, RectangularMultiplyTest) {
+TEST_F(MatrixLibTest, RectangularMultiplyTest) {
   double threefer_in[] = {1.0, 2.0, 3.0};
   dbl_vect::DoubleVector vec(threefer_in, 3);
-  vector<double> testvec = {1.0, 2.0, 3.0, 4.0, 5.0, 6.0};
-  Matrix tensor(2, 3, testvec);
+  Matrix tensor(2, 3, *testvec1);
 #ifdef DEBUG
   cout << tensor;
 #endif
@@ -317,11 +298,11 @@ TEST(MatrixLibTest, RectangularMultiplyTest) {
   EXPECT_EQ(46, ceil(ans.SumElements()));
 }
 
-TEST(MatrixLibTest, AddVectorTest) {
+TEST(MatrixLibSimpleTest, AddVectorTest) {
   double threefer_in[] = {1.0, 2.0, 3.0};
   dbl_vect::DoubleVector vec(threefer_in, 3);
-  vector<double> testvec = {1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0};
-  Matrix tensor(3, 3, testvec);
+  vector<double> testvec3 = {1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0};
+  Matrix tensor(3, 3, testvec3);
   Matrix ans = Add(vec, tensor);
 #ifdef DEBUG
   cout << ans;
@@ -333,13 +314,9 @@ TEST(MatrixLibTest, AddVectorTest) {
   EXPECT_EQ(0, Determinant(ans, 0.0));
 }
 
-TEST(MatrixLibTest, IteratorTest) {
-  vector<double> testvec = {1.0, 2.0, 3.0, 4.0, 5.0, 6.0};
-  Matrix tensor(2, 3, testvec);
+TEST_F(MatrixLibTest, IteratorTest) {
+  Matrix tensor(2, 3, *testvec1);
   MatrixIterator iter(tensor);
-#ifdef DEBUG
-  cout << tensor;
-#endif
   double val = iter.Iterate();
   EXPECT_EQ(2, val);
   val = iter.Iterate();
@@ -348,9 +325,24 @@ TEST(MatrixLibTest, IteratorTest) {
   EXPECT_EQ(4, val);
 }
 
-TEST(MatrixLibTest, MaxTest) {
-  vector<double> testvec = {1.0, 2.0, 3.0, 4.0, 5.0, 6.0};
-  Matrix tensor(2, 3, testvec);
+TEST_F(MatrixLibTest, IteratorFeaturesTest) {
+  Matrix tensor(2, 3, *testvec1);
+  MatrixIterator iter(tensor);
+  double val = iter.Iterate();
+  EXPECT_EQ(2, val);
+  val = iter.successor();
+  EXPECT_EQ(3, val);
+  val = iter.predecessor();
+  EXPECT_EQ(1, val);
+  iter.reset();
+  val = iter.item();
+  EXPECT_EQ(1, val);
+  val = iter.Iterate();
+  EXPECT_EQ(2, val);
+}
+
+TEST_F(MatrixLibTest, MaxTest) {
+  Matrix tensor(2, 3, *testvec1);
   ASSERT_EQ(6.0, Max(tensor));
 }
 

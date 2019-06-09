@@ -23,18 +23,49 @@ class DoubleVector;
 
 namespace matrix {
 
+// The row number is the integer part of the sequential position within the
+// array.
+int MatrixIterator::RowIndex(int offset) {
+  return (position_ + offset) / colnum_;
+}
+
+// The column number is the sequential position minus the number of
+// elements in lower-position full rows.
+int MatrixIterator::ColIndex(int offset) {
+  int fullrows = (position_ + offset) / colnum_;
+  return ((position_ + offset) - (fullrows * colnum_));
+}
+
 double &MatrixIterator::Iterate() {
   position_++;
-  // The row number is the integer part of the sequential position within the
-  // array.  The column number is the sequential position minus the number of
-  // elements in lower-position full rows.
-  int index1 = position_ / colnum_, index2 = position_ - (index1 * colnum_);
+#ifdef DEBUG
+  assert(RowIndex() <= rownum_);
+  assert(ColIndex <= colnum_);
+#endif
+  return elem_[RowIndex()][ColIndex()];
+}
+
+double &MatrixIterator::successor() {
+  int index1 = RowIndex(1), index2 = ColIndex(1);
 #ifdef DEBUG
   assert(index1 <= rownum_);
   assert(index2 <= colnum_);
 #endif
   return elem_[index1][index2];
 }
+
+double &MatrixIterator::predecessor() {
+  int index1 = RowIndex(-1), index2 = ColIndex(-1);
+#ifdef DEBUG
+  assert(index1 >= 0);
+  assert(index2 >= 0);
+#endif
+  return elem_[index1][index2];
+}
+
+void MatrixIterator::reset() { position_ = 0; }
+
+double &MatrixIterator::item() { return elem_[RowIndex()][ColIndex()]; }
 
 double Max(Matrix &m) {
   MatrixIterator iter(m);
@@ -82,11 +113,11 @@ Matrix::Matrix(int d1, int d2, vector<double> inputs) : size1_(d1), size2_(d2) {
 // The 1 below is needed because ub1 and ub2 are decremented.
 Matrix::Matrix(const Matrix &a, transform t) {
   if (transpose == t) {
-    size1_ = a.ub2() + 1;
-    size2_ = a.ub1() + 1;
+    size1_ = a.size2_;
+    size2_ = a.size1_;
   } else {
-    size1_ = a.ub1() + 1;
-    size2_ = a.ub2() + 1;
+    size1_ = a.size1_;
+    size2_ = a.size2_;
   }
 
   p_ = new double *[size1_];

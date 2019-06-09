@@ -41,9 +41,15 @@ public:
   MatrixIterator(Matrix &m)
       : elem_(m.p_), position_(0), rownum_(m.size1_), colnum_(m.size2_) {}
   double &Iterate();
+  double &successor();
+  double &predecessor();
+  void reset();
+  double &item();
   friend ::std::ostream &operator<<(::std::ostream &out, const Matrix &a);
 
 private:
+  int RowIndex(int offset = 0);
+  int ColIndex(int offset = 0);
   double **elem_;
   int position_, rownum_, colnum_;
 };
