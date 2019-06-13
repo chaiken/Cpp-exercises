@@ -17,14 +17,17 @@ enum transform { copy, transpose, negative, upper };
 
 class Matrix {
 public:
-  Matrix(int d1, int d2);
-  Matrix(int d1, int d2, ::std::vector<double> inputs);
+  Matrix(int d1, int d2, int offset = 0);
+  Matrix(int d1, int d2, ::std::vector<double> inputs, int offset = 0);
   Matrix(const Matrix &a, transform t);
   // square sub-matrix constructor
   Matrix(const Matrix &a, ::std::vector<int> rows, ::std::vector<int> cols);
   ~Matrix();
-  int ub1() const { return (size1_ - 1); }
-  int ub2() const { return (size2_ - 1); }
+  // Public accessors handle the offset. Private functions continue with
+  // zero-based arrays.
+  int ub1() const { return (start_ + (size1_ - 1)); }
+  int ub2() const { return (start_ + (size2_ - 1)); }
+  int lb() const { return start_; }
   double &Element(int i, int j) const;
   friend class MatrixIterator;
   friend Matrix Add(const dbl_vect::DoubleVector &v, const Matrix &m);
@@ -32,8 +35,11 @@ public:
                                          const Matrix &m);
 
 private:
+  double &InternalElement(int i, int j) const;
   double **p_;
-  int size1_, size2_;
+  // start_ is the publicly visible index of the first element, presumably 0
+  // or 1.
+  int size1_, size2_, start_ = 0;
 };
 
 class MatrixIterator {

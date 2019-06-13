@@ -23,8 +23,7 @@ class DoubleVector;
 
 namespace matrix {
 
-// The row number is the integer part of the sequential position within the
-// array.
+// The row number is the number of full rows minus one.
 int MatrixIterator::RowIndex(int offset) {
   return (position_ + offset) / colnum_;
 }
@@ -40,7 +39,7 @@ double &MatrixIterator::Iterate() {
   position_++;
 #ifdef DEBUG
   assert(RowIndex() <= rownum_);
-  assert(ColIndex <= colnum_);
+  assert(ColIndex() <= colnum_);
 #endif
   return elem_[RowIndex()][ColIndex()];
 }
@@ -69,7 +68,7 @@ double &MatrixIterator::item() { return elem_[RowIndex()][ColIndex()]; }
 
 double Max(Matrix &m) {
   MatrixIterator iter(m);
-  double val, max = m.Element(0, 0);
+  double val, max = m.Element(m.lb(), m.lb());
   int end = (m.ub1() + 1) * (m.ub2() + 1);
   for (int i = 1; i < end; i++) {
     val = iter.Iterate();
@@ -80,7 +79,8 @@ double Max(Matrix &m) {
   return max;
 }
 
-Matrix::Matrix(int d1, int d2) : size1_(d1), size2_(d2) {
+Matrix::Matrix(int d1, int d2, int offset)
+    : size1_(d1), size2_(d2), start_(offset) {
   p_ = new double *[size1_];
 #ifdef DEBUG
   assert(d1 > 0 && d2 > 0);
@@ -94,7 +94,8 @@ Matrix::Matrix(int d1, int d2) : size1_(d1), size2_(d2) {
   }
 }
 
-Matrix::Matrix(int d1, int d2, vector<double> inputs) : size1_(d1), size2_(d2) {
+Matrix::Matrix(int d1, int d2, vector<double> inputs, int offset)
+    : size1_(d1), size2_(d2), start_(offset) {
   p_ = new double *[size1_];
 #ifdef DEBUG
   assert(p_ != 0);
@@ -218,17 +219,23 @@ Matrix::Matrix(const Matrix &a, vector<int> rows, vector<int> cols) {
 }
 
 Matrix::~Matrix() {
-  for (int i = 0; i <= ub1(); i++) {
+  for (int i = 0; i < size1_; i++) {
     delete[] p_[i];
   }
   delete[] p_;
 }
 
-double &Matrix::Element(int i, int j) const {
+// private function
+double &Matrix::InternalElement(int i, int j) const {
 #ifdef DEBUG
-  assert(i >= 0 && i <= ub1() && j >= 0 && j <= ub2());
+  assert(i >= 0 && i < size1_ && j >= 0 && j < size2_);
 #endif
   return p_[i][j];
+}
+
+// public accessor
+double &Matrix::Element(int i, int j) const {
+  return InternalElement(i - start_, j - start_);
 }
 
 double Trace(const Matrix &a) {
@@ -355,8 +362,8 @@ double Determinant(const Matrix &a, double sum) {
 ostream &operator<<(ostream &out, const Matrix &a) {
   out << endl
       << "Matrix of size " << (a.ub1() + 1) << "x" << (a.ub2() + 1) << endl;
-  for (int i = 0; i <= a.ub1(); i++) {
-    for (int j = 0; j <= a.ub2(); j++) {
+  for (int i = a.lb(); i <= a.ub1(); i++) {
+    for (int j = a.lb(); j <= a.ub2(); j++) {
       cout << a.Element(i, j) << "\t";
     }
     out << endl;

@@ -74,6 +74,23 @@ TEST_F(MatrixLibTest, VectorConstructor) {
             tensor2.Element(tensor2.ub1(), tensor2.ub2() - 1));
 }
 
+TEST_F(MatrixLibTest, VectorConstructorOffset) {
+  Matrix tensor2(kLimit1, kLimit2, *testvec2, 1);
+#ifdef DEBUG
+  cout << tensor2;
+#endif
+  // Not equal to kLimit1 - 1 due to offset.
+  ASSERT_EQ(kLimit1, tensor2.ub1());
+  ASSERT_EQ(kLimit2, tensor2.ub2());
+  ASSERT_EQ(1, tensor2.lb());
+  ASSERT_EQ(0.0, tensor2.Element(1, 1));
+  ASSERT_EQ(1.0, tensor2.Element(1, 2));
+  ASSERT_EQ((kLimit1 * kLimit2) - 1,
+            tensor2.Element(tensor2.ub1(), tensor2.ub2()));
+  ASSERT_EQ((kLimit1 * kLimit2) - 2,
+            tensor2.Element(tensor2.ub1(), tensor2.ub2() - 1));
+}
+
 TEST_F(MatrixLibTest, TransformConstructorCopyTest) {
   Matrix tensor2(kLimit1, kLimit2, *testvec2);
   Matrix tensor3(tensor2, copy);
