@@ -38,8 +38,9 @@ int MatrixIterator::ColIndex(int offset) {
 double &MatrixIterator::Iterate() {
   position_++;
 #ifdef DEBUG
-  assert(RowIndex() <= rownum_);
-  assert(ColIndex() <= colnum_);
+  assert((position_ >= 0) && (position_ < (rownum_ * colnum_)));
+  assert((RowIndex() <= rownum_) && (RowIndex() >= 0));
+  assert((ColIndex() <= colnum_) && (ColIndex() >= 0));
 #endif
   return elem_[RowIndex()][ColIndex()];
 }
@@ -69,7 +70,7 @@ double &MatrixIterator::item() { return elem_[RowIndex()][ColIndex()]; }
 double Max(Matrix &m) {
   MatrixIterator iter(m);
   double val, max = m.Element(m.lb(), m.lb());
-  int end = (m.ub1() + 1) * (m.ub2() + 1);
+  int end = (((m.ub1() - m.lb()) + 1) * ((m.ub2() - m.lb()) + 1));
   for (int i = 1; i < end; i++) {
     val = iter.Iterate();
     if (val > max) {
@@ -133,17 +134,17 @@ Matrix::Matrix(const Matrix &a, transform t) {
     for (int j = 0; j < size2_; j++) {
       switch (t) {
       case copy:
-        p_[i][j] = a.Element(i, j);
+        p_[i][j] = a.Element(i + a.start_, j + a.start_);
         break;
       case transpose:
-        p_[i][j] = a.Element(j, i);
+        p_[i][j] = a.Element(j + a.start_, i + a.start_);
         break;
       case negative:
-        p_[i][j] = -a.Element(i, j);
+        p_[i][j] = -a.Element(i + a.start_, j + a.start_);
         break;
       case upper:
         if (i <= j) {
-          p_[i][j] = a.Element(i, j);
+          p_[i][j] = a.Element(i + a.start_, j + a.start_);
         } else {
           p_[i][j] = 0.0;
         }
@@ -159,10 +160,11 @@ Matrix::Matrix(const Matrix &a, transform t) {
 // Submatrix constructor.  Some of the values in rows and cols vectors are zero,
 // indicating that the corresponding rows and columns will be omitted.
 Matrix::Matrix(const Matrix &a, vector<int> rows, vector<int> cols) {
+  start_ = a.start_;
   // Empty rows vector means use all rows.
   if (!rows.empty()) {
 #ifdef DEBUG
-    assert(static_cast<int>(rows.size()) == (a.ub1() + 1));
+    assert(static_cast<int>(rows.size()) == a.size1_);
 #endif
     size1_ = 0;
     for (int i = 0; i < static_cast<int>(rows.size()); i++) {
@@ -171,12 +173,12 @@ Matrix::Matrix(const Matrix &a, vector<int> rows, vector<int> cols) {
       }
     }
   } else {
-    size1_ = a.ub1() + 1;
+    size1_ = a.size1_;
   }
   // Empty cols vector means use all cols.
   if (!cols.empty()) {
 #ifdef DEBUG
-    assert(static_cast<int>(cols.size()) == (a.ub2() + 1));
+    assert(static_cast<int>(cols.size()) == (a.size2_));
 #endif
     size2_ = 0;
     for (int i = 0; i < static_cast<int>(cols.size()); i++) {
@@ -185,7 +187,7 @@ Matrix::Matrix(const Matrix &a, vector<int> rows, vector<int> cols) {
       }
     }
   } else {
-    size2_ = a.ub2() + 1;
+    size2_ = a.size2_;
   }
   p_ = new double *[size1_];
 #ifdef DEBUG
@@ -195,7 +197,7 @@ Matrix::Matrix(const Matrix &a, vector<int> rows, vector<int> cols) {
        << a.size1_ << " by " << a.size2_ << " matrix." << endl;
 #endif
   int out_row = 0;
-  for (int i = 0; i <= a.ub1(); i++, out_row++) {
+  for (int i = 0; i < a.size1_; i++, out_row++) {
     // skip this row
     if ((!rows.empty()) && (0 == rows.at(i))) {
       out_row--;
@@ -207,12 +209,12 @@ Matrix::Matrix(const Matrix &a, vector<int> rows, vector<int> cols) {
     assert(p_[out_row] != 0);
 #endif
     int out_col = 0;
-    for (int j = 0; j <= a.ub2(); j++, out_col++) {
+    for (int j = 0; j < a.size2_; j++, out_col++) {
       // skip some columns
       if ((!cols.empty()) && (0 == cols.at(j))) {
         out_col--;
       } else {
-        p_[out_row][out_col] = a.Element(i, j);
+        p_[out_row][out_col] = a.Element(i + start_, j + start_);
       }
     }
   }
@@ -243,7 +245,7 @@ double Trace(const Matrix &a) {
   assert(a.ub1() == a.ub2());
 #endif
   double sum = 0.0;
-  for (int i = 0; i <= a.ub1(); i++) {
+  for (int i = a.lb(); i <= a.ub1(); i++) {
     sum += a.Element(i, i);
   }
   return sum;
@@ -295,10 +297,10 @@ vector<double> GetCharacteristicPolynomialCoefficients(const Matrix &a) {
 #endif
   vector<double> coeffs;
   // Coefficient of leading term is always (-)1.
-  coeffs.push_back(pow(-1.0, a.ub1() + 1));
+  coeffs.push_back(pow(-1.0, (a.ub1() - a.lb()) + 1));
   // A 2x2 matrix with elements (a,b) in first row and (c,d) in second has
   // characteristic polynomial (x^2 - (a+d)x + (ab-cd)).
-  if (1 == a.ub1()) {
+  if (1 == (a.ub1() - a.lb())) {
     coeffs.push_back(-1.0 * Trace(a));
     coeffs.push_back(Determinant(a, 0.0));
 #ifdef DEBUG
@@ -307,8 +309,8 @@ vector<double> GetCharacteristicPolynomialCoefficients(const Matrix &a) {
 #endif
     return coeffs;
   }
-  for (int i = 0; i <= a.ub1(); i++) {
-    vector<int> excluded = ExcludeDesignatedElement(a.ub1(), i);
+  for (int i = a.lb(); i <= a.ub1(); i++) {
+    vector<int> excluded = ExcludeDesignatedElement(a.ub1() - a.lb(), i);
     // Create the submatrix from which the coefficient will be calculated.
     Matrix sub(a, excluded, excluded);
     coeffs.push_back(Determinant(sub, 0.0));
@@ -321,12 +323,12 @@ double Determinant(const Matrix &a, double sum) {
     cerr << "Only square matrices have determinants." << endl;
     exit(EXIT_FAILURE);
   }
-  if (a.ub1() < 1) {
+  if ((a.ub1() - a.lb()) < 1) {
     return 0;
   }
-  if (1 == (a.ub1())) {
-    int val = ((a.Element(0, 0) * a.Element(1, 1)) -
-               (a.Element(0, 1) * a.Element(1, 0)));
+  if (1 == (a.ub1() - a.lb())) {
+    int val = ((a.Element(a.lb(), a.lb()) * a.Element(a.lb() + 1, a.lb() + 1)) -
+               (a.Element(a.lb(), a.lb() + 1) * a.Element(a.lb() + 1, a.lb())));
 #ifdef DEBUG
     cout << "Determinant of 2x2 is " << val << endl;
 #endif
@@ -335,17 +337,19 @@ double Determinant(const Matrix &a, double sum) {
   } else {
     // A matrix of rank n has n-1 submatrices whose determinants must each be
     // computed.
-    for (int i = 0; i <= a.ub1(); i++) {
+    for (int i = a.lb(); i <= a.ub1(); i++) {
       // Initialize row-selection vector to all ones, then remove one row for
       // each submatrix.
-      vector<int> rows = ExcludeDesignatedElement(a.ub1(), i);
+      vector<int> rows = ExcludeDesignatedElement(a.ub1() - a.lb(), i - a.lb());
 
-      for (int j = 0; j <= a.ub2(); j++) {
-        // Initialize row-selection vector to all ones, then remove one row for
-        // each submatrix.
-        vector<int> cols = ExcludeDesignatedElement(a.ub2(), j);
+      for (int j = a.lb(); j <= a.ub2(); j++) {
+        // Initialize column-selection vector to all ones, then remove one
+        // column for each submatrix.
+        vector<int> cols =
+            ExcludeDesignatedElement(a.ub2() - a.lb(), j - a.lb());
         Matrix submatrix(a, rows, cols);
-        sum += pow(-1, j) * a.Element(i, j) * Determinant(submatrix, sum);
+        sum +=
+            pow(-1, j - a.lb()) * a.Element(i, j) * Determinant(submatrix, sum);
 #ifdef DEBUG
         cout << "Determinant: sum is " << sum << " for i " << i << ",j " << j
              << endl;
@@ -361,7 +365,8 @@ double Determinant(const Matrix &a, double sum) {
 
 ostream &operator<<(ostream &out, const Matrix &a) {
   out << endl
-      << "Matrix of size " << (a.ub1() + 1) << "x" << (a.ub2() + 1) << endl;
+      << "Matrix of size " << ((a.ub1() - a.lb()) + 1) << "x"
+      << ((a.ub2() - a.lb()) + 1) << endl;
   for (int i = a.lb(); i <= a.ub1(); i++) {
     for (int j = a.lb(); j <= a.ub2(); j++) {
       cout << a.Element(i, j) << "\t";
@@ -400,10 +405,10 @@ dbl_vect::DoubleVector Multiply(const dbl_vect::DoubleVector &v,
   int i, j;
 
   // Iterate over the row vectors in m.
-  for (i = 0; i <= m.ub1(); i++) {
+  for (i = 0; i < m.size1_; i++) {
     ans.p_[i] = 0;
     // Iterate over the columns of the given row vector.
-    for (j = 0; j <= m.ub2(); j++) {
+    for (j = 0; j < m.size2_; j++) {
       ans.p_[i] += v.p_[j] * m.p_[i][j];
     }
   }
