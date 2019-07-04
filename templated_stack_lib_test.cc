@@ -13,31 +13,44 @@ constexpr char alphalist[] = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i',
                               'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r',
                               's', 't', 'u', 'v', 'w', 'x', 'y', 'z'};
 
+constexpr char alphalist2[] = {'z', 'y', 'x', 'w', 'v', 'u', 't', 's', 'r',
+                               'q', 'p', 'o', 'n', 'm', 'l', 'k', 'j', 'i',
+                               'h', 'g', 'f', 'e', 'd', 'c', 'b', 'a'};
+
 class CharStackTest : public ::testing::Test {
 public:
-  CharStackTest() { charstack1 = new TemplatedStack<char, 20>(); }
+  CharStackTest() { charstack1 = new TemplatedStack<char>(); }
   ~CharStackTest() { delete charstack1; }
 
-  TemplatedStack<char, 20> *charstack1;
+  TemplatedStack<char> *charstack1;
 };
 
 TEST_F(CharStackTest, DefaultCtorTest) {
   EXPECT_TRUE(charstack1->empty());
-  int i = 0;
-  while (!charstack1->full()) {
-    charstack1->push(alphalist[i]);
-    EXPECT_EQ(alphalist[i], charstack1->top_of());
-    i++;
+  for (char c : alphalist) {
+    if (!charstack1->full()) {
+      charstack1->push(c);
+      EXPECT_EQ(c, charstack1->top_of());
+    }
   }
-  cout << *charstack1 << endl;
-  EXPECT_EQ(alphalist[19], charstack1->pop());
-  EXPECT_EQ(alphalist[18], charstack1->top_of());
   EXPECT_FALSE(charstack1->full());
   EXPECT_FALSE(charstack1->empty());
+  cout << *charstack1 << endl;
+  //  int i = 0;
+  for (char c : alphalist2) {
+    if (!charstack1->empty()) {
+      // operator[] overload not found: why?
+      // error: no match for ‘operator==’ (operand types are ‘const char’ and
+      // ‘const templated_stack::TemplatedStack<char>’)
+      // EXPECT_EQ(c, charstack1[i++]);
+      EXPECT_EQ(c, charstack1->pop());
+    }
+  }
+  EXPECT_TRUE(charstack1->empty());
 }
 
 TEST_F(CharStackTest, MoveCtorTest) {
-  TemplatedStack<char, 5> charstack2({'a', 'b', 'c', 'd', 'e'}, 5);
+  TemplatedStack<char> charstack2({'a', 'b', 'c', 'd', 'e'}, 5);
   ostringstream out;
   out << charstack2;
   EXPECT_EQ("e, d, c, b, a", out.str());
@@ -45,13 +58,16 @@ TEST_F(CharStackTest, MoveCtorTest) {
   EXPECT_FALSE(charstack2.empty());
   EXPECT_TRUE(charstack2.full());
   EXPECT_EQ(alphalist[4], charstack2.top_of());
-  EXPECT_EQ(alphalist[4], charstack2.pop());
-  EXPECT_EQ(alphalist[3], charstack2.top_of());
-  int i = 3;
+  int i = 4;
   while (!charstack2.empty()) {
+    EXPECT_EQ(alphalist[i], charstack2[i]);
     EXPECT_EQ(alphalist[i], charstack2.pop());
     i--;
   }
+  EXPECT_TRUE(charstack2.empty());
+  TemplatedStack<char> charstack3({'a', 'b', 'c', 'd', 'e'}, 5);
+  charstack3.reset();
+  EXPECT_TRUE(charstack3.empty());
 }
 
 } // namespace testing

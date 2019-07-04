@@ -4,13 +4,16 @@
 #include <cassert>
 #include <cstdio>
 
+#include <iostream>
+
 // Any functions that refer explicitly to the template parameter must live here.
 namespace templated_stack {
 
 // Move constructor.
-template <typename T, int N>
-TemplatedStack<T, N>::TemplatedStack(T(&&input)[], int val)
+template <typename T>
+TemplatedStack<T>::TemplatedStack(T(&&input)[], int val)
     : max_len_(val), top_(0), data_(new T[val]) {
+  ::std::cout << "Move ctor" << ::std::endl;
   assert(0 != data_);
   assert(val > 0);
   int i = 0;

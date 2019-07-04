@@ -1,12 +1,11 @@
 // Any functions that do not refer explicitly to the template parameter can live
 // here.
 
-//#include "templated_stack.h"
+#include "templated_stack.h"
 
-//#include <iostream>
+#include <iostream>
 
-// using namespace std;
+using namespace std;
 
-// namespace templated_stack {
-
-//} // namespace templated_stack
+namespace templated_stack {
+} // namespace templated_stack
