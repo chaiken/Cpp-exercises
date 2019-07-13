@@ -24,6 +24,14 @@ public:
   }
   // Move constructor.
   TemplatedStack(T(&&input)[], int val);
+  // Constructs a TemplatedStack from a good old C-style array. The array can be
+  // const or non-const; it can capture both. Copied from Philipp Schrader's
+  // span.h.  I don't think that it can be exercised from a class that defines a
+  // destructor without resulting in "attempting free on address which was not
+  // malloc()-ed".
+  template <int N>
+  constexpr TemplatedStack(T (&arr)[N])
+      : max_len_(N), top_(N - 1), data_(&arr[0]){};
   ~TemplatedStack() { delete[] data_; }
   void reset() { top_ = EMPTY; }
   void push(T x) { data_[++top_] = x; }

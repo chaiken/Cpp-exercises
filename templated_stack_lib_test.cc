@@ -70,5 +70,27 @@ TEST_F(CharStackTest, MoveCtorTest) {
   EXPECT_TRUE(charstack3.empty());
 }
 
+/* clang-format off
+==14045==ERROR: AddressSanitizer: attempting free on address which was not
+ malloc()-ed
+Otherwise the test passes.
+TEST_F(CharStackTest, ArrayCtor) {
+  char newarray[5];
+  for (int i = 0;
+    i < 5; i++) { newarray[i] = alphalist[i];
+  }
+  TemplatedStack<const char> newdata = newarray;
+  EXPECT_EQ(5, newdata.size());
+  EXPECT_EQ(alphalist[4], newdata.top_of());
+  cout << "newdata: " << endl;
+  cout << newdata;
+  cout << endl << "***" << endl;
+  for (int i = 0; i < 5; i++) {
+    EXPECT_EQ(newarray[i], newdata[i]);
+  }
+}
+clang-format on
+*/
+
 } // namespace testing
 } // namespace templated_stack

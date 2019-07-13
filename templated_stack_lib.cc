@@ -7,5 +7,4 @@
 
 using namespace std;
 
-namespace templated_stack {
-} // namespace templated_stack
+namespace templated_stack {} // namespace templated_stack
