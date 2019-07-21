@@ -1,10 +1,13 @@
+#include "complex.h"
 #include "templated_stack.h"
 
 #include <iostream>
+#include <vector>
 
 #include "gtest/gtest.h"
 
 using namespace std;
+using namespace complex;
 
 namespace templated_stack {
 namespace testing {
@@ -142,6 +145,61 @@ TEST_F(CharStackTest, ArrayCtor) {
 }
 clang-format on
 */
+
+class ComplexStackTest : public ::testing::Test {
+public:
+  ComplexStackTest() : tsc(new TemplatedStack<Complex>()) {}
+  ~ComplexStackTest() {
+    delete compvec;
+    delete tsc;
+  }
+
+  // Should match the Complex ctor that takes a two-element array as its
+  // parameter.
+  vector<Complex> *compvec = new vector<Complex>({{
+      {0.0, 0.0},
+      {1.0, 1.0},
+      {2.0, 2.0},
+      {3.0, 3.0},
+      {4.0, 4.0},
+  }});
+  TemplatedStack<Complex> *tsc;
+};
+
+TEST_F(ComplexStackTest, DefaultCtorTest) {
+  EXPECT_TRUE(tsc->empty());
+  for (vector<Complex>::iterator it = compvec->begin(); it != compvec->end();
+       it++) {
+    tsc->push(*it);
+  }
+  EXPECT_FALSE(tsc->empty());
+  cout << *tsc << endl;
+  for (vector<Complex>::reverse_iterator it = compvec->rbegin();
+       it != compvec->rend(); it++) {
+    EXPECT_EQ(*it, tsc->pop());
+  }
+}
+
+TEST_F(ComplexStackTest, ReverseTest) {
+  // Won't work due to most vexing parse.
+  //  Complex *carr[5](), *carr1[5]();
+  Complex carr[] = {Complex(0, 0), Complex(1, 1), Complex(2, 2), Complex(3, 3),
+                    Complex(4, 4)};
+
+  Complex carr1[] = {Complex(4, 4), Complex(3, 3), Complex(2, 2), Complex(1, 1),
+                     Complex(0, 0)};
+  for (int i = 0; i < 5; i++) {
+    EXPECT_EQ(carr[i], carr1[4 - i]);
+  }
+  reverse(carr, 5);
+  for (int i = 0; i < 5; i++) {
+    EXPECT_EQ(carr[i], carr1[i]);
+  }
+  reverse(carr, 5);
+  for (int i = 0; i < 5; i++) {
+    EXPECT_EQ(carr[i], carr1[4 - i]);
+  }
+}
 
 } // namespace testing
 } // namespace templated_stack

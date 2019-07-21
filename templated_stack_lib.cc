@@ -11,7 +11,7 @@ using namespace std;
 namespace templated_stack {
 
 // Version in text does not compile due to MVP.
-void reverse(char *strarr[], int n) {
+/* void reverse(char *strarr[], int n) {
   // https://en.wikipedia.org/wiki/Most_vexing_parse
   // The following suffers from this compiler error:
   // error: request for member ‘push’ in ‘templated_stack::stk’, which is of
@@ -27,6 +27,6 @@ void reverse(char *strarr[], int n) {
   for (int i = 0; i < n; i++) {
     strarr[i] = stk.pop();
   }
-}
+} */
 
 } // namespace templated_stack

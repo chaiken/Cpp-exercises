@@ -30,6 +30,7 @@ double Dot(const Complex &x, const Complex &y) {
 // "If the function had been written to return void, it would not have allowed
 // multiple assignment." Namely, a=b=c would not then work.
 Complex &Complex::operator=(const Complex &x) {
+  assert(nullptr != this);
   if (this != &x) {
     real_ = x.real_;
     imag_ = x.imag_;

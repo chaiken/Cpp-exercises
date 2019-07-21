@@ -56,5 +56,26 @@ TemplatedStack<T> &TemplatedStack<T>::operator=(TemplatedStack &&input) {
   return *this;
 }
 
+// For char* arrays.
+template <typename T> void reverse(T *arr[], int n) {
+  TemplatedStack<T *> stk(arr, n);
+  assert(!stk.empty());
+  assert(stk.full());
+  for (int i = 0; i < n; i++) {
+    arr[i] = stk.pop();
+  }
+}
+
+// For Complex arrays.  I couldn't figure out how to initialize an array of type
+// Complex*.
+template <typename T> void reverse(T arr[], int n) {
+  TemplatedStack<T> stk(arr, n);
+  assert(!stk.empty());
+  assert(stk.full());
+  for (int i = 0; i < n; i++) {
+    arr[i] = stk.pop();
+  }
+}
+
 } // namespace templated_stack
 #endif

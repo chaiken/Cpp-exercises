@@ -135,5 +135,5 @@ smarter_list_lib_test: smarter_list_lib.cc smarter_list_lib_test.cc smarter_list
 new_clock_lib_test: new_clock_lib.cc new_clock_lib_test.cc new_clock.h $(GTEST_HEADERS)
 	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) new_clock_lib.cc new_clock_lib_test.cc -o $@
 
-templated_stack_lib_test: templated_stack_lib.cc templated_stack_lib_test.cc templated_stack.h templated_stack_impl.h $(GTEST_HEADERS)
-	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) templated_stack_lib.cc templated_stack_lib_test.cc -o $@
+templated_stack_lib_test: templated_stack_lib.cc templated_stack_lib_test.cc templated_stack.h templated_stack_impl.h complex.h complex_lib.cc $(GTEST_HEADERS)
+	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) templated_stack_lib.cc templated_stack_lib_test.cc complex_lib.cc -o $@

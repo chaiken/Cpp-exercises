@@ -48,6 +48,8 @@ public:
   int size() const { return max_len_; };
   T &operator[](int i) const { return data_[i]; }
   TemplatedStack &operator=(TemplatedStack &&input);
+  void reverse(T *arr[], int n);
+  void reverse(T arr[], int n);
   // https://en.wikibooks.org/wiki/More_C%2B%2B_Idioms/Making_New_Friends
   // the inserter is not itself a template but it still uses a template argument
   // (T). This is a problem since it’s not a member function. Such a friend
@@ -69,7 +71,7 @@ public:
   }
 };
 
-void reverse(char *strarr[], int n);
+// void reverse(char *strarr[], int n);
 
 } // namespace templated_stack
 
