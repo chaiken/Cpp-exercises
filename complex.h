@@ -45,9 +45,7 @@ public:
     real_ = r;
     imag_ = i;
   }
-  void print() const {
-    ::std::cout << real_ << " + " << imag_ << "i" << ::std::endl;
-  }
+
   double DotProduct(const Complex &x) const;
   friend double Dot(const Complex &x, const Complex &y);
   double InnerAngle(Complex &x);

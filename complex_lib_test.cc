@@ -13,7 +13,7 @@ namespace testing {
 
 TEST(ComplexLibTest, DoubleTest) {
   Complex first(3.0, 4.0);
-  first.print();
+  cout << first << endl;;
   EXPECT_EQ(sqrt(25.0), double(first));
   -first;
   EXPECT_EQ(sqrt(25.0), double(first));
