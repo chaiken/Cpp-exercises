@@ -49,7 +49,7 @@ TEST_F(CharStackTest, DefaultCtorTest) {
   EXPECT_TRUE(charstack1->empty());
 }
 
-TEST_F(CharStackTest, MoveCtorTest) {
+TEST_F(CharStackTest, RValRefArrayCtorTest) {
   TemplatedStack<char> charstack2({'a', 'b', 'c', 'd', 'e'}, 5);
   ostringstream out;
   out << charstack2;
@@ -68,6 +68,57 @@ TEST_F(CharStackTest, MoveCtorTest) {
   TemplatedStack<char> charstack3({'a', 'b', 'c', 'd', 'e'}, 5);
   charstack3.reset();
   EXPECT_TRUE(charstack3.empty());
+}
+
+TEST_F(CharStackTest, MoveCtorTest) {
+  TemplatedStack<char> charstack2({'a', 'b', 'c', 'd', 'e'}, 5);
+  TemplatedStack<char> charstack3(move(charstack2));
+  int i = 4;
+  while (!charstack3.empty()) {
+    EXPECT_EQ(alphalist[i], charstack3.pop());
+    i--;
+  }
+}
+
+TEST(StringStackTest, ReverseTest) {
+  char *strarr[5];
+  array<string, 5> strarr1 = {"Heute", "ist", "ein", "staatlicher", "Feiertag"};
+  for (int i = 0; i < 5; i++) {
+    strarr[i] = const_cast<char *>(strarr1[i].c_str());
+  }
+  reverse(strarr, 5);
+  for (int i = 0; i < 5; i++) {
+    EXPECT_EQ(strarr[i], strarr1[4 - i]);
+  }
+  reverse(strarr, 5);
+  for (int i = 0; i < 5; i++) {
+    EXPECT_EQ(strarr[i], strarr1[i]);
+  }
+}
+
+// double-free():
+// (gdb) p charstack2
+// $1 = {max_len_ = 0x5, top_ = 0x4, data_ = 0x5555555db600 "abcdeU"}
+// (gdb) p charstack4
+// $2 = {max_len_ = 0x5, top_ = 0x4, data_ = 0x5555555db600 "abcdeU"}
+TEST_F(CharStackTest, MoveAssignment) {
+  TemplatedStack<char> charstack2({'a', 'b', 'c', 'd', 'e'}, 5);
+  TemplatedStack<char> charstack3({'a', 'b', 'c', 'd', 'e'}, 5);
+  // This initialization is a work-around for the Most Vexing Parse, which
+  // TemplatedStack<char> charstack4();
+  // triggers.   There appears to be no way to call the default constructor.
+  TemplatedStack<char> charstack4({'f', 'f', 'f', 'f', 'f'}, 5);
+  EXPECT_NE(charstack4.top_of(), charstack3.top_of());
+  EXPECT_NE(charstack4[0], charstack3[0]);
+  charstack4 = move(charstack2);
+  EXPECT_FALSE(charstack4.empty());
+  int i = 4;
+  while (!charstack4.empty()) {
+    EXPECT_EQ(charstack4.top_of(), charstack3[i]);
+    EXPECT_EQ(charstack4[i], charstack3[i]);
+    EXPECT_EQ(charstack4.pop(), charstack3[i]);
+    i--;
+  }
 }
 
 /* clang-format off

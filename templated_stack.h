@@ -3,6 +3,7 @@
 
 #include <cassert>
 #include <iostream>
+#include <string>
 
 namespace templated_stack {
 
@@ -18,12 +19,17 @@ private:
   T *data_;
 
 public:
-  explicit TemplatedStack()
+  TemplatedStack()
       : max_len_(kDefaultSize), top_(EMPTY), data_(new T[kDefaultSize]) {
     ::std::cout << "Default ctor" << ::std::endl;
   }
   // Move constructor.
-  TemplatedStack(T(&&input)[], int val);
+  TemplatedStack(TemplatedStack &&ts);
+  // R-value reference array ctr.
+  TemplatedStack(T(&&input)[], int len);
+  TemplatedStack(T input[], int len);
+  // https://stackoverflow.com/questions/6077143/disable-copy-constructor
+  TemplatedStack(const TemplatedStack &ts) = delete;
   // Constructs a TemplatedStack from a good old C-style array. The array can be
   // const or non-const; it can capture both. Copied from Philipp Schrader's
   // span.h.  I don't think that it can be exercised from a class that defines a
@@ -41,6 +47,7 @@ public:
   bool full() const { return (top_ == (max_len_ - 1)); }
   int size() const { return max_len_; };
   T &operator[](int i) const { return data_[i]; }
+  TemplatedStack &operator=(TemplatedStack &&input);
   // https://en.wikibooks.org/wiki/More_C%2B%2B_Idioms/Making_New_Friends
   // the inserter is not itself a template but it still uses a template argument
   // (T). This is a problem since it’s not a member function. Such a friend
@@ -61,6 +68,8 @@ public:
     return out;
   }
 };
+
+void reverse(char *strarr[], int n);
 
 } // namespace templated_stack
 
