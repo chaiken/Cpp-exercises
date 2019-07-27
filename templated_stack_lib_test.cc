@@ -201,5 +201,31 @@ TEST_F(ComplexStackTest, ReverseTest) {
   }
 }
 
+TEST_F(ComplexStackTest, MoveCtor) {
+  Complex carr[] = {Complex(0, 0), Complex(1, 1), Complex(2, 2), Complex(3, 3),
+                    Complex(4, 4)};
+  TemplatedStack<Complex> ts1(carr, 5);
+  TemplatedStack<Complex> ts2(carr, 5);
+  TemplatedStack<Complex> ts3(move(ts1));
+  int i = 0;
+  for (vector<Complex>::iterator it = compvec->begin(); it != compvec->end();
+       it++, i++) {
+    EXPECT_EQ((*it), ts3[i]);
+  }
+}
+
+TEST_F(ComplexStackTest, MoveAssignment) {
+  Complex carr[] = {Complex(0, 0), Complex(1, 1), Complex(2, 2), Complex(3, 3),
+                    Complex(4, 4)};
+  TemplatedStack<Complex> ts1(carr, 5);
+  TemplatedStack<Complex> ts2(carr, 5);
+  *tsc = move(ts1);
+  int i = 0;
+  for (vector<Complex>::iterator it = compvec->begin(); it != compvec->end();
+       it++, i++) {
+    EXPECT_EQ((*it), (*tsc)[i]);
+  }
+}
+
 } // namespace testing
 } // namespace templated_stack
