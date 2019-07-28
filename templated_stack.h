@@ -8,8 +8,12 @@
 namespace templated_stack {
 
 namespace {
+#ifdef CONSTSIZE
+constexpr int32_t kDefaultSize = CONSTSIZE;
+#else
 constexpr int32_t kDefaultSize = 100;
-}
+#endif
+} // namespace
 
 template <typename T> class TemplatedStack {
 private:

@@ -137,3 +137,6 @@ new_clock_lib_test: new_clock_lib.cc new_clock_lib_test.cc new_clock.h $(GTEST_H
 
 templated_stack_lib_test: templated_stack_lib.cc templated_stack_lib_test.cc templated_stack.h templated_stack_impl.h complex.h complex_lib.cc $(GTEST_HEADERS)
 	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) templated_stack_lib.cc templated_stack_lib_test.cc complex_lib.cc -o $@
+
+const_templated_stack_lib_test: templated_stack_lib.cc const_templated_stack_lib_test.cc templated_stack.h templated_stack_impl.h complex.h $(GTEST_HEADERS)
+	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) templated_stack_lib.cc const_templated_stack_lib_test.cc -DCONSTSIZE=20 -o $@
