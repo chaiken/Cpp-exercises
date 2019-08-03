@@ -74,6 +74,8 @@ TEST(ComplexLibTest, SubtractTest) {
   EXPECT_TRUE(third == fourth);
 }
 
+// Now calling a version of the operator* overload that returns a constexpr
+// value.
 TEST(ComplexLibTest, MultiplyTest) {
   Complex first(3.0, 4.0);
   Complex second(1.0 / 3.0, 1.0 / 4.0);

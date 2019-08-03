@@ -17,12 +17,14 @@ USER_DIR = .
 # http://www.valgrind.org/docs/manual/quick-start.html#quick-start.prepare
 # Compile your program with -g . . . Using -O0 is also a good idea, 
 CXXFLAGS= -std=c++11 -ggdb -Wall -Wextra -g -O0 -fno-inline -fsanitize=address,undefined -I$(GTEST_HEADERS)
+CXXFLAG-NOTEST= -std=c++11 -ggdb -Wall -Wextra -g -O0 -fno-inline -fsanitize=address,undefined
 #CXXFLAGS= -std=c++11 -ggdb -Wall -Wextra -g -O0 -fno-inline -I$(GTEST_HEADERS)
 # Set Google Test's header directory as a system directory, such that
 # the compiler doesn't generate warnings in Google Test headers.
 CPPFLAGS += -isystem $(GTEST_DIR)/include
 
 LDFLAGS= -ggdb -g -fsanitize=address -L$(GTESTLIBPATH) -lpthread
+LDFLAGS-NOTEST= -ggdb -g -fsanitize=address -lpthread
 #LDFLAGS= -ggdb -g -L$(GTESTLIBPATH) -lpthread
 #THREADFLAGS= -D_REENTRANT -I/usr/include/ntpl -L/usr/lib/nptl -lpthread
 THREADFLAGS= -D_REENTRANT -lpthread
@@ -140,3 +142,6 @@ templated_stack_lib_test: templated_stack_lib.cc templated_stack_lib_test.cc tem
 
 const_templated_stack_lib_test: templated_stack_lib.cc const_templated_stack_lib_test.cc templated_stack.h templated_stack_impl.h complex.h $(GTEST_HEADERS)
 	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) templated_stack_lib.cc const_templated_stack_lib_test.cc -DCONSTSIZE=20 -o $@
+
+macro-vs-template: macro-vs-template.cc macro-vs-template.h complex_lib.cc complex.h
+	$(CC) $(CXXFLAGS-NOTEST) $(LDFLAGS-NOTEST) macro-vs-template.cc complex_lib.cc -o $@

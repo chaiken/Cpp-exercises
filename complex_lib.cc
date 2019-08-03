@@ -79,9 +79,13 @@ bool operator!=(const Complex &x, const Complex &y) {
   return ((x.real_ != y.real_) || (x.imag_ != y.imag_));
 }
 
-Complex operator*(const Complex &x, const Complex &y) {
-  return {(x.real_ * y.real_), (x.imag_ * y.imag_)};
-}
+// constexpr functions, since they are inlined, must be defined in the header.
+// Otherwise,
+//  inline function ‘constexpr complex::Complex complex::operator*(const
+//  complex::Complex&, const complex::Complex&)’ used but never defined
+// constexpr Complex operator*(const Complex &x, const Complex &y) {
+//  return {(x.real_ * y.real_), (x.imag_ * y.imag_)};
+//}
 
 Complex operator+(const Complex &x, const double m) {
   return {(x.real_ + m), (x.imag_ + m)};

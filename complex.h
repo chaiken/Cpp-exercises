@@ -19,7 +19,9 @@ double Dot(const Complex &x, const Complex &y);
 
 class Complex {
 public:
-  Complex() : real_(0.0), imag_(0.0) {}
+  Complex() : real_(0.0), imag_(0.0) {
+    ::std::cout << "Default ctor" << ::std::endl;
+  }
   Complex(double r) : real_(r), imag_(0.0) {}
   //  A literal type can be a class type that has all of the following
   //  properties: has a trivial destructor, is either an aggregate type, a type
@@ -27,8 +29,12 @@ public:
   //  copy or move constructor,
   constexpr Complex(double r, double i) : real_(r), imag_(i) {}
   // Need by binary operators.
-  Complex(double ri[2]) : real_(ri[0]), imag_(ri[1]) {}
-  Complex(const Complex &c) : real_(c.real_), imag_(c.imag_) {}
+  Complex(double ri[2]) : real_(ri[0]), imag_(ri[1]) {
+    ::std::cout << "Array ctor" << ::std::endl;
+  }
+  Complex(const Complex &c) : real_(c.real_), imag_(c.imag_) {
+    ::std::cout << "Copy ctor" << ::std::endl;
+  }
   friend class complex_vec::ComplexVector;
   void assign(double r, double i) {
     real_ = r;
@@ -52,7 +58,7 @@ public:
   friend Complex operator+(const Complex &x, const double m);
   friend Complex operator+(const double m, const Complex &x);
   friend Complex operator-(const Complex &x, const Complex &y);
-  friend Complex operator*(const Complex &x, const Complex &y);
+  friend constexpr Complex operator*(const Complex &x, const Complex &y);
   // error: ‘double complex::operator=(double, const complex::Complex&)’ must be
   // a nonstatic member function
   // Overloading operator= requires two operands of the same type.
@@ -72,7 +78,9 @@ Complex operator+(const Complex &x, const Complex &y);
 Complex operator+(const Complex &x, const double m);
 Complex operator+(const double m, const Complex &x);
 Complex operator-(const Complex &x, const Complex &y);
-Complex operator*(const Complex &x, const Complex &y);
+constexpr Complex operator*(const Complex &x, const Complex &y) {
+  return {(x.real_ * y.real_), (x.imag_ * y.imag_)};
+};
 // error: ‘double complex::operator=(double, const complex::Complex&)’ must be
 // a nonstatic member function
 // double operator=(double d, const Complex &x);
