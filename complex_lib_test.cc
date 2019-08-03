@@ -13,7 +13,8 @@ namespace testing {
 
 TEST(ComplexLibTest, DoubleTest) {
   Complex first(3.0, 4.0);
-  cout << first << endl;;
+  cout << first << endl;
+  ;
   EXPECT_EQ(sqrt(25.0), double(first));
   -first;
   EXPECT_EQ(sqrt(25.0), double(first));
@@ -109,6 +110,15 @@ TEST(ComplexLibTest, InequalityTest) {
   Complex first(3.0, 4.0);
   Complex second(-1.0, -1.0);
   EXPECT_TRUE(first != second);
+}
+
+TEST(ComplexLibTest, SqrtTest) {
+  EXPECT_EQ(0.0, sqrt(Complex(0.0, 0.0)));
+  double temp = 9.0 + sqrt(97.0);
+  double denom = sqrt(2.0 * temp);
+  // ceil() is needed because comparing doubles is fundamentally stupid.
+  EXPECT_EQ((ceil(Complex(temp / denom, 4.0 / denom))),
+            ceil(sqrt(Complex(9.0, 4.0))));
 }
 
 } // namespace testing

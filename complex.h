@@ -19,27 +19,16 @@ double Dot(const Complex &x, const Complex &y);
 
 class Complex {
 public:
-  Complex() {
-    real_ = 0;
-    imag_ = 0;
-  }
-  Complex(double r) {
-    real_ = r;
-    imag_ = 0;
-  }
-  Complex(double r, double i) {
-    real_ = r;
-    imag_ = i;
-  }
+  Complex() : real_(0.0), imag_(0.0) {}
+  Complex(double r) : real_(r), imag_(0.0) {}
+  //  A literal type can be a class type that has all of the following
+  //  properties: has a trivial destructor, is either an aggregate type, a type
+  //  with at least one constexpr (possibly template) constructor that is not a
+  //  copy or move constructor,
+  constexpr Complex(double r, double i) : real_(r), imag_(i) {}
   // Need by binary operators.
-  Complex(double ri[2]) {
-    real_ = ri[0];
-    imag_ = ri[1];
-  }
-  Complex(const Complex &c) {
-    real_ = c.real_;
-    imag_ = c.imag_;
-  }
+  Complex(double ri[2]) : real_(ri[0]), imag_(ri[1]) {}
+  Complex(const Complex &c) : real_(c.real_), imag_(c.imag_) {}
   friend class complex_vec::ComplexVector;
   void assign(double r, double i) {
     real_ = r;
@@ -49,9 +38,10 @@ public:
   double DotProduct(const Complex &x) const;
   friend double Dot(const Complex &x, const Complex &y);
   double InnerAngle(Complex &x);
+  friend Complex sqrt(const Complex &z);
   // The name of the operator must be double(), as "modulus" is not an operator
   // that can be overridden, and new operators cannot be created.
-  operator double() { return (sqrt(real_ * real_ + imag_ * imag_)); }
+  operator double() { return (::std::sqrt(real_ * real_ + imag_ * imag_)); }
   // Reverse the vector.
   void operator-();
   Complex &operator=(const Complex &c);
@@ -75,6 +65,7 @@ private:
 };
 
 ::std::ostream &operator<<(::std::ostream &out, Complex x);
+Complex sqrt(const Complex &z);
 Complex operator+(const Complex &x, const Complex &y);
 // Both versions are needed, as addition is commutative, but the compiler won't
 // match invocations with reversed parameters.

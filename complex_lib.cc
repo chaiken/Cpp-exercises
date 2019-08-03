@@ -1,6 +1,7 @@
 #include "complex.h"
 
 #include <cassert>
+#include <cmath>
 
 #include <iostream>
 
@@ -63,17 +64,11 @@ double Complex::InnerAngle(Complex &x) {
 // These next two binary operator rely on the Complex(double ri[2]) constructor
 // to convert their return values to a Complex object.
 Complex operator+(const Complex &x, const Complex &y) {
-  double coeffs[2];
-  coeffs[0] = x.real_ + y.real_;
-  coeffs[1] = x.imag_ + y.imag_;
-  return coeffs;
+  return {(x.real_ + y.real_), (x.imag_ + y.imag_)};
 }
 
 Complex operator-(const Complex &x, const Complex &y) {
-  double coeffs[2];
-  coeffs[0] = x.real_ - y.real_;
-  coeffs[1] = x.imag_ - y.imag_;
-  return coeffs;
+  return {(x.real_ - y.real_), (x.imag_ - y.imag_)};
 }
 
 bool operator==(const Complex &x, const Complex &y) {
@@ -85,16 +80,33 @@ bool operator!=(const Complex &x, const Complex &y) {
 }
 
 Complex operator*(const Complex &x, const Complex &y) {
-  Complex product(x.real_ * y.real_, x.imag_ * y.imag_);
-  return product;
+  return {(x.real_ * y.real_), (x.imag_ * y.imag_)};
 }
 
 Complex operator+(const Complex &x, const double m) {
-  Complex sum(x.real_ + m, x.imag_ + m);
-  return sum;
+  return {(x.real_ + m), (x.imag_ + m)};
 }
 
 Complex operator+(const double m, const Complex &x) { return (x + m); }
+
+// https://math.stackexchange.com/questions/44406/how-do-i-get-the-square-root-of-a-complex-number
+// $(r(\cos(\theta)+ i \sin(\theta)))^{1/2} = ±\sqrt{r}(\cos(\theta/2) + i
+// \sin(\theta/2))$
+Complex sqrt(const Complex &z) {
+  double coeffs[]{0.0, 0.0};
+  // NaN.
+  if ((0.0 == z.imag_) && (z.real_ < 0)) {
+    return coeffs;
+  }
+  // z = r*cos(theta) + i* r*sin(theta)
+  double r = ::std::sqrt((z.real_ * z.real_) + (z.imag_ * z.imag_));
+  if (r != 0.0) {
+    double theta = asin(z.imag_ / r);
+    coeffs[0] = ::std::sqrt(r) * cos(theta / 2.0);
+    coeffs[1] = ::std::sqrt(r) * sin(theta / 2.0);
+  }
+  return coeffs;
+}
 
 // error: ‘double complex::operator=(double, const complex::Complex&)’ must be a
 // nonstatic member function
