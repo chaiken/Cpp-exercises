@@ -145,3 +145,6 @@ const_templated_stack_lib_test: templated_stack_lib.cc const_templated_stack_lib
 
 macro-vs-template: macro-vs-template.cc macro-vs-template.h complex_lib.cc complex.h
 	$(CC) $(CXXFLAGS-NOTEST) $(LDFLAGS-NOTEST) macro-vs-template.cc complex_lib.cc -o $@
+
+template_cycle_lib_test: template_cycle_lib_test.cc template_cycle.h template_cycle_impl.h $(GTEST_HEADERS)
+	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) template_cycle_lib_test.cc -o $@
