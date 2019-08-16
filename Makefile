@@ -18,12 +18,13 @@ USER_DIR = .
 # Compile your program with -g . . . Using -O0 is also a good idea, 
 CXXFLAGS= -std=c++11 -ggdb -Wall -Wextra -g -O0 -fno-inline -fsanitize=address,undefined -I$(GTEST_HEADERS)
 CXXFLAG-NOTEST= -std=c++11 -ggdb -Wall -Wextra -g -O0 -fno-inline -fsanitize=address,undefined
-#CXXFLAGS= -std=c++11 -ggdb -Wall -Wextra -g -O0 -fno-inline -I$(GTEST_HEADERS)
+CXXFLAGS-NOSANITIZE= -std=c++11 -ggdb -Wall -Wextra -g -O0 -fno-inline -I$(GTEST_HEADERS)
 # Set Google Test's header directory as a system directory, such that
 # the compiler doesn't generate warnings in Google Test headers.
 CPPFLAGS += -isystem $(GTEST_DIR)/include
 
 LDFLAGS= -ggdb -g -fsanitize=address -L$(GTESTLIBPATH) -lpthread
+LDFLAGS-NOSANITIZE= -ggdb -g -L$(GTESTLIBPATH) -lpthread
 LDFLAGS-NOTEST= -ggdb -g -fsanitize=address -lpthread
 #LDFLAGS= -ggdb -g -L$(GTESTLIBPATH) -lpthread
 #THREADFLAGS= -D_REENTRANT -I/usr/include/ntpl -L/usr/lib/nptl -lpthread
@@ -148,3 +149,6 @@ macro-vs-template: macro-vs-template.cc macro-vs-template.h complex_lib.cc compl
 
 template_cycle_lib_test: template_cycle_lib_test.cc template_cycle.h template_cycle_impl.h polynomial_lib.cc polynomial.h polynomial_impl.h term_lib.cc term.h term_impl.h term_vector_lib.cc term_vector.h $(GTEST_HEADERS)
 	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) template_cycle_lib_test.cc polynomial_lib.cc term_lib.cc term_vector_lib.cc -o $@
+
+template_rotate_lib_test: template_rotate_lib_test.cc template_rotate.h template_rotate_impl.h complex.h complex_lib.cc $(GTEST_HEADERS)
+	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) template_rotate_lib_test.cc complex_lib.cc -o $@
