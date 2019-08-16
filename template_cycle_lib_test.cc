@@ -32,7 +32,19 @@ TEST(TemplateCycleTest, PolynomialTest) {
   polynomial::Polynomial testpoly1(coeffs, expon);
   polynomial::Polynomial testpoly2 = testpoly1 + testpoly1;
   polynomial::Polynomial testpoly3 = testpoly2 + testpoly1;
+  cout << "testpoly1: " << testpoly1 << endl;
+  cout << "testpoly2: " << testpoly2 << endl;
+  cout << "testpoly3: " << testpoly3 << endl << endl;
   tcycle::move_cycle(testpoly1, testpoly2, testpoly3);
+  cout << "testpoly1: " << testpoly1 << endl;
+  cout << "testpoly2: " << testpoly2 << endl;
+  cout << "testpoly3: " << testpoly3 << endl;
+  EXPECT_EQ(3, testpoly1.head()->exponent);
+  EXPECT_EQ(6.0, testpoly1.head()->coefficient);
+  EXPECT_EQ(3, testpoly2.head()->exponent);
+  EXPECT_EQ(9.0, testpoly2.head()->coefficient);
+  EXPECT_EQ(3, testpoly3.head()->exponent);
+  EXPECT_EQ(3.0, testpoly3.head()->coefficient);
 }
 
 } // namespace testing

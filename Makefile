@@ -146,5 +146,5 @@ const_templated_stack_lib_test: templated_stack_lib.cc const_templated_stack_lib
 macro-vs-template: macro-vs-template.cc macro-vs-template.h complex_lib.cc complex.h
 	$(CC) $(CXXFLAGS-NOTEST) $(LDFLAGS-NOTEST) macro-vs-template.cc complex_lib.cc -o $@
 
-template_cycle_lib_test: template_cycle_lib_test.cc template_cycle.h template_cycle_impl.h $(GTEST_HEADERS)
-	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) template_cycle_lib_test.cc -o $@
+template_cycle_lib_test: template_cycle_lib_test.cc template_cycle.h template_cycle_impl.h polynomial_lib.cc polynomial.h polynomial_impl.h term_lib.cc term.h term_impl.h term_vector_lib.cc term_vector.h $(GTEST_HEADERS)
+	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) template_cycle_lib_test.cc polynomial_lib.cc term_lib.cc term_vector_lib.cc -o $@
