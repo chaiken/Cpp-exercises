@@ -1,10 +1,16 @@
 #include <cassert>
 
 #include <iostream>
+#include <type_traits>
 
 namespace template_vect {
 
 template <typename T> T &TemplateVector<T>::operator[](int i) {
+  assert((i <= ub()) && (i >= 0));
+  return p_[i];
+}
+
+template <typename T> const T &TemplateVector<T>::operator[](int i) const {
   assert((i <= ub()) && (i >= 0));
   return p_[i];
 }
@@ -64,6 +70,30 @@ TemplateVector<T> &TemplateVector<T>::operator=(TemplateVector &&v) {
   size_ = v.size_;
   ::std::swap(v.p_, p_);
   return *this;
+}
+
+// I wanted to make an operator==() instead, but couldn't figure out how to use
+// two template parameters within the class.
+template <typename U, typename V>
+bool check_equal(const TemplateVector<U> &tv1, const TemplateVector<V> &tv2) {
+  // error: expected primary-expression before ‘(’ token
+  // bool ans = ::std::is_same<U,V>(U, V)::value;
+  constexpr bool ans = ::std::is_same<U, V>::value;
+  if (!ans) {
+    ::std::cerr << "Types don't match." << ::std::endl;
+    return false;
+  }
+  if (tv1.ub() != tv2.ub()) {
+    ::std::cerr << "Sizes don't match." << ::std::endl;
+    return false;
+  }
+  for (int i = 0; i <= tv1.ub(); i++) {
+    if (tv1[i] != tv2[i]) {
+      ::std::cerr << "Element " << i << " doesn't match." << ::std::endl;
+      return false;
+    }
+  }
+  return true;
 }
 
 } // namespace template_vect

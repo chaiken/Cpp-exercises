@@ -92,5 +92,16 @@ TEST(TemplateVectorTest, PrinterTest) {
   EXPECT_EQ(out2.str(), out.str());
 }
 
+TEST(TemplateVectorTest, EqualityTest) {
+  vector<double> dv{{1.0, 2.0, 3.0, 4.0, 5.0}};
+  const TemplateVector<double> tv1(dv);
+  ASSERT_TRUE(check_equal(tv1, TemplateVector<double>(dv)));
+  ASSERT_FALSE(check_equal(tv1, TemplateVector<double>(5)));
+  vector<int> iv{{1, 2, 3, 4, 5}};
+  ASSERT_FALSE(check_equal(tv1, TemplateVector<int>(iv)));
+  ASSERT_FALSE(check_equal(
+      tv1, TemplateVector<double>(vector<double>{{2.0, 3.0, 4.0}})));
+}
+
 } // namespace testing
 } // namespace template_vect

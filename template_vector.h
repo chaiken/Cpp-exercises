@@ -15,6 +15,7 @@ public:
   ~TemplateVector() { delete[] p_; }
   int ub() const { return (size_ - 1); }
   T &operator[](int i);
+  const T &operator[](int i) const;
   T *begin() const { return &p_[0]; }
   T *end() const { return &p_[size_]; }
   TemplateVector &operator=(TemplateVector &&v);
