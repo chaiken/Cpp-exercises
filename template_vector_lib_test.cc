@@ -72,6 +72,15 @@ TEST(TemplateVectorTest, MoveAssignment) {
   }
 }
 
+TEST(TemplateVectorTest, AssignmentSizeMismatch) {
+  vector<double> vec1{{-3.0, -2.0, -1.0}}, vec2{{1.0, 2.0, 3.0, 4.0, 5.0}};
+  TemplateVector<double> tv1(vec1), tv2(vec2);
+  ASSERT_NE(tv1.ub(), tv2.ub());
+  EXPECT_EQ(4, tv2.ub());
+  tv2 = move(tv1);
+  EXPECT_EQ(2, tv2.ub());
+}
+
 TEST(TemplateVectorTest, PrinterTest) {
   Complex carr[]{Complex(0.0, 0.0), Complex(1.0, 1.0), Complex(2.0, 2.0),
                  Complex(3.0, 3.0), Complex(4.0, 4.0)};
