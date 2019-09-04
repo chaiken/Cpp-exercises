@@ -153,5 +153,5 @@ template_cycle_lib_test: template_cycle_lib_test.cc template_cycle.h template_cy
 template_rotate_lib_test: template_rotate_lib_test.cc template_rotate.h template_rotate_impl.h complex.h complex_lib.cc $(GTEST_HEADERS)
 	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) template_rotate_lib_test.cc complex_lib.cc -o $@
 
-template_vector_lib_test: template_vector.h template_vector_impl.h template_vector_lib.cc template_vector_lib_test.cc complex.h complex_lib.cc $(GTEST_HEADERS)
-	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS)  template_vector_lib.cc template_vector_lib_test.cc complex_lib.cc -o $@
+template_vector_lib_test: template_vector.h template_vector_impl.h template_vector_lib_test.cc complex.h complex_lib.cc $(GTEST_HEADERS)
+	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) template_vector_lib_test.cc complex_lib.cc -o $@

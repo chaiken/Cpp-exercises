@@ -96,4 +96,17 @@ bool check_equal(const TemplateVector<U> &tv1, const TemplateVector<V> &tv2) {
   return true;
 }
 
+// If the function arguments are passed by value as simple TemplateVector
+// objects, then the compiler complains that the copy constructor was deleted.
+// Apparently passing objects by value involves copying them, so that any object
+// whose copy constructor has been deleted cannot be passed by value, only by
+// pointer or reference.
+/* template <typename T1, typename T2>
+void tvswap(TemplateVector<T1> &tv1, TemplateVector<T2> &tv2) {
+  TemplateVector<T2> temp;
+  tv1.tvassign(::std::move(temp));
+  tv2.tvassign(::std::move(tv1));
+  temp.tvassign(::std::move(tv1));
+  } */
+
 } // namespace template_vect

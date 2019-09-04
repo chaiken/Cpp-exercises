@@ -103,5 +103,36 @@ TEST(TemplateVectorTest, EqualityTest) {
       tv1, TemplateVector<double>(vector<double>{{2.0, 3.0, 4.0}})));
 }
 
+TEST(TemplateVectorDeathTest, AssignmentFailsSize) {
+  vector<char> charvec{{'a', 'b', 'c', 'd', 'e'}};
+  vector<int> intvec{{83, 84, 85}};
+  TemplateVector<char> cvec(charvec);
+  TemplateVector<int> ivec(intvec);
+  EXPECT_DEATH(tvassign(cvec, ivec),
+               "Cannot assign a TemplateVector to one of another size.");
+}
+
+TEST(TemplateVectorTest, AssignmentWorks) {
+  vector<char> charvec{{'a', 'b', 'c', 'd', 'e'}};
+  vector<int> intvec{{83, 84, 85, 86, 87}};
+  TemplateVector<char> cvec(charvec);
+  TemplateVector<int> ivec(intvec);
+  cout << "Before: " << endl;
+  cout << "cvec type name: " << typeid(cvec).name() << endl;
+  cout << "ivec type name: " << typeid(ivec).name() << endl;
+  cout << "cvec " << cvec << endl;
+  cout << "ivec " << ivec << endl;
+  cout << endl;
+  tvassign(cvec, ivec);
+  cout << "After: " << endl;
+  cout << "cvec type name: " << typeid(cvec).name() << endl;
+  cout << "cvec " << cvec << endl;
+  cout << endl;
+  int i = 0;
+  for (char *tvit = cvec.begin(); tvit != cvec.end(); tvit++, i++) {
+    EXPECT_EQ(static_cast<char>(intvec[i]), *tvit);
+  }
+}
+
 } // namespace testing
 } // namespace template_vect

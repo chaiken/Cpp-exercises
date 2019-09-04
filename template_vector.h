@@ -1,6 +1,7 @@
 #ifndef VECTOR_IT_H
 #define VECTOR_IT_H
 
+#include <cassert>
 #include <iostream>
 #include <vector>
 
@@ -29,12 +30,47 @@ public:
     }
     return out;
   }
+  // https://stackoverflow.com/questions/9787593/implicit-type-conversion-with-template
+  template <typename U, typename V>
+  friend void tvassign(TemplateVector<U> &uvec, TemplateVector<V> &vvec);
 
 private:
   T *p_;
   int size_;
   int cursor_ = 0;
 };
+
+// https://stackoverflow.com/questions/4660123/overloading-friend-operator-for-template-class/4661372#4661372
+template <typename U, typename V>
+void tvassign(TemplateVector<U> &uvec, TemplateVector<V> &vvec) {
+  ::std::cout << "assignment with conversion operator" << ::std::endl;
+  constexpr bool ans1 = ::std::is_same<U, V>::value;
+  if (!ans1) {
+    ::std::cout << "Types don't match." << ::std::endl;
+  }
+  // Order matters: from is first.
+  constexpr bool ans2 = ::std::is_convertible<U, V>::value;
+  if (!ans2) {
+    // Apparently not reached, as compilation fails.
+    ::std::cerr << "Types are not convertible." << ::std::endl;
+    assert(true == ans2);
+  } else {
+    ::std::cout << "Types are convertible." << ::std::endl;
+  }
+  if (uvec.size_ != vvec.size_) {
+    ::std::cerr << "Cannot assign a TemplateVector to one of another size."
+                << ::std::endl;
+    assert(uvec.size_ == vvec.size_);
+  }
+  // template argument deduction/substitution failed:
+  // In file included from template_vector_lib_test.cc:1:
+  // template_vector.h:48:16: note:   deduced conflicting types for parameter
+  // ‘_Tp’ (‘char*’ and ‘int* const’)
+  // ::std::swap(static_cast<V *>(uvec.p_), static_cast<U* >(vvec.p_));
+  for (int i = 0; i <= vvec.ub(); i++) {
+    uvec[i] = static_cast<U>(vvec[i]);
+  }
+}
 
 } // namespace template_vect
 
