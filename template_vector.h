@@ -30,7 +30,13 @@ public:
     }
     return out;
   }
+  // clang-format off
   // https://stackoverflow.com/questions/9787593/implicit-type-conversion-with-template
+  // No 'static' here:
+  // template_vector.h:35:79: error: storage class specifiers invalid in friend
+  // function declarations friend static void tvassign(TemplateVector<U> &uvec,
+  // TemplateVector<V> &vvec);
+  // clang-format on
   template <typename U, typename V>
   friend void tvassign(TemplateVector<U> &uvec, TemplateVector<V> &vvec);
 
@@ -41,8 +47,11 @@ private:
 };
 
 // https://stackoverflow.com/questions/4660123/overloading-friend-operator-for-template-class/4661372#4661372
+// The function is static, as it doesn't depend on type T and is not a class
+// member.  In fact it won't compile if the template expression is template
+// <typename U> and T is used as the second typename within.
 template <typename U, typename V>
-void tvassign(TemplateVector<U> &uvec, TemplateVector<V> &vvec) {
+static void tvassign(TemplateVector<U> &uvec, TemplateVector<V> &vvec) {
   ::std::cout << "assignment with conversion operator" << ::std::endl;
   constexpr bool ans1 = ::std::is_same<U, V>::value;
   if (!ans1) {

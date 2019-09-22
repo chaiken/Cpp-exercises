@@ -134,5 +134,36 @@ TEST(TemplateVectorTest, AssignmentWorks) {
   }
 }
 
+TEST(TemplateVectorTest, SwapConversionTest) {
+  vector<char> charvec{{'a', 'b', 'c', 'd', 'e'}};
+  vector<int> intvec{{83, 84, 85, 86, 87}};
+  TemplateVector<char> cvec(charvec);
+  TemplateVector<int> ivec(intvec);
+  cout << "Before: " << endl;
+  cout << "cvec type name: " << typeid(cvec).name() << endl;
+  cout << "ivec type name: " << typeid(ivec).name() << endl;
+  cout << "cvec " << cvec << endl;
+  cout << "ivec " << ivec << endl;
+  cout << endl;
+  tvswap(cvec, ivec);
+  cout << "After: " << endl;
+  cout << "cvec type name: " << typeid(cvec).name() << endl;
+  cout << "cvec " << cvec << endl;
+  cout << "ivec " << ivec << endl;
+  cout << endl;
+  {
+    int i = 0;
+    for (char *tvit = cvec.begin(); tvit != cvec.end(); tvit++, i++) {
+      EXPECT_EQ(static_cast<char>(intvec[i]), *tvit);
+    }
+  }
+  {
+    int i = 0;
+    for (int *tvit = ivec.begin(); tvit != ivec.end(); tvit++, i++) {
+      EXPECT_EQ(static_cast<int>(charvec[i]), *tvit);
+    }
+  }
+}
+
 } // namespace testing
 } // namespace template_vect
