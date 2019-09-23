@@ -74,8 +74,12 @@ TemplateVector<T> &TemplateVector<T>::operator=(TemplateVector &&v) {
 
 // I wanted to make an operator==() instead, but couldn't figure out how to use
 // two template parameters within the class.
+// clang-format on
+// ‘bool template_vect::operator=(const template_vect::TemplateVector<U>&, const
+// template_vect::TemplateVector<V>&)’ must be a nonstatic member function
+// clang-format off
 template <typename U, typename V>
-bool check_equal(const TemplateVector<U> &tv1, const TemplateVector<V> &tv2) {
+bool operator==(const TemplateVector<U> &tv1, const TemplateVector<V> &tv2) {
   // error: expected primary-expression before ‘(’ token
   // bool ans = ::std::is_same<U,V>(U, V)::value;
   constexpr bool ans = ::std::is_same<U, V>::value;
@@ -103,6 +107,9 @@ bool check_equal(const TemplateVector<U> &tv1, const TemplateVector<V> &tv2) {
 // pointer or reference.
 template <typename U, typename V>
 void tvswap(TemplateVector<U> &uvec, TemplateVector<V> &vvec) {
+  if (uvec == vvec) {
+    return;
+  }
   // Create a TemplateVector to hold the values of U.
   ::std::vector<U> temp;
   int i = 0;

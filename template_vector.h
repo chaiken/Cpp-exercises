@@ -39,6 +39,9 @@ public:
   // clang-format on
   template <typename U, typename V>
   friend void tvassign(TemplateVector<U> &uvec, TemplateVector<V> &vvec);
+  template <typename U, typename V>
+  friend bool operator==(const TemplateVector<U> &tv1,
+                         const TemplateVector<V> &tv2);
 
 private:
   T *p_;
@@ -48,11 +51,20 @@ private:
 
 // https://stackoverflow.com/questions/4660123/overloading-friend-operator-for-template-class/4661372#4661372
 // The function is static, as it doesn't depend on type T and is not a class
-// member.  In fact it won't compile if the template expression is template
-// <typename U> and T is used as the second typename within.
+// member.  In fact a member function with declaration
+//   template <typename U> void tvassign(TemplateVector<U> &uvec)
+// won't compile, with T used as the second typename within.
+// Cannot be operator=():
+// clang-format off
+// error: ‘void template_vect::operator=(template_vect::TemplateVector<U>&,template_vect::TemplateVector<V>&)’ must be a nonstatic member function
+// void operator=(TemplateVector<U> &uvec, TemplateVector<V> &vvec) template <typename U, typename V>
+// clang-format on
 template <typename U, typename V>
 static void tvassign(TemplateVector<U> &uvec, TemplateVector<V> &vvec) {
-  ::std::cout << "assignment with conversion operator" << ::std::endl;
+  if (uvec == vvec) {
+    return;
+  }
+  ::std::cout << "assignment with conversion function" << ::std::endl;
   constexpr bool ans1 = ::std::is_same<U, V>::value;
   if (!ans1) {
     ::std::cout << "Types don't match." << ::std::endl;
