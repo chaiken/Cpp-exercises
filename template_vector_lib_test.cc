@@ -87,8 +87,7 @@ TEST(TemplateVectorTest, PrinterTest) {
   TemplateVector<Complex> tv(carr, 5);
   ostringstream out, out2;
   out << tv;
-  out2 << "0 + 0i" << ends << ", 1 + 1i" << ends << ", 2 + 2i" << ends
-       << ", 3 + 3i" << ends << ", 4 + 4i" << ends << ", ";
+  out2 << "0 + 0i, 1 + 1i, 2 + 2i, 3 + 3i, 4 + 4i, ";
   EXPECT_EQ(out2.str(), out.str());
 }
 

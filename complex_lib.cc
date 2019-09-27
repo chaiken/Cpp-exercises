@@ -15,8 +15,16 @@ void Complex::operator-() {
   return;
 }
 
+bool operator<(Complex &a, Complex &b) {
+#ifdef DEBUG
+  cout << "Complex comparison override" << endl;
+#endif
+  // Avoid calling self!
+  return (sqrt(b) > sqrt(a));
+}
+
 ostream &operator<<(ostream &out, Complex x) {
-  out << x.real_ << " + " << x.imag_ << "i" << ends;
+  out << x.real_ << " + " << x.imag_ << "i";
   return out;
 }
 
@@ -97,12 +105,17 @@ Complex operator+(const double m, const Complex &x) { return (x + m); }
 // $(r(\cos(\theta)+ i \sin(\theta)))^{1/2} = ±\sqrt{r}(\cos(\theta/2) + i
 // \sin(\theta/2))$
 Complex sqrt(const Complex &z) {
+#ifdef DEBUG
+  cout << "Complex sqrt override" << endl;
+#endif
   double coeffs[]{0.0, 0.0};
   // NaN.
   if ((0.0 == z.imag_) && (z.real_ < 0)) {
     return coeffs;
   }
   // z = r*cos(theta) + i* r*sin(theta)
+  // Without ::std:: prefix, compiler cannot decide whether the function is
+  // recursive.
   double r = ::std::sqrt((z.real_ * z.real_) + (z.imag_ * z.imag_));
   if (r != 0.0) {
     double theta = asin(z.imag_ / r);

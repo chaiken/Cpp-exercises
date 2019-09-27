@@ -123,5 +123,28 @@ TEST(ComplexLibTest, SqrtTest) {
             ceil(sqrt(Complex(9.0, 4.0))));
 }
 
+TEST(ComplexLibTest, ComparisonTest) {
+  // Without this indirection, the compiler doesn't find the non-const
+  // comparison.
+  Complex a, b;
+  a = Complex(1.0, 2.0);
+  b = Complex(2.0, 3.0);
+  EXPECT_TRUE(a < b);
+  a = Complex(-2.0, -3.0);
+  b = Complex(0.0, 0.0);
+  EXPECT_FALSE(a < b);
+}
+
+TEST(ComplexLibTest, FunctionalComparisonTest) {
+  Complex a, b;
+  a = Complex(1.0, 2.0);
+  b = Complex(2.0, 3.0);
+  // Returns (sqrt(*this) < sqrt(b)) where this is &a.
+  EXPECT_TRUE(a(b));
+  a = Complex(-2.0, -3.0);
+  b = Complex(0.0, 0.0);
+  EXPECT_FALSE(a(b));
+}
+
 } // namespace testing
 } // namespace complex

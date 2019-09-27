@@ -20,7 +20,9 @@ double Dot(const Complex &x, const Complex &y);
 class Complex {
 public:
   Complex() : real_(0.0), imag_(0.0) {
+#ifdef DEBUG
     ::std::cout << "Default ctor" << ::std::endl;
+#endif
   }
   Complex(double r) : real_(r), imag_(0.0) {}
   //  A literal type can be a class type that has all of the following
@@ -30,10 +32,14 @@ public:
   constexpr Complex(double r, double i) : real_(r), imag_(i) {}
   // Need by binary operators.
   Complex(double ri[2]) : real_(ri[0]), imag_(ri[1]) {
+#ifdef DEBUG
     ::std::cout << "Array ctor" << ::std::endl;
+#endif
   }
   Complex(const Complex &c) : real_(c.real_), imag_(c.imag_) {
+#ifdef DEBUG
     ::std::cout << "Copy ctor" << ::std::endl;
+#endif
   }
   friend class complex_vec::ComplexVector;
   void assign(double r, double i) {
@@ -52,8 +58,13 @@ public:
   void operator-();
   Complex &operator=(const Complex &c);
   friend ::std::ostream &operator<<(::std::ostream &out, Complex x);
+  bool operator()(Complex &a) {
+    ::std::cout << "Complex function object" << ::std::endl;
+    return (*this < a);
+  }
   // Make +, -, * and == friend functions, as a symmetric invocation for binary
   // operators is most natural.
+  friend bool operator<(Complex &a, Complex &b);
   friend Complex operator+(const Complex &x, const Complex &y);
   friend Complex operator+(const Complex &x, const double m);
   friend Complex operator+(const double m, const Complex &x);
@@ -72,6 +83,7 @@ private:
 
 ::std::ostream &operator<<(::std::ostream &out, Complex x);
 Complex sqrt(const Complex &z);
+bool operator<(Complex &a, Complex &b);
 Complex operator+(const Complex &x, const Complex &y);
 // Both versions are needed, as addition is commutative, but the compiler won't
 // match invocations with reversed parameters.
