@@ -155,3 +155,6 @@ template_rotate_lib_test: template_rotate_lib_test.cc template_rotate.h template
 
 template_vector_lib_test: template_vector.h template_vector_impl.h template_vector_lib_test.cc complex.h complex_lib.cc $(GTEST_HEADERS)
 	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) template_vector_lib_test.cc complex_lib.cc -o $@
+
+template_vector_lib_test_debug: template_vector.h template_vector_impl.h template_vector_lib_test.cc complex.h complex_lib.cc $(GTEST_HEADERS)
+	$(CC) $(CXXFLAGS) -DDEBUG="DEBUG" $(LDFLAGS) $(GTESTLIBS) template_vector_lib_test.cc complex_lib.cc -o $@

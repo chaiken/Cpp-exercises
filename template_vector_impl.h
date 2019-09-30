@@ -1,5 +1,4 @@
 #include <cassert>
-
 #include <iostream>
 #include <type_traits>
 
@@ -26,7 +25,9 @@ template <typename T> TemplateVector<T>::TemplateVector(int n) : size_(n) {
 
 template <typename T>
 TemplateVector<T>::TemplateVector(const T *v, int sz) : size_(sz) {
+#ifdef DEBUG
   ::std::cout << "Array ctor" << ::std::endl;
+#endif
   assert(size_ > 0);
   p_ = new T[size_];
   assert(nullptr != p_);
@@ -74,10 +75,10 @@ TemplateVector<T> &TemplateVector<T>::operator=(TemplateVector &&v) {
 
 // I wanted to make an operator==() instead, but couldn't figure out how to use
 // two template parameters within the class.
-// clang-format on
+// clang-format off
 // ‘bool template_vect::operator=(const template_vect::TemplateVector<U>&, const
 // template_vect::TemplateVector<V>&)’ must be a nonstatic member function
-// clang-format off
+// clang-format on
 template <typename U, typename V>
 bool operator==(const TemplateVector<U> &tv1, const TemplateVector<V> &tv2) {
   // error: expected primary-expression before ‘(’ token
@@ -100,6 +101,50 @@ bool operator==(const TemplateVector<U> &tv1, const TemplateVector<V> &tv2) {
   return true;
 }
 
+// https://stackoverflow.com/questions/4660123/overloading-friend-operator-for-template-class/4661372#4661372
+// The function is static, as it doesn't depend on type T and is not a class
+// member.  In fact a member function with declaration
+//   template <typename U> void tvassign(TemplateVector<U> &uvec)
+// won't compile, with T used as the second typename within.
+// Cannot be operator=():
+// clang-format off
+// error: ‘void template_vect::operator=(template_vect::TemplateVector<U>&,template_vect::TemplateVector<V>&)’ must be a nonstatic member function
+// void operator=(TemplateVector<U> &uvec, TemplateVector<V> &vvec) template <typename U, typename V>
+// clang-format on
+template <typename U, typename V>
+static void tvassign(TemplateVector<U> &uvec, TemplateVector<V> &vvec) {
+  if (uvec == vvec) {
+    return;
+  }
+  ::std::cout << "assignment with conversion function" << ::std::endl;
+  constexpr bool ans1 = ::std::is_same<U, V>::value;
+  if (!ans1) {
+    ::std::cout << "Types don't match." << ::std::endl;
+  }
+  // Order matters: from is first.
+  constexpr bool ans2 = ::std::is_convertible<U, V>::value;
+  if (!ans2) {
+    // Apparently not reached, as compilation fails.
+    ::std::cerr << "Types are not convertible." << ::std::endl;
+    assert(true == ans2);
+  } else {
+    ::std::cout << "Types are convertible." << ::std::endl;
+  }
+  if (uvec.size_ != vvec.size_) {
+    ::std::cerr << "Cannot assign a TemplateVector to one of another size."
+                << ::std::endl;
+    assert(uvec.size_ == vvec.size_);
+  }
+  // template argument deduction/substitution failed:
+  // In file included from template_vector_lib_test.cc:1:
+  // template_vector.h:48:16: note:   deduced conflicting types for parameter
+  // ‘_Tp’ (‘char*’ and ‘int* const’)
+  // ::std::swap(static_cast<V *>(uvec.p_), static_cast<U* >(vvec.p_));
+  for (int i = 0; i <= vvec.ub(); i++) {
+    uvec[i] = static_cast<U>(vvec[i]);
+  }
+}
+
 // If the function arguments are passed by value as simple TemplateVector
 // objects, then the compiler complains that the copy constructor was deleted.
 // Apparently passing objects by value involves copying them, so that any object
@@ -120,6 +165,71 @@ void tvswap(TemplateVector<U> &uvec, TemplateVector<V> &vvec) {
 
   tvassign(uvec, vvec);
   tvassign(vvec, tempvec);
+}
+
+// "Newton-Raphson" interval-bisecting in-place sort function.
+template <typename T> void tvsort(TemplateVector<T> &tv) {
+  static int index = 0;
+#ifdef DEBUG
+  static int passes = 0;
+  static int depth = 0;
+  depth++;
+  ::std::cout << "Depth: " << depth << " index: " << index << ::std::endl;
+#endif
+  // Done when this loop hits ub().  <ub() makes ub()+1 safe.
+  while (index < tv.ub()) {
+#ifdef DEBUG
+    passes++;
+#endif
+    // Arrange in increasing order.
+    if (tv[index + 1] < tv[index]) {
+      int candidate = (tv.ub() - index * (-1 ^ index)) / 2.0;
+      candidate -= (candidate / tv.ub()) * tv.ub();
+      // Here is the forward sorting.   The reverse is separate, below.
+      // First try to place in the middle of the half of the TemplaceVector that
+      // remains unsorted.
+      if ((candidate > index) && (tv[candidate] < tv[index])) {
+#ifdef DEBUG
+        ::std::cout << "Reordering index = " << i << " with " << candidate
+                    << ::std::endl;
+#endif
+        T temp = tv[candidate];
+        tv[candidate] = tv[index];
+        tv[index] = temp;
+#ifdef DEBUG
+        ::std::cout << tv << ::std::endl;
+#endif
+      } else {
+#ifdef DEBUG
+        ::std::cout << "Reordering index = " << index << " with neighbor."
+                    << ::std::endl;
+#endif
+        T temp = tv[index + 1];
+        tv[index + 1] = tv[index];
+        tv[index] = temp;
+#ifdef DEBUG
+        ::std::cout << tv << ::std::endl;
+#endif
+      }
+      // Now recheck previous order.  index=24 and index=0 are fully checked by
+      // forwards iteration.
+      if ((index < 24) && (index > 0)) {
+#ifdef DEBUG
+        depth--;
+        ::std::cout << "Reversing; depth " << depth << ::std::endl;
+#endif
+        index--;
+        tvsort(tv);
+      }
+      index++;
+    } else {
+      // already ordered, so keep going.
+      index++;
+    }
+  }
+#ifdef DEBUG
+  ::std::cout << "Total passes: " << passes << ::std::endl;
+#endif
 }
 
 } // namespace template_vect

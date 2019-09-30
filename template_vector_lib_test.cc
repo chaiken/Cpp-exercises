@@ -2,6 +2,7 @@
 
 #include "complex.h"
 
+#include <chrono>
 #include <iostream>
 #include <vector>
 
@@ -9,6 +10,7 @@
 
 using namespace complex;
 using namespace std;
+using namespace chrono;
 
 namespace template_vect {
 namespace testing {
@@ -30,7 +32,8 @@ TEST(TemplateVectorTest, ArrayCtor) {
                  Complex(3.0, 3.0), Complex(4.0, 4.0)};
   TemplateVector<Complex> tv(carr, 5);
   int i = 0;
-  for (Complex *tvit = tv.begin(); tvit != tv.end(); tvit++, i++) {
+  for (TemplateVector<Complex>::iterator tvit = tv.begin(); tvit != tv.end();
+       tvit++, i++) {
     EXPECT_EQ(carr[i], *tvit);
   }
 }
@@ -51,7 +54,8 @@ TEST(TemplateVectorTest, MoveCtor) {
   TemplateVector<Complex> tv(carr, 5);
   TemplateVector<Complex> tv2(move(tv));
   int i = 0;
-  for (Complex *tvit = tv2.begin(); tvit != tv2.end(); tvit++, i++) {
+  for (TemplateVector<Complex>::iterator tvit = tv2.begin(); tvit != tv2.end();
+       tvit++, i++) {
     EXPECT_EQ(carr[i], *tvit);
   }
 }
@@ -127,7 +131,8 @@ TEST(TemplateVectorTest, AssignmentWorks) {
   cout << "cvec " << cvec << endl;
   cout << endl;
   int i = 0;
-  for (char *tvit = cvec.begin(); tvit != cvec.end(); tvit++, i++) {
+  for (TemplateVector<char>::iterator tvit = cvec.begin(); tvit != cvec.end();
+       tvit++, i++) {
     EXPECT_EQ(static_cast<char>(intvec[i]), *tvit);
   }
 }
@@ -151,16 +156,62 @@ TEST(TemplateVectorTest, SwapConversionTest) {
   cout << endl;
   {
     int i = 0;
-    for (char *tvit = cvec.begin(); tvit != cvec.end(); tvit++, i++) {
+    for (TemplateVector<char>::iterator tvit = cvec.begin(); tvit != cvec.end();
+         tvit++, i++) {
       EXPECT_EQ(static_cast<char>(intvec[i]), *tvit);
     }
   }
   {
     int i = 0;
-    for (int *tvit = ivec.begin(); tvit != ivec.end(); tvit++, i++) {
+    for (TemplateVector<int>::iterator tvit = ivec.begin(); tvit != ivec.end();
+         tvit++, i++) {
       EXPECT_EQ(static_cast<int>(charvec[i]), *tvit);
     }
   }
+}
+
+TEST(TemplateVectorTest, SortTest) {
+  Complex carr[]{Complex(1.0, 1.0), Complex(3.0, 3.0), Complex(2.0, 2.0),
+                 Complex(0.0, 0.0), Complex(4.0, 4.0), Complex(1.0, 1.0),
+                 Complex(3.0, 3.0), Complex(2.0, 2.0), Complex(0.0, 0.0),
+                 Complex(4.0, 4.0), Complex(1.0, 1.0), Complex(3.0, 3.0),
+                 Complex(2.0, 2.0), Complex(0.0, 0.0), Complex(4.0, 4.0),
+                 Complex(1.0, 1.0), Complex(3.0, 3.0), Complex(2.0, 2.0),
+                 Complex(0.0, 0.0), Complex(4.0, 4.0), Complex(1.0, 1.0),
+                 Complex(3.0, 3.0), Complex(2.0, 2.0), Complex(0.0, 0.0),
+                 Complex(4.0, 4.0), Complex(1.0, 1.0), Complex(3.0, 3.0),
+                 Complex(2.0, 2.0), Complex(0.0, 0.0), Complex(4.0, 4.0)};
+  TemplateVector<Complex> tv(carr, 25), tv2(carr, 25);
+  cout << "Start: " << tv << endl;
+
+  system_clock::time_point start = system_clock::now();
+  tvsort(tv);
+  system_clock::time_point stop = system_clock::now();
+  cout << endl << "Result: " << tv << endl;
+
+  Complex carr2[]{Complex(0.0, 0.0), Complex(0.0, 0.0), Complex(0.0, 0.0),
+                  Complex(0.0, 0.0), Complex(0.0, 0.0), Complex(1.0, 1.0),
+                  Complex(1.0, 1.0), Complex(1.0, 1.0), Complex(1.0, 1.0),
+                  Complex(1.0, 1.0), Complex(2.0, 2.0), Complex(2.0, 2.0),
+                  Complex(2.0, 2.0), Complex(2.0, 2.0), Complex(2.0, 2.0),
+                  Complex(3.0, 3.0), Complex(3.0, 3.0), Complex(3.0, 3.0),
+                  Complex(3.0, 3.0), Complex(3.0, 3.0), Complex(4.0, 4.0),
+                  Complex(4.0, 4.0), Complex(4.0, 4.0), Complex(4.0, 4.0),
+                  Complex(4.0, 4.0)};
+  TemplateVector<Complex> tv3(carr2, 25);
+  cout << endl << "Test: " << tv3 << endl;
+  EXPECT_TRUE(tv == tv3);
+  cout << "Bisecting sort duration: "
+       << duration_cast<microseconds>(stop - start).count() * 1e-3 << " ms."
+       << endl;
+
+  start = system_clock::now();
+  sort(tv2.begin(), tv2.end());
+  stop = system_clock::now();
+  EXPECT_TRUE(tv2 == tv3);
+  cout << "::std::sort duration: "
+       << duration_cast<microseconds>(stop - start).count() * 1e-3 << " ms."
+       << endl;
 }
 
 } // namespace testing
