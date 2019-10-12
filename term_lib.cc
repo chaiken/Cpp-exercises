@@ -35,13 +35,19 @@ ostream &operator<<(::std::ostream &out, const Term &t) {
 // going to assume that the default copy members are likely to do the wrong
 // thing."
 Term &Term::operator=(Term &&t) {
-  printf("term assignment operator\n");
+  cout << "term move assignment operator\n" << endl;
   swap(coefficient, t.coefficient);
   swap(exponent, t.exponent);
   // return this;
   // results in "polynomial_lib.cc:20:10: error: invalid initialization of
   // non-const reference of type ‘polynomial::Term&’ from an rvalue of type
   // ‘polynomial::Term*’"
+  return *this;
+}
+
+Term &Term::operator=(const Term &t) {
+  coefficient = t.coefficient;
+  exponent = t.exponent;
   return *this;
 }
 
@@ -61,5 +67,11 @@ Term operator+(const Term &a, const Term &b) {
   tp.next = 0;
   return tp;
 }
+
+bool operator==(const Term &a, const Term &b) {
+  return ((a.coefficient == b.coefficient) && (a.exponent == b.exponent));
+}
+
+bool operator!=(const Term &a, const Term &b) { return !(a == b); }
 
 } // namespace term

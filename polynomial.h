@@ -12,7 +12,7 @@ namespace polynomial {
 class Polynomial {
 public:
   // Polynomial() : h_(0), degree_(0) {}
-  Polynomial() : h_(0) { log("default constructor"); }
+  Polynomial() : h_(0) { log("Polynomial default constructor"); }
   template <long unsigned int N>
   Polynomial(::std::array<double, N> coef, ::std::array<int, N> expon);
   // List constructor
@@ -31,23 +31,32 @@ public:
   const term::Term *head() const { return h_; }
   void Reverse();
   Polynomial &operator=(Polynomial &&p);
+  Polynomial &operator=(const Polynomial &p);
   friend ::std::ostream &operator<<(::std::ostream &out, const Polynomial &pn);
   friend Polynomial operator+(const Polynomial &a, const Polynomial &b);
+  friend bool operator!=(const Polynomial &a, const Polynomial &b);
+  friend bool operator==(const Polynomial &a, const Polynomial &b);
 
 private:
   term::Term *h_;
   //  int degree_;
   void Prepend(term::Term *t);
   void Release();
-  // from
+  // idea for function from
   // https://eli.thegreenplace.net/2011/12/15/understanding-lvalues-and-rvalues-in-c-and-c/
-  void log(const char *msg) {
+  // unused attribute from
+  // https://stackoverflow.com/questions/31909631/c11-style-unused-attribute-in-gcc/31909713#31909713
+  void log(const char *msg [[gnu::unused]]) {
+#ifdef DEBUG
     //    ::std::cout << "[" << *this << "] " << msg << "\n";
     ::std::cout << msg << "\n";
+#endif
   }
 };
 
 ::std::ostream &operator<<(::std::ostream &out, const Polynomial &pn);
+bool operator!=(const Polynomial &a, const Polynomial &b);
+bool operator==(const Polynomial &a, const Polynomial &b);
 } // namespace polynomial
 
 #include "polynomial_impl.h"

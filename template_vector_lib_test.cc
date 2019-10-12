@@ -1,6 +1,7 @@
 #include "template_vector.h"
 
 #include "complex.h"
+#include "polynomial.h"
 
 #include <chrono>
 #include <iostream>
@@ -9,6 +10,7 @@
 #include "gtest/gtest.h"
 
 using namespace complex;
+using namespace polynomial;
 using namespace std;
 using namespace chrono;
 
@@ -212,6 +214,29 @@ TEST(TemplateVectorTest, SortTest) {
   cout << "::std::sort duration: "
        << duration_cast<microseconds>(stop - start).count() * 1e-3 << " ms."
        << endl;
+
+  ::std::array<int, 3> expon = {{1, 2, 3}};
+  ::std::array<double, 3> coeffs = {{1.0, 2.0, 3.0}};
+  ::std::array<int, 3> expon1 = {{-1, -2, -3}};
+  ::std::array<double, 3> coeffs1 = {{1.0, 2.0, 3.0}};
+  ::std::array<int, 3> expon2 = {{-1, -2, -3}};
+  ::std::array<double, 3> coeffs2 = {{-1.0, -2.0, -3.0}};
+  ::std::array<int, 3> expon3 = {{1, 2, 3}};
+  ::std::array<double, 3> coeffs3 = {{-1.0, -2.0, -3.0}};
+  ::std::array<int, 3> expon4 = {{-2, -4, -6}};
+  ::std::array<double, 3> coeffs4 = {{-1.0, -2.0, -3.0}};
+  Polynomial parr[]{Polynomial(coeffs, expon), Polynomial(coeffs1, expon1),
+                    Polynomial(coeffs2, expon2), Polynomial(coeffs3, expon3),
+                    Polynomial(coeffs4, expon4)};
+  TemplateVector<Polynomial> tv4(parr, 5);
+  TemplateVector<Polynomial> tv5(parr, 5);
+  EXPECT_TRUE(tv4 == tv5);
+  // template_vector_lib_test.cc:234:42: required from here
+  // /usr/include/c++/9/bits/predefined_ops.h:43:23: error: no match for
+  // ‘operator<’ (operand types are ‘polynomial::Polynomial’ and
+  // ‘polynomial::Polynomial’)
+  //  sort(move(tv4).begin(), move(tv4).end());
+  //  EXPECT_FALSE(tv4 == tv5);
 }
 
 } // namespace testing

@@ -42,16 +42,23 @@ public:
   // Following
   // https://eli.thegreenplace.net/2011/12/15/understanding-lvalues-and-rvalues-in-c-and-c/
   Term &operator=(Term &&t);
+  Term &operator=(const Term &t);
   // Must be a friend, non-member function because operator<<() takes only one
   // parameter, so we cannot override with a function that takes two.
   friend ::std::ostream &operator<<(::std::ostream &out, const Term &t);
   friend Term operator+(const Term &a, const Term &b);
+  // Without the following two operators, Polynomial::operator==() called
+  // itself.
+  friend bool operator==(const Term &a, const Term &b);
+  friend bool operator!=(const Term &a, const Term &b);
   int exponent;
   double coefficient;
   Term *next;
 };
 
 Term operator+(const Term &a, const Term &b);
+bool operator==(const Term &a, const Term &b);
+bool operator!=(const Term &a, const Term &b);
 ::std::ostream &operator<<(::std::ostream &out, const Term &t);
 
 // Numerically sort array1, and reorder array2 the same way.

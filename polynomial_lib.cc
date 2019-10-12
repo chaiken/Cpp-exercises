@@ -39,8 +39,43 @@ Polynomial::Polynomial(const Term &tlist) {
 }
 
 Polynomial &Polynomial::operator=(Polynomial &&p) {
-  log("Polynomial assignment operator");
+  log("Polynomial move assignment operator");
   swap(h_, p.h_);
+  return *this;
+}
+
+// Tasks: delete existing terms that are part of a polynomial as we link in new
+// terms that replace them.  Failure to delete the existing terms will result in
+// a memory leak.
+// It's striking how much more complex the copy assignment is than the move
+// assignment.
+Polynomial &Polynomial::operator=(const Polynomial &p) {
+  log("Polynomial copy assignment operator");
+  if (h_) {
+    // Delete everything but head.
+    Term *tp = h_->next;
+    while (tp != nullptr) {
+      Term *cursor = tp->next;
+      delete tp;
+      tp = cursor;
+    }
+    // Modify the contents of head() while preserving the pointer itself.
+    h_->coefficient = p.h_->coefficient;
+    h_->exponent = p.h_->exponent;
+    // Needed for a single Term; if there are multiple terms, Prepend() will add
+    // them correctly.
+    h_->next = nullptr;
+  } else {
+    h_ = new Term(p.h_->exponent, p.h_->coefficient);
+  }
+  Term *cursor = p.h_->next;
+  while (cursor != nullptr) {
+    // Doesn't leak memory since the dtor only uses head() to find the rest.
+    Term *newterm = new Term(cursor->exponent, cursor->coefficient);
+    Prepend(newterm);
+    cursor = cursor->next;
+  }
+  Reverse();
   return *this;
 }
 
@@ -111,6 +146,38 @@ void Polynomial::Release() {
   // Following
   // https://eli.thegreenplace.net/2011/12/15/understanding-lvalues-and-rvalues-in-c-and-c/
   t = 0;
+}
+
+bool operator==(const Polynomial &a, const Polynomial &b) {
+  cout << "Polynomial equality operator" << endl;
+  // Need to work around the fact that head() returns const.
+  if (*a.head() == *b.head()) {
+    Term *ap = a.head()->next;
+    Term *bp = b.head()->next;
+    if ((!ap) && (!bp)) {
+      return true;
+    }
+    if ((!ap) && (!bp)) {
+      return false;
+    }
+    while (*ap == *bp) {
+      ap = ap->next;
+      bp = bp->next;
+      // Exhausted both lists without finding a mismatch.
+      if ((ap == nullptr) && (bp == nullptr)) {
+        return true;
+      }
+      if ((ap == nullptr) || (bp == nullptr)) {
+        return false;
+      }
+    }
+  }
+  return false;
+}
+
+bool operator!=(const Polynomial &a, const Polynomial &b) {
+  cout << "Polynomial inequality operator." << endl;
+  return !(a == b);
 }
 
 inline void Polynomial::Prepend(Term *t) {

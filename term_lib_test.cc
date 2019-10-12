@@ -108,5 +108,19 @@ TEST(TermTest, AdditionTest) {
   ASSERT_EQ(t1.next, t2.next);
 }
 
+TEST(TermTest, EqualityTest) {
+  Term t1(3, 2), t2(3, 2);
+  ASSERT_EQ(t1, t2);
+  // Make sure != gets called.
+  ASSERT_FALSE(t1 != t2);
+}
+
+TEST(TermTest, CopyAssignment) {
+  Term t1(3, 2), t2;
+  ASSERT_FALSE(t1 == t2);
+  t2 = t1;
+  ASSERT_EQ(t1, t2);
+}
+
 } // namespace testing
 } // namespace term

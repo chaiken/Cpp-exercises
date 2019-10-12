@@ -183,15 +183,30 @@ TEST(PolynomialSimpleTest, ListConstructor) {
   }
 }
 
+TEST_F(PolynomialTest, EqualityTest) {
+  ASSERT_TRUE(*testpoly == *copy2);
+  ASSERT_FALSE(*testpoly != *copy2);
+  Polynomial sum = *testpoly + *copy2;
+  ASSERT_FALSE(*testpoly == sum);
+  ASSERT_TRUE(*testpoly != sum);
+
+  Term temp(3, 3.0);
+  Polynomial shortpoly1(temp), shortpoly2(temp);
+  ASSERT_EQ(shortpoly1, shortpoly2);
+}
+
 TEST_F(PolynomialTest, ReverseTest) {
-  cout << *testpoly << endl;
+  cout << "testpoly: " << *testpoly << endl;
   testpoly->Reverse();
-  cout << *testpoly << endl;
+  cout << "testpoly reversed: " << *testpoly << endl;
   ASSERT_EQ(1, testpoly->head()->exponent);
   ASSERT_EQ(1.0, testpoly->head()->coefficient);
   testpoly->Reverse();
   ASSERT_EQ(3, testpoly->head()->exponent);
   ASSERT_EQ(3.0, testpoly->head()->coefficient);
+  cout << "testpoly reversed a second time: " << *testpoly << endl;
+  Polynomial testpoly2(coeffs, expon);
+  EXPECT_EQ(testpoly2, *testpoly);
 }
 
 TEST_F(PolynomialTest, ReverseEmpty) {
@@ -201,28 +216,46 @@ TEST_F(PolynomialTest, ReverseEmpty) {
 }
 
 TEST_F(PolynomialTest, ReverseOneTerm) {
-  cout << *testpoly << endl;
-  ASSERT_EQ(3, testpoly->head()->exponent);
-  ASSERT_EQ(3.0, testpoly->head()->coefficient);
-  testpoly->Reverse();
-  cout << *testpoly << endl;
-  ASSERT_EQ(1, testpoly->head()->exponent);
-  ASSERT_EQ(1.0, testpoly->head()->coefficient);
+  Term temp(3, 3.0);
+  Polynomial shortpoly1(temp), shortpoly2(temp);
+  ASSERT_EQ(shortpoly1, shortpoly2);
+  shortpoly1.Reverse();
+  ASSERT_EQ(shortpoly1, shortpoly2);
 }
 
-TEST_F(PolynomialTest, AssignmentTest) {
+TEST_F(PolynomialTest, MoveAssignmentTest) {
   //  ::std::array<int, 3> expon = {{-1, -2, -3}};
   //  ::std::array<double, 3> coeffs = {{4.0, 5.0, 6.0}};
   //  Polynomial testpoly2(coeffs, expon);
   //  ostringstream out;
   //  out << testpoly2;
   //  ASSERT_EQ("4.000000x^-1 + 5.000000x^-2 + 6.000000x^-3 ", out.str());
-  const Polynomial &testpoly2 = *testpoly;
+  Polynomial testpoly2;
+  testpoly2 = move(*testpoly);
   ostringstream out;
   out << testpoly2;
   ASSERT_EQ("3.000000x^3 + 2.000000x^2 + x ", out.str());
   ASSERT_EQ(3, testpoly2.head()->exponent);
   ASSERT_EQ(3.0, testpoly2.head()->coefficient);
+}
+
+TEST_F(PolynomialTest, CopyAssignmentTest) {
+  // Copy to an uninitialized Polynomial.
+  Polynomial testpoly2;
+  testpoly2 = *testpoly;
+  ASSERT_EQ(*testpoly, testpoly2);
+
+  // Copy to an initialized Polynomial.
+  Polynomial testpoly3;
+  cout << "testpoly: " << *testpoly << endl;
+  testpoly3 = *testpoly;
+  testpoly3.Reverse();
+  cout << "testpoly3 is reversed *testpoly: " << testpoly3 << endl;
+
+  testpoly->Reverse();
+  cout << "testpoly reversed: " << *testpoly << endl;
+  testpoly2 = *testpoly;
+  ASSERT_EQ(testpoly3, testpoly2);
 }
 
 TEST_F(PolynomialTest, TermVectorCtorTest) {
