@@ -124,15 +124,8 @@ TEST(ComplexLibTest, SqrtTest) {
 }
 
 TEST(ComplexLibTest, ComparisonTest) {
-  // Without this indirection, the compiler doesn't find the non-const
-  // comparison.
-  Complex a, b;
-  a = Complex(1.0, 2.0);
-  b = Complex(2.0, 3.0);
-  EXPECT_TRUE(a < b);
-  a = Complex(-2.0, -3.0);
-  b = Complex(0.0, 0.0);
-  EXPECT_FALSE(a < b);
+  EXPECT_TRUE(Complex(1.0, 2.0) < Complex(2.0, 3.0));
+  EXPECT_FALSE(Complex(-2.0, -3.0) < Complex(0.0, 0.0));
 }
 
 TEST(ComplexLibTest, FunctionalComparisonTest) {

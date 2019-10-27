@@ -64,7 +64,7 @@ public:
   }
   // Make +, -, * and == friend functions, as a symmetric invocation for binary
   // operators is most natural.
-  friend bool operator<(Complex &a, Complex &b);
+  friend bool operator<(const Complex &a, const Complex &b);
   friend Complex operator+(const Complex &x, const Complex &y);
   friend Complex operator+(const Complex &x, const double m);
   friend Complex operator+(const double m, const Complex &x);

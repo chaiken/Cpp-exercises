@@ -8,6 +8,7 @@
 
 namespace template_list {
 constexpr int ELEMNUM = 100000;
+constexpr int SMALLNUM = 100;
 
 template <typename T> struct list_stats {
   T median = 0;
@@ -18,6 +19,8 @@ template <typename T> struct list_stats {
   ::std::pair<T, int> mode;
 };
 
+template <typename T> struct object_stats { ::std::pair<T, int> mode; };
+
 template <typename T>
 bool ComparePair(const ::std::pair<T, int> &a, const ::std::pair<T, int> &b) {
   return (a.first < b.first);
@@ -25,6 +28,33 @@ bool ComparePair(const ::std::pair<T, int> &a, const ::std::pair<T, int> &b) {
 
 // http://www.cplusplus.com/reference/map/map/map/
 // bool fncomp (long lhs, long rhs) {return lhs<rhs;}
+
+template <typename T>
+void CalculateListStatisticsObject(::std::list<T> *elemlist,
+                                   ::std::map<T, int> &countmap,
+                                   struct object_stats<T> &object_stats) {
+  ::std::pair<T, int> initial_mode(*elemlist->begin(), 0);
+  object_stats.mode = initial_mode;
+  // T* is actually an iterator, but the iterator is not a type that the pair
+  // declaration will accept as a template parameter.
+  //  ::std::pair<T *, bool> result;
+  for (T elem : *elemlist) {
+    // Initiate a new bucket.
+    ::std::pair<T, int> candidate(elem, 1);
+    auto result = countmap.insert(candidate);
+    // If the item is already present, iterate the existing counter.
+    // result.second is the bool.
+    if (false == result.second) {
+      // result.first is a pointer to a map entry, the 2nd element of which is
+      // the count.
+      result.first->second++;
+    }
+    if (result.first->second > object_stats.mode.second) {
+      ::std::pair<T, int> new_mode(elem, result.first->second);
+      object_stats.mode = new_mode;
+    }
+  }
+}
 
 // Store the occurrence counts in an ordered map that uses the list element
 // values as keys.
@@ -86,6 +116,16 @@ void CalculateListStatistics(::std::list<T> *elemlist,
    */
 }
 
-// template <typename T> int CalculateMedian() {}
+template <typename T>
+::std::ostream &operator<<(::std::ostream &ost, const ::std::list<T> &alist) {
+  /*  for (typename ::std::list<T>::iterator it=alist.begin(); it !=
+    alist.end(); it++) { ost << *it << ' ';
+    } */
+  for (auto x : alist) {
+    ost << x << ' ';
+  }
+  ost << ::std::endl;
+  return ost;
+}
 
 } // namespace template_list

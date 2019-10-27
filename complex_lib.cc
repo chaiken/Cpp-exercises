@@ -15,7 +15,7 @@ void Complex::operator-() {
   return;
 }
 
-bool operator<(Complex &a, Complex &b) {
+bool operator<(const Complex &a, const Complex &b) {
 #ifdef DEBUG
   cout << "Complex comparison override" << endl;
 #endif
