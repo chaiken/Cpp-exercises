@@ -1,8 +1,10 @@
 
+#include <cassert>
 #include <cstdlib>
 
 #include <algorithm>
 #include <iostream>
+#include <iterator>
 #include <map>
 #include <vector>
 

@@ -72,7 +72,7 @@ TEST_F(TemplateListTest, PrintingTest) {
   EXPECT_NE(string::npos, out.str().find(to_string(mathstats.max)));
 }
 
-TEST_F(TemplateListTest, ObjectTest) {
+TEST_F(TemplateListTest, ObjectStatisticsTest) {
   list<Complex> complexlist;
   FillComplexList(complexlist);
   ASSERT_FALSE(complexlist.empty());
@@ -92,6 +92,27 @@ TEST_F(TemplateListTest, ObjectTest) {
   ostringstream out2;
   out2 << complexstats.mode.first;
   EXPECT_NE(::std::string::npos, out.str().find(out2.str()));
+}
+
+TEST_F(TemplateListTest, InsertionTest) {
+  // The assignment below involves an implicit type conversion which allows the
+  // comparisons below to execute without an explicit cast.
+  long unsigned listlen = ELEMNUM;
+  ASSERT_EQ(listlen, trivlist->size());
+  // Find the arbitrary insertion point.
+  ::std::list<int>::iterator it = trivlist->begin();
+  while (*it != 65) {
+    it++;
+  }
+  cout << "Before insertion, *prev(it): " << *prev(it) << endl;
+  ::std::list<int> templist;
+  templist.push_back(ELEMNUM * 2);
+  ::std::copy(templist.begin(), templist.end(), ::std::inserter(*trivlist, it));
+  EXPECT_EQ(listlen + 1, trivlist->size());
+  cout << "After insertion, *prev(it): " << *prev(it) << endl;
+  EXPECT_EQ(ELEMNUM * 2, *(prev(it)));
+  // it itself is unchanged.
+  EXPECT_EQ(65, *it);
 }
 
 } // namespace testing
