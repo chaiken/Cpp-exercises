@@ -130,4 +130,34 @@ template <typename T>
   return ost;
 }
 
+// Non-class-member functions cannot apparently return templated objects.  Since
+// ::std::list is defined by the STL, we need a wrapper class in order to add a
+// new templated-object-returning function. Non-member functions can return
+// simple types, though, as demonstrated above.
+//
+//  The keyword "typename" is needed
+// before the templated iterator declarations in order to ward off the
+// "dependent scope" problem:
+// https://stackoverflow.com/questions/610245/where-and-why-do-i-have-to-put-the-template-and-typename-keywords
+// Apparently the leading template keyword must appear inside a class
+// definition.  The class then provides a scope from which the template type can
+// be deduced. Here that's not possible without making a wrapper class for
+// ::std::list.
+template <typename T> class ListHelper : public ::std::list<T> {
+public:
+  ListHelper<T>(typename ::std::list<T> *alistp) : listp_(alistp) {}
+
+  typename ::std::list<T>::iterator &
+  do_insert(typename ::std::list<T>::iterator *alistit, const T &v) {
+    ::std::list<int> templist;
+    templist.push_back(v);
+    ::std::copy(templist.begin(), templist.end(),
+                ::std::inserter(*listp_, *alistit));
+    return *alistit;
+  }
+
+private:
+  ::std::list<T> *listp_;
+};
+
 } // namespace template_list

@@ -94,7 +94,7 @@ TEST_F(TemplateListTest, ObjectStatisticsTest) {
   EXPECT_NE(::std::string::npos, out.str().find(out2.str()));
 }
 
-TEST_F(TemplateListTest, InsertionTest) {
+TEST_F(TemplateListTest, SimpleInsertionTest) {
   // The assignment below involves an implicit type conversion which allows the
   // comparisons below to execute without an explicit cast.
   long unsigned listlen = ELEMNUM;
@@ -108,6 +108,24 @@ TEST_F(TemplateListTest, InsertionTest) {
   ::std::list<int> templist;
   templist.push_back(ELEMNUM * 2);
   ::std::copy(templist.begin(), templist.end(), ::std::inserter(*trivlist, it));
+  EXPECT_EQ(listlen + 1, trivlist->size());
+  cout << "After insertion, *prev(it): " << *prev(it) << endl;
+  EXPECT_EQ(ELEMNUM * 2, *(prev(it)));
+  // it itself is unchanged.
+  EXPECT_EQ(65, *it);
+}
+
+TEST_F(TemplateListTest, BetterInsertionTest) {
+  long unsigned listlen = ELEMNUM;
+  ASSERT_EQ(listlen, trivlist->size());
+  // Find the arbitrary insertion point.
+  ::std::list<int>::iterator it = trivlist->begin();
+  while (*it != 65) {
+    it++;
+  }
+  cout << "Before insertion, *prev(it): " << *prev(it) << endl;
+  ListHelper<int> lh(trivlist);
+  it = lh.do_insert(&it, ELEMNUM * 2);
   EXPECT_EQ(listlen + 1, trivlist->size());
   cout << "After insertion, *prev(it): " << *prev(it) << endl;
   EXPECT_EQ(ELEMNUM * 2, *(prev(it)));
