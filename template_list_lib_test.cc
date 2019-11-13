@@ -133,5 +133,39 @@ TEST_F(TemplateListTest, BetterInsertionTest) {
   EXPECT_EQ(65, *it);
 }
 
+TEST_F(TemplateListTest, SimpleEraseTest) {
+  // The assignment below involves an implicit type conversion which allows the
+  // comparisons below to execute without an explicit cast.
+  long unsigned listlen = ELEMNUM;
+  ASSERT_EQ(listlen, trivlist->size());
+  // Find the arbitrary insertion point.
+  ::std::list<int>::iterator it = trivlist->begin();
+  while (*it != 65) {
+    it++;
+  }
+  cout << "Before erasure, *it: " << *it << endl;
+  // Following http://www.cplusplus.com/reference/list/list/erase/
+  it = trivlist->erase(it);
+  EXPECT_EQ(listlen - 1, trivlist->size());
+  cout << "After erasure, *it: " << *it << endl;
+  EXPECT_EQ(66, *it);
+}
+
+TEST_F(TemplateListTest, BetterErasureTest) {
+  long unsigned listlen = ELEMNUM;
+  ASSERT_EQ(listlen, trivlist->size());
+  // Find the arbitrary insertion point.
+  ::std::list<int>::iterator it = trivlist->begin();
+  while (*it != 65) {
+    it++;
+  }
+  cout << "Before erasure, *it: " << *it << endl;
+  ListHelper<int> lh(trivlist);
+  lh.do_erase(&it);
+  EXPECT_EQ(listlen - 1, trivlist->size());
+  cout << "After erasure, *it: " << *it << endl;
+  EXPECT_EQ(66, *it);
+}
+
 } // namespace testing
 } // namespace template_list

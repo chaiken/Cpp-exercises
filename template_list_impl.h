@@ -155,6 +155,9 @@ public:
                 ::std::inserter(*listp_, *alistit));
     return *alistit;
   }
+  void do_erase(typename ::std::list<T>::iterator *alistit) {
+    *alistit = listp_->erase(*alistit);
+  }
 
 private:
   ::std::list<T> *listp_;
