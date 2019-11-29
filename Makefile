@@ -164,3 +164,6 @@ template_vector_lib_test_debug: template_vector.h template_vector_impl.h templat
 
 template_list_lib_test: template_list.h template_list_impl.h template_list_lib.cc template_list_lib_test.cc complex.h complex_lib.cc
 	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) complex_lib.cc template_list_lib.cc template_list_lib_test.cc -o $@
+
+template_largest_lib_test: template_largest.h template_largest_impl.h template_largest_lib_test.cc
+	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) template_largest_lib_test.cc -o $@
