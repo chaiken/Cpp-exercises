@@ -167,3 +167,6 @@ template_list_lib_test: template_list.h template_list_impl.h template_list_lib.c
 
 template_largest_lib_test: template_largest.h template_largest_impl.h template_largest_lib_test.cc
 	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) template_largest_lib_test.cc -o $@
+
+template_integrate_lib_test: template_integrate.h template_integrate_impl.h template_integrate_lib_test.cc
+	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) template_integrate_lib_test.cc -o $@
