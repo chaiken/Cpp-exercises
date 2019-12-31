@@ -27,8 +27,7 @@ template <typename T> class FunctionWrapper {
 public:
   FunctionWrapper(T start, T increm) : val_(start), increm_(increm) {}
   FunctionWrapper() : val_(0.0), increm_(0.001) {}
-  T DoGen() {
-    // Test callable!
+  T operator()() {
     assert(nullptr != fn_);
     // ::std::function::operator bool
     // assert(true == fn_);
@@ -54,9 +53,9 @@ template <typename T> T do_integrate(const ::std::vector<T> &acont) {
 // "Using class to introduce a type parameter is equivalent to using typename"
 // --Stroustrup, p. 80 http://www.cplusplus.com/reference/algorithm/generate/
 template <typename ForwardIterator, typename P>
-void do_fill(ForwardIterator first, ForwardIterator last, P funcobj) {
+void call_fill(ForwardIterator first, ForwardIterator last, P funcobj) {
   while (first != last) {
-    *first = funcobj.DoGen();
+    *first = funcobj();
     ++first;
   }
 }
