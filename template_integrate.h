@@ -3,4 +3,6 @@
 
 #include "template_integrate_impl.h"
 
+namespace integration {}
+
 #endif

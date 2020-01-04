@@ -2,7 +2,9 @@
 
 #include <algorithm>
 #include <functional>
+#include <iostream>
 #include <numeric>
+#include <utility>
 #include <vector>
 
 namespace integration {
@@ -56,6 +58,18 @@ template <typename ForwardIterator, typename P>
 void call_fill(ForwardIterator first, ForwardIterator last, P funcobj) {
   while (first != last) {
     *first = funcobj();
+    ++first;
+  }
+}
+
+template <typename ForwardIterator, typename T>
+void FillWithLambda(ForwardIterator first, ForwardIterator last, T start,
+                    T increm,
+                    const ::std::function<double(double)> &fill_function) {
+  T val = start;
+  while (first != last) {
+    *first = fill_function(val);
+    val += increm;
     ++first;
   }
 }

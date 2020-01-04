@@ -65,5 +65,53 @@ TEST(NumericalIntegrationTest, PassInFunctionTest) {
   ASSERT_GT(coarse_error, fine_error);
 }
 
+TEST(NumericalIntegrationTest, LambdaTest) {
+  int coarse = 10, fine = 1e5;
+
+  // https://stackoverflow.com/questions/877523/error-request-for-member-in-which-is-of-non-class-type
+  // template_integrate_lib_test.cc:45:6: error: request for member ‘SetFn’ in
+  // ‘integration::testing::fw’, which is of non-class type
+  // ‘integration::FunctionWrapper<double>()’ FunctionWrapper<double> fw() You
+  // get the error because compiler thinks of Foo foo2() as of function
+  // declaration with name 'foo2' and the return type 'Foo'.
+  // FunctionWrapper<double> fw;
+  // template_integrate_lib_test.cc:78:40: error: cannot convert
+  // ‘integration::testing::NumericalIntegrationTest_LambdaTest_Test::TestBody()::<lambda(double)>’
+  // to ‘double (*)(double)’ 78 |   fw.SetFn([&](double x){return 1.0/x;});
+  // Cannot take address of the lambda as it is an rvalue.
+  // fw.SetFn([&](double x){return 1.0/x;});
+  // template_integrate_lib_test.cc:82:16: error: cannot convert
+  // ‘std::_Bind_helper<false, double (*)(double), const
+  // std::_Placeholder<1>&>::type’ {aka ‘std::_Bind<double
+  // (*(std::_Placeholder<1>))(double)>’} to ‘double (*)(double)’ 82 |
+  // fw.SetFn(bind(&Reciprocal, placeholders::_1));
+  //  fw.SetFn(bind(Reciprocal, placeholders::_1));
+  //
+  // Lambdas are R-values, and as such cannot be converted to function pointers
+  // with &. template_integrate_lib_test.cc:85:39: error: cannot convert
+  // ‘integration::testing::Numerical
+  // IntegrationTest_LambdaTest_Test::TestBody()::<lambda(double)>’ to ‘double
+  // (*)(double)’ 85 |  fw.SetFn([&](double x){return 1.0/x;});
+  // fw.SetFn([&](double x){return 1.0/x;});
+
+  vector<double> coarse_interval(coarse);
+  FillWithLambda(coarse_interval.begin(), coarse_interval.end(), 0.0,
+                 M_PI / coarse, ([](double x) { return sin(x); }));
+  double coarse_result = do_integrate(coarse_interval);
+  // Integral of sine is -cosine.  -(cos(pi) - cos(0)) = -(-1 - 1) = 2.
+  // Multiply by pi because numerical integration depends on the size of the
+  // interval, which here runs from 0 to pi, not zero to 1.
+  double coarse_error = abs(M_PI * coarse_result - 2.0);
+  cout << "Coarse-interval error is " << coarse_error << endl;
+
+  vector<double> fine_interval(fine);
+  FillWithLambda(fine_interval.begin(), fine_interval.end(), 0.0, M_PI / fine,
+                 ([](double x) { return sin(x); }));
+  double fine_result = do_integrate(fine_interval);
+  double fine_error = abs(M_PI * fine_result - 2.0);
+  cout << "Fine-interval error is " << fine_error << endl;
+  ASSERT_GT(coarse_error, fine_error);
+}
+
 } // namespace testing
 } // namespace integration
