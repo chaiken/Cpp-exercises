@@ -62,10 +62,9 @@ void call_fill(ForwardIterator first, ForwardIterator last, P funcobj) {
   }
 }
 
-template <typename ForwardIterator, typename T>
+template <typename ForwardIterator, typename T, typename U>
 void FillWithLambda(ForwardIterator first, ForwardIterator last, T start,
-                    T increm,
-                    const ::std::function<double(double)> &fill_function) {
+                    T increm, const U &fill_function) {
   T val = start;
   while (first != last) {
     *first = fill_function(val);
