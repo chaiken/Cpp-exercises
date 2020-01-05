@@ -113,5 +113,26 @@ TEST(NumericalIntegrationTest, LambdaTest) {
   ASSERT_GT(coarse_error, fine_error);
 }
 
+TEST(NumericalIntegrationTest, BindTest) {
+  int coarse = 10, fine = 1e5;
+  vector<double> coarse_interval(coarse);
+  FillWithLambda(coarse_interval.begin(), coarse_interval.end(), 1.0,
+                 1.0 / coarse, bind(&Reciprocal, placeholders::_1));
+  double coarse_result = do_integrate(coarse_interval);
+  // Integral of sine is -cosine.  -(cos(pi) - cos(0)) = -(-1 - 1) = 2.
+  // Multiply by pi because numerical integration depends on the size of the
+  // interval, which here runs from 0 to pi, not zero to 1.
+  double coarse_error = abs(coarse_result - (log(2.0) - log(1.0)));
+  cout << "Coarse-interval error is " << coarse_error << endl;
+
+  vector<double> fine_interval(fine);
+  FillWithLambda(fine_interval.begin(), fine_interval.end(), 1.0, 1.0 / fine,
+                 bind(&Reciprocal, placeholders::_1));
+  double fine_result = do_integrate(fine_interval);
+  double fine_error = abs(fine_result - (log(2.0) - log(1.0)));
+  cout << "Fine-interval error is " << fine_error << endl;
+  ASSERT_GT(coarse_error, fine_error);
+}
+
 } // namespace testing
 } // namespace integration
