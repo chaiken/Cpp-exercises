@@ -170,3 +170,6 @@ template_largest_lib_test: template_largest.h template_largest_impl.h template_l
 
 template_integrate_lib_test: template_integrate.h template_integrate_impl.h template_integrate_lib_test.cc
 	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) template_integrate_lib_test.cc -o $@
+
+reverse_list_lib_test: reverse_list.h reverse_list_impl.h reverse_list_lib_test.cc
+	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) reverse_list_lib_test.cc -o $@
