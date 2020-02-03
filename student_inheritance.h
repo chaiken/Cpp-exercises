@@ -14,12 +14,13 @@ enum class Year { kFresh, kSoph, kJunior, kSenior, kGrad };
 enum class Support { kTA, kRA, kFellowship, kOther };
 
 namespace {
-::std::map<Year, ::std::string> YearDescription = {
+// maps apparently cannot be constexpr as they are not literal types.
+const ::std::map<Year, ::std::string> YearDescription = {
     {Year::kFresh, "Freshman"}, {Year::kSoph, "Sophomore"},
     {Year::kJunior, "Junior"},  {Year::kSenior, "Senior"},
     {Year::kGrad, "Grad"},
 };
-::std::map<Support, ::std::string> SupportDescription{
+const ::std::map<Support, ::std::string> SupportDescription{
     {Support::kTA, "Teaching assistant"},
     {Support::kRA, "Research assistant"},
     {Support::kFellowship, "Fellowship"},
@@ -46,10 +47,11 @@ struct grad_student_extra {
 
 class Student {
 public:
-  Student(struct student_details sd)
-      : name_(sd.name), student_id_(sd.id), gpa_(sd.GPA), y_(sd.y) {}
-  friend ::std::ostream &operator<<(::std::ostream &out, const Student &st);
+  Student(struct student_details sd);
+  Student(Student &&st);
+  Student &operator=(Student &&st);
   ::std::string year() const { return YearDescription.find(y_)->second; }
+  friend ::std::ostream &operator<<(::std::ostream &out, const Student &st);
 
 protected:
   ::std::string name_;
@@ -62,15 +64,9 @@ protected:
 
 class GradStudent : public Student {
 public:
-  GradStudent(struct student_details sd, struct grad_student_extra gse)
-      : Student::Student(sd), support_(gse.support), dept_(gse.Dept),
-        thesis_(gse.Thesis) {
-    if (Year::kGrad != y_) {
-      ::std::cerr << "Illegal year for graduate student." << ::std::endl;
-      assert_perror(EINVAL);
-    }
-    ::std::cout << "grad student constructor" << ::std::endl;
-  }
+  GradStudent(struct student_details sd, struct grad_student_extra gse);
+  GradStudent(GradStudent &&gs);
+  GradStudent &operator=(GradStudent &&gs);
   ::std::string support() const {
     return SupportDescription.find(support_)->second;
   }
@@ -92,12 +88,10 @@ public:
 
 protected:
   Support support_;
-  const ::std::string dept_;
-  const ::std::string thesis_;
+  ::std::string dept_;
+  ::std::string thesis_;
 };
 
-//::std::ostringstream &operator<<(::std::ostringstream &out, const GradStudent
-//&gs);
 ::std::ostringstream &operator<<(::std::ostringstream &out,
                                  const GradStudent &gs);
 } // namespace student_inheritance
