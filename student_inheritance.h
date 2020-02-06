@@ -52,6 +52,8 @@ public:
   Student &operator=(Student &&st);
   ::std::string year() const { return YearDescription.find(y_)->second; }
   friend ::std::ostream &operator<<(::std::ostream &out, const Student &st);
+  // Needed by Exercise 2 of Chapter 8.
+  void print();
 
 protected:
   ::std::string name_;
@@ -85,6 +87,8 @@ public:
   // GradStudent &gs);
   friend ::std::ostringstream &operator<<(::std::ostringstream &out,
                                           const GradStudent &gs);
+  // Needed by Exercise 2 of Chapter 8.
+  void print();
 
 protected:
   Support support_;

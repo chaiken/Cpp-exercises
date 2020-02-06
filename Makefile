@@ -174,6 +174,8 @@ template_integrate_lib_test: template_integrate.h template_integrate_impl.h temp
 reverse_list_lib_test: reverse_list.h reverse_list_impl.h reverse_list_lib_test.cc
 	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) reverse_list_lib_test.cc -o $@
 
-
 student_inheritance_lib_test: student_inheritance.h student_inheritance_lib.cc student_inheritance_lib_test.cc
 	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) student_inheritance_lib.cc student_inheritance_lib_test.cc -o $@
+
+inheritance_casting_main: student_inheritance.h student_inheritance_lib.cc inheritance_casting_main.cc
+	$(CC) $(CXXFLAGS) $(LDFLAGS) student_inheritance_lib.cc inheritance_casting_main.cc -o $@

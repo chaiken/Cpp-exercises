@@ -87,4 +87,12 @@ GradStudent &GradStudent::operator=(GradStudent &&gs) {
   return out;
 }
 
+void Student::print() { ::std::cout << *this; }
+
+void GradStudent::print() {
+  ::std::ostringstream oss;
+  oss << *this;
+  ::std::cout << oss.str();
+}
+
 } // namespace student_inheritance
