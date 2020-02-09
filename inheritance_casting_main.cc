@@ -44,7 +44,7 @@ int main() {
   // base printer
   // Name: Angela, 124, Grad, 2.4
   //, Physics, Support: Research assistant, Thesis: Anistropic Superconductivity
-  //in Graphite Intercalation CompoundsName: Angela, 124, Grad, 2.4
+  // in Graphite Intercalation CompoundsName: Angela, 124, Grad, 2.4
   // The following matches GradStudent's function signature.
   cout << oss.str() << endl << endl;
   // max_size: 3fffffffffffffff
@@ -134,7 +134,7 @@ int main() {
   clang-format on
   */
 
-  cout << endl << endl << "Cast a GradStudent to a Student:" << endl;
+  cout << endl << "Dynamically cast a GradStudent to a Student:" << endl;
   pgs = &angela;
   dynamic_cast<Student *>(pgs)->print();
 

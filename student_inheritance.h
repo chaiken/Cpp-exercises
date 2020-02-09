@@ -54,6 +54,7 @@ public:
   friend ::std::ostream &operator<<(::std::ostream &out, const Student &st);
   // Needed by Exercise 2 of Chapter 8.
   void print();
+  double gpa() const { return gpa_; }
 
 protected:
   ::std::string name_;
@@ -72,6 +73,12 @@ public:
   ::std::string support() const {
     return SupportDescription.find(support_)->second;
   }
+  // Setting the value of a variable that is a member of the parent class has no
+  // effect on the value inside that class except in the case, tested below,
+  // where the parent class' member Student::gpa_ is also explicitly a member of
+  // the derived class.
+  void setGPA(double newgpa) { gpa_ = newgpa; }
+  double gpa() const { return gpa_; }
 
   // Friend functions cannot be virtual or override.  Fails here since
   // GradStudent is a type of Student, so the anticipated function
@@ -91,6 +98,24 @@ public:
   void print();
 
 protected:
+  // clang-format off
+  // Without the lines
+  // double Student::gpa_;
+  // or equivalently simply
+  // double gpa_;
+  //   CrossMembership test passes.   With it uncommented:
+  // RUN      ] StudentInheritanceTest.CrossMembership
+  // GradStudent printer
+  // Possibly uninitialized GradStudent::GPA is 5.2
+  // Student printer
+  // GPA is 2.4
+  // student_inheritance_lib_test.cc:50: Failure
+  // Expected equality of these values:
+  //  oss.str()
+  //    Which is: "Name: Angela, 124, Grad, 2.4\n, Physics, Support: Research assistant, Thesis: Anistropic Superconductivity in Graphite Intercalation Compounds"
+  // "Name: Angela, 124, Grad, 5.2\n, Physics, Support: " "Research assistant, Thesis: Anistropic " "Superconductivity in Graphite Intercalation Compounds"
+  // Which is: "Name: Angela, 124, Grad, 5.2\n, Physics, Support: Research assistant, Thesis: Anistropic Superconductivity in Graphite Intercalation Compounds"
+  // clang-format on
   Support support_;
   ::std::string dept_;
   ::std::string thesis_;

@@ -39,6 +39,19 @@ TEST_F(StudentInheritanceTest, GradStudentPrinting) {
                        "Superconductivity in Graphite Intercalation Compounds");
 }
 
+TEST_F(StudentInheritanceTest, CrossMembership) {
+  // Apparently the objects declared in SetUp() are by default const, and trying
+  // to modify them results in compilation errors.
+  Student Fred(marvin_details);
+  GradStudent Sue(angela_details, angela_extra);
+  Sue.setGPA(Fred.gpa() + 1.0);
+  ::std::ostringstream oss;
+  student_inheritance::operator<<(oss, Sue);
+  EXPECT_EQ(oss.str(), "Name: Angela, 124, Grad, 5.2\n, Physics, Support: "
+                       "Research assistant, Thesis: Anistropic "
+                       "Superconductivity in Graphite Intercalation Compounds");
+}
+
 /*  Apparently gtest doesn't trap these errors?
 
 using StudentInheritanceDeathTest = StudentInheritanceTest;

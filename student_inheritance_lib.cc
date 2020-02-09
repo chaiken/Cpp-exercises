@@ -1,5 +1,7 @@
 #include "student_inheritance.h"
 
+#include <typeinfo>
+
 namespace student_inheritance {
 
 Student::Student(struct student_details sd)
@@ -43,11 +45,11 @@ GradStudent::GradStudent(struct student_details sd,
       assert_perror(EINVAL);
     }
   }
-  ::std::cout << "grad student constructor" << ::std::endl;
 }
 
 // Without the initialization, the call to the Student constructor will not
-// match the prototypes.
+// match the prototypes.  Why does the function need to call move() given that
+// it's receiving an R-value reference already?
 GradStudent::GradStudent(GradStudent &&gs) : Student(::std::move(gs)) {
   *this = ::std::move(gs);
 }
@@ -65,14 +67,27 @@ GradStudent &GradStudent::operator=(GradStudent &&gs) {
 
 ::std::ostream &operator<<(::std::ostream &out, const Student &st) {
   ::std::cout << "Student printer" << ::std::endl;
+  if (typeid(Student) != typeid(st)) {
+    ::std::cout << typeid(st).name() << ::std::endl;
+  }
+  ::std::cout << "GPA is " << st.gpa() << ::std::endl;
   out << "Name: " << st.name_ << ", " << st.student_id_ << ", " << st.year()
       << ", " << st.gpa_ << ::std::endl;
   return out;
 }
 
+// This function is a friend of GradStudent, but not of Student, so
+// it cannot access Student::gpa_.
 ::std::ostringstream &operator<<(::std::ostringstream &out,
                                  const GradStudent &gs) {
   ::std::cout << "GradStudent printer" << ::std::endl;
+  if (typeid(GradStudent) != typeid(gs)) {
+    ::std::cout << typeid(gs).name() << ::std::endl;
+  }
+  // The GPA of GradStudent is uninitialized except for the tested case that
+  // Student::gpa_ is a member of GradStudent.
+  //  ::std::cout << "Possibly uninitialized GradStudent::GPA is " << gs.gpa()
+  //              << ::std::endl;
   // clang-format off
   // error: use of deleted function ‘student_inheritance::Student::Student(const student_inheritance::Student&)’
   // clang-format on
@@ -80,8 +95,14 @@ GradStudent &GradStudent::operator=(GradStudent &&gs) {
   // const Student st = gs;
   const Student &st(::std::move(gs));
   out << st;
-  ::std::string retval = ", " + gs.dept_ + ", Support: " + gs.support() +
-                         ", Thesis: " + gs.thesis_;
+  ::std::string retval;
+  // Check for malformed input.   These assertions appear to offer no protection
+  // in the event that variables are uninitialized due a cast.  Not sure why
+  // since the value is larger than max_size().
+  assert((gs.dept_.size() > 0u) && (gs.dept_.size() < retval.max_size()));
+  assert((gs.thesis_.size() > 0u) && (gs.thesis_.size() < retval.max_size()));
+  retval = ", " + gs.dept_ + ", Support: " + gs.support() +
+           ", Thesis: " + gs.thesis_;
   // ostringstream does not supply an operator+().
   ::std::operator<<(out, retval);
   return out;
@@ -90,6 +111,9 @@ GradStudent &GradStudent::operator=(GradStudent &&gs) {
 void Student::print() { ::std::cout << *this; }
 
 void GradStudent::print() {
+  ::std::cout
+      << "Student::gpa_ is not protected inside this member-function wrapper: "
+      << Student::gpa_ << ::std::endl;
   ::std::ostringstream oss;
   oss << *this;
   ::std::cout << oss.str();
