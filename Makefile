@@ -192,3 +192,6 @@ async_logger_improved: async_logger_improved.h async_logger_improved.cc async_en
 
 async_logger_lib_test_improved: async_logger_improved.h async_logger_improved.cc async_logger_lib_test_improved.cc
 	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS)  async_logger_improved.cc async_logger_lib_test_improved.cc -o $@
+
+one_index_vector_lib_test: one_index_vector.h one_index_vector_impl.h one_index_vector_lib_test.cc
+	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) one_index_vector_lib_test.cc -o $@
