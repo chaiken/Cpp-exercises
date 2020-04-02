@@ -23,6 +23,14 @@ bool operator<(const Complex &a, const Complex &b) {
   return (sqrt(b) > sqrt(a));
 }
 
+bool operator<(Complex &a, Complex &b) {
+#ifdef DEBUG
+  cout << "Complex comparison override" << endl;
+#endif
+  // Avoid calling self!
+  return (sqrt(b) > sqrt(a));
+}
+
 ostream &operator<<(ostream &out, Complex x) {
   out << x.real_ << " + " << x.imag_ << "i";
   return out;
