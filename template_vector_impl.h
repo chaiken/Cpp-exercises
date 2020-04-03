@@ -171,65 +171,55 @@ void tvswap(TemplateVector<U> &uvec, TemplateVector<V> &vvec) {
 template <typename T> void tvsort(TemplateVector<T> &tv) {
   static int index = 0;
 #ifdef DEBUG
-  static int passes = 0;
   static int depth = 0;
-  depth++;
   ::std::cout << "Depth: " << depth << " index: " << index << ::std::endl;
 #endif
   // Done when this loop hits ub().  <ub() makes ub()+1 safe.
   while (index < tv.ub()) {
-#ifdef DEBUG
-    passes++;
-#endif
     // Arrange in increasing order.
     if (tv[index + 1] < tv[index]) {
+      // Try swapping the 0th element with the middle one, the 1st element with
+      // the element 3/4 of the way through, the 2nd element with that 1/4 way
+      // through . . .
       int candidate = (tv.ub() - index * (-1 ^ index)) / 2.0;
       candidate -= (candidate / tv.ub()) * tv.ub();
       // Here is the forward sorting.   The reverse is separate, below.
       // First try to place in the middle of the half of the TemplaceVector that
       // remains unsorted.
       if ((candidate > index) && (tv[candidate] < tv[index])) {
+        ::std::swap(tv[candidate], tv[index]);
 #ifdef DEBUG
-        ::std::cout << "Reordering index = " << i << " with " << candidate
+        ::std::cout << "Reordering index = " << index << " with " << candidate
                     << ::std::endl;
-#endif
-        T temp = tv[candidate];
-        tv[candidate] = tv[index];
-        tv[index] = temp;
-#ifdef DEBUG
         ::std::cout << tv << ::std::endl;
 #endif
       } else {
+        ::std::swap(tv[index], tv[index + 1]);
 #ifdef DEBUG
         ::std::cout << "Reordering index = " << index << " with neighbor."
                     << ::std::endl;
-#endif
-        T temp = tv[index + 1];
-        tv[index + 1] = tv[index];
-        tv[index] = temp;
-#ifdef DEBUG
         ::std::cout << tv << ::std::endl;
 #endif
       }
-      // Now recheck previous order.  index=24 and index=0 are fully checked by
-      // forwards iteration.
-      if ((index < 24) && (index > 0)) {
+      // Now recheck previous order.  index=ub()-1 and index=0 are fully checked
+      // by forwards iteration.
+      if ((index < (tv.ub() - 1)) && (index > 0)) {
 #ifdef DEBUG
-        depth--;
+        depth++;
         ::std::cout << "Reversing; depth " << depth << ::std::endl;
 #endif
         index--;
         tvsort(tv);
       }
+#ifdef DEBUG
+      depth--;
+#endif
       index++;
     } else {
       // already ordered, so keep going.
       index++;
     }
   }
-#ifdef DEBUG
-  ::std::cout << "Total passes: " << passes << ::std::endl;
-#endif
 }
 
 } // namespace template_vect
