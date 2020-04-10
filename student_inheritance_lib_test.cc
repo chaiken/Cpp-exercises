@@ -3,7 +3,7 @@
 #include "gtest/gtest.h"
 
 namespace student_inheritance {
-namespace testing {
+namespace local_testing {
 
 const struct student_details marvin_details(Year::kJunior, 123, 4.2, "Marvin");
 const struct student_details angela_details(Year::kGrad, 124, 2.4, "Angela");
@@ -52,27 +52,34 @@ TEST_F(StudentInheritanceTest, CrossMembership) {
                        "Superconductivity in Graphite Intercalation Compounds");
 }
 
-/*  Apparently gtest doesn't trap these errors?
-
 using StudentInheritanceDeathTest = StudentInheritanceTest;
 
-TEST_F(StudentInheritanceDeathTest, IllegalGradYear) {
-const struct student_details bad_details(Year::kFresh, 124, 2.4, "Angela");
-EXPECT_DEATH(GradStudent badangela(bad_details, angela_extra),
-             "Invalid argument");
-}
-
+/* Cannot have this behavior as it means a Student* cannot be a GradStudent.
 TEST_F(StudentInheritanceDeathTest, IllegalStudentYear) {
 const struct student_details bad_details(Year::kGrad, 123, 4.2, "Marvin");
-EXPECT_DEATH(Student badmarvin(bad_details), "Invalid argument");
-}
-TEST_F(StudentInheritanceDeathTest, IllegalSupport) {
-const struct grad_student_extra bad_extra(
-    static_cast<Support>(-1), "Physics",
-    "Anistropic Superconductivity in Graphite Intercalation Compounds");
-EXPECT_DEATH(GradStudent badangela(angela_details, bad_extra),
-             "Invalid argument");
-             }*/
+//EXPECT_DEATH(Student badmarvin(bad_details), "Invalid argument");
+EXPECT_EXIT(Student badmarvin(bad_details), ::testing::KilledBySignal(SIGABRT),
+"Invalid argument");
+} */
 
-} // namespace testing
+TEST_F(StudentInheritanceDeathTest, IllegalGradYear) {
+  const struct student_details bad_details(Year::kFresh, 124, 2.4, "Angela");
+  // Error below is not trapped.
+  // EXPECT_DEATH(GradStudent badangela(bad_details, angela_extra), "Invalid
+  // argument"); Note that testing::KilledBySignal() chooses THIS testing
+  // namespace, which is poorly named.  Use either ::testing::KilledBySignal()
+  // or rename this namespace.
+  EXPECT_EXIT(GradStudent badangela(bad_details, angela_extra),
+              testing::KilledBySignal(SIGABRT), "Invalid argument");
+}
+
+TEST_F(StudentInheritanceDeathTest, IllegalSupport) {
+  const struct grad_student_extra bad_extra(
+      static_cast<Support>(-1), "Physics",
+      "Anistropic Superconductivity in Graphite Intercalation Compounds");
+  EXPECT_EXIT(GradStudent badangela(angela_details, bad_extra),
+              testing::KilledBySignal(SIGABRT), "Invalid argument");
+}
+
+} // namespace local_testing
 } // namespace student_inheritance
