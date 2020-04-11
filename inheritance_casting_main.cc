@@ -97,12 +97,13 @@ int main() {
        << endl;
   // No public ostream default ctor.
   filebuf fb;
-  fb.open("/tmp/foo", ios::out);
+  fb.open("/tmp/asklf3", ios::out);
   ostream os(&fb);
   // Result is Student printout:
   // Name: Angela, 124, Grad, 2.4
   operator<<(os, *pgs);
   fb.close();
+  cout << "Result is in /tmp/asklf3" << endl;
 
   cout << endl
        << "Try to force GradStudent printing of Student by matching "
@@ -116,12 +117,18 @@ int main() {
   ps = &marvin;
   // base printer
   // Name: Marvin, 123, Junior, 4.2
+  cout << "Printing from Student pointer: " << endl;
   ps->print();
+  cout << endl;
 
+  cout << "Printing from GradStudent pointer: " << endl;
   pgs = &angela;
   pgs->print();
+  cout << endl;
 
-  cout << endl << endl << "Print GradStudent from Student pointer:" << endl;
+  cout << endl
+       << endl
+       << "Print GradStudent from Student pointer without 'virtual':" << endl;
   ps = &angela;
   ps->print();
 
