@@ -33,29 +33,30 @@ public:
             (ULONG_MAX == std::vector<T>::size()));
   }
   // Only the member functions that know about indices need to be overridden.
+  // std:vector's element access functions work for indices 0 to size()-1.
   T &at(size_t n) {
-    if ((n < 1u) || (n > 1 + std::vector<T>::size())) {
+    if ((n < 1u) || (n > std::vector<T>::size())) {
       std::cerr << "Index " << n << " out of range." << std::endl;
       assert_perror(EINVAL);
     }
     return std::vector<T>::at(n - 1);
   }
   const T &at(size_t n) const {
-    if ((n < 1u) || (n > 1 + std::vector<T>::size())) {
+    if ((n < 1u) || (n > std::vector<T>::size())) {
       std::cerr << "Index " << n << " out of range." << std::endl;
       assert_perror(EINVAL);
     }
     return std::vector<T>::at(n - 1);
   }
   T &operator[](size_t n) {
-    if ((n < 1u) || (n > 1 + std::vector<T>::size())) {
+    if ((n < 1u) || (n > std::vector<T>::size())) {
       std::cerr << "Index " << n << " out of range." << std::endl;
       assert_perror(EINVAL);
     }
     return std::vector<T>::operator[](n - 1);
   }
   const T &operator[](size_t n) const {
-    if ((n < 1u) || (n > 1 + std::vector<T>::size())) {
+    if ((n < 1u) || (n > std::vector<T>::size())) {
       std::cerr << "Index " << n << " out of range." << std::endl;
       assert_perror(EINVAL);
     }

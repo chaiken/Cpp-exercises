@@ -82,15 +82,27 @@ TEST_F(OneIndexVectorTest, ElementAccessTest) {
 using OneIndexVectorDeathTest = OneIndexVectorTest;
 
 TEST_F(OneIndexVectorDeathTest, IllegalElementAccessOperator) {
-  vector<char> vec3(*vec2);
   OneIndexVector<char> ov1(move(*vec2));
   EXPECT_EXIT(ov1[0], ::testing::KilledBySignal(SIGABRT), "out of range");
 }
 
 TEST_F(OneIndexVectorDeathTest, IllegalElementAccessAt) {
-  vector<char> vec3(*vec2);
   OneIndexVector<char> ov1(move(*vec2));
   EXPECT_EXIT(ov1.at(0), ::testing::KilledBySignal(SIGABRT), "out of range");
+}
+
+TEST_F(OneIndexVectorDeathTest, IllegalElementHighOperator) {
+  vector<char> vec3(*vec2);
+  OneIndexVector<char> ov1(move(*vec2));
+  EXPECT_EXIT(ov1[vec3.size() + 1], ::testing::KilledBySignal(SIGABRT),
+              "out of range");
+}
+
+TEST_F(OneIndexVectorDeathTest, IllegalElementHighAt) {
+  vector<char> vec3(*vec2);
+  OneIndexVector<char> ov1(move(*vec2));
+  EXPECT_EXIT(ov1.at(vec3.size() + 1), ::testing::KilledBySignal(SIGABRT),
+              "out of range");
 }
 
 } // namespace local_testing
