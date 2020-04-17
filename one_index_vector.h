@@ -41,6 +41,19 @@ public:
     }
     return std::vector<T>::at(n - 1);
   }
+  // https://en.cppreference.com/w/cpp/language/override
+  // clang-format off
+  /*
+   * In a member function declaration or definition, override ensures that the
+   * function is virtual and is overriding a virtual function from a base class.
+   *
+   *  ‘const T& one_index_vector::OneIndexVector<T>::at(size_t) const [with T = int; size_t = long unsigned int]’ marked ‘override’, but does not override
+   *   const T &at(size_t n) const override {
+   *
+   * Override fails since the STL functions are not marked virtual.
+   */
+  // clang-format on
+
   const T &at(size_t n) const {
     if ((n < 1u) || (n > std::vector<T>::size())) {
       std::cerr << "Index " << n << " out of range." << std::endl;
