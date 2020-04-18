@@ -195,3 +195,6 @@ async_logger_lib_test_improved: async_logger_improved.h async_logger_improved.cc
 
 one_index_vector_lib_test: one_index_vector.h one_index_vector_impl.h one_index_vector_lib_test.cc
 	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) one_index_vector_lib_test.cc -o $@
+
+override_vs_overload_main: override_vs_overload.h override_vs_overload_main.cc
+	$(CC) $(CXXFLAGS) $(LDFLAGS) override_vs_overload_main.cc -o $@
