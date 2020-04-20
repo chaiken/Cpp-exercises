@@ -1,0 +1,28 @@
+These are the only examples of MI that I see as of 4/19/20 in /usr/include/c++/9.
+
+/usr/include/c++/9/std_function.h:
+  /**
+   *  @brief Primary class template for std::function.
+   *  @ingroup functors
+   *
+   *  Polymorphic function wrapper.
+   */
+  template<typename _Res, typename... _ArgTypes>
+    class function<_Res(_ArgTypes...)>
+    : public _Maybe_unary_or_binary_function<_Res, _ArgTypes...>,
+      private _Function_base
+
+In /usr/include/c++/9/unique_ptr.h:
+  /// std::hash specialization for unique_ptr.
+  template<typename _Tp, typename _Dp>
+    struct hash<unique_ptr<_Tp, _Dp>>
+    : public __hash_base<size_t, unique_ptr<_Tp, _Dp>>,
+    private __poison_hash<typename unique_ptr<_Tp, _Dp>::pointer>
+
+Easy to see why, for example, stringstream objects might end up with
+multiple associated ios_base objects if the basic streams did not
+inherit from basic_ios with "virtual public."
+See diagram at http://www.cplusplus.com/reference/sstream/stringstream/.
+$ grep -rI "virtual public" /usr/include/c++/9
+/usr/include/c++/9/istream:    class basic_istream : virtual public basic_ios<_CharT, _Traits>
+/usr/include/c++/9/ostream:    class basic_ostream : virtual public basic_ios<_CharT, _Traits>
