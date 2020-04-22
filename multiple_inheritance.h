@@ -6,6 +6,7 @@
 
 #include <iostream>
 #include <map>
+#include <type_traits>
 
 namespace people_roles {
 
@@ -134,8 +135,17 @@ public:
         << "Gender: " << gender() << ", Birthday: " << birthday();
     return out;
   }
+  bool is_type(const std::string &tname) const {
+    return (std::string::npos != type_name().find(tname));
+  }
 
 protected:
+  // Without "virtual", all is_type() tests for derived classes will fail.
+  virtual std::string type_name() const {
+    std::cout << typeid(*this).name() << std::endl;
+    return (typeid(*this).name());
+  }
+
   const unsigned int birth_year_;
   const unsigned int birth_day_of_month_;
   const std::string name_;
@@ -247,10 +257,14 @@ public:
   StudentWorker(const struct person_details pd, const struct student_details sd,
                 const struct worker_details wd)
       : Person(pd), Student(pd, sd), Worker(pd, wd) {}
+
   std::ostream &operator<<(std::ostream &out) {
     Student::operator<<(out);
     Worker::operator<<(out);
     return out;
+  }
+  bool is_student_worker() const {
+    return (is_type("Student") && is_type("Worker"));
   }
 };
 

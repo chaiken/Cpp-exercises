@@ -3,6 +3,7 @@
 #include <sys/errno.h>
 
 #include <iostream>
+#include <string>
 
 namespace people_roles {
 
@@ -119,27 +120,27 @@ std::string FormatDate(const unsigned int day, const Month month,
 
 //  Person member functions
 std::string Person::gender() const {
-  std::map<Gender, std::string>::const_iterator it =
-      GenderDescription.find(gender_);
-  if (GenderDescription.cend() == it) {
-    std::cerr << "Illegal gender." << std::endl;
-    assert_perror(EINVAL);
-  }
-  return it->second;
+    std::map<Gender, std::string>::const_iterator it =
+        GenderDescription.find(gender_);
+    if (GenderDescription.cend() == it) {
+      std::cerr << "Illegal gender." << std::endl;
+      assert_perror(EINVAL);
+    }
+    return it->second;
 }
 
 // Student member functions
 std::string Student::study_year() const {
-  std::map<StudyYear, std::string>::const_iterator it =
-      StudyYearDescription.find(y_);
-  // Prevents a Student* from pointing to a GradStudent.
-  //    if ((StudyYearDescription.end() == idx) || (StudyYear::kGrad ==
-  //    idx->first)) {
-  if (StudyYearDescription.cend() == it) {
-    std::cerr << "Illegal year for student." << std::endl;
-    assert_perror(EINVAL);
-  }
-  return it->second;
+    std::map<StudyYear, std::string>::const_iterator it =
+        StudyYearDescription.find(y_);
+    // Prevents a Student* from pointing to a GradStudent.
+    //    if ((StudyYearDescription.end() == idx) || (StudyYear::kGrad ==
+    //    idx->first)) {
+    if (StudyYearDescription.cend() == it) {
+      std::cerr << "Illegal year for student." << std::endl;
+      assert_perror(EINVAL);
+    }
+    return it->second;
 }
 
 } // namespace people_roles

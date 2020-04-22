@@ -17,6 +17,10 @@ TEST(PersonTest, CtorsTest) {
   EXPECT_EQ(0, jane.address().compare("Leadville CO"));
   EXPECT_EQ(0, jane.gender().compare("Female"));
   EXPECT_EQ(0, jane.birthday().compare("May 28, 1948"));
+  EXPECT_TRUE(jane.is_type("Person"));
+  EXPECT_FALSE(jane.is_type("Student"));
+  EXPECT_FALSE(jane.is_type("Worker"));
+  EXPECT_FALSE(jane.is_type("StudentWorker"));
 
   cout << endl;
   Student jane2(ad, bd);
@@ -27,6 +31,9 @@ TEST(PersonTest, CtorsTest) {
   EXPECT_EQ(0, jane2.study_year().compare("Junior"));
   EXPECT_EQ(bd.id, jane2.student_id());
   EXPECT_EQ(bd.GPA, jane2.gpa());
+  EXPECT_TRUE(jane2.is_type("Student"));
+  EXPECT_FALSE(jane2.is_type("Worker"));
+  EXPECT_FALSE(jane2.is_type("StudentWorker"));
 
   cout << endl;
   Worker jane3(ad, cd);
@@ -37,6 +44,9 @@ TEST(PersonTest, CtorsTest) {
   EXPECT_EQ(1234u, jane3.badge_number());
   EXPECT_EQ(0, jane3.work_status().compare("Full-time"));
   EXPECT_EQ(0, jane3.start_date().compare("Mar 10, 1999"));
+  EXPECT_TRUE(jane3.is_type("Worker"));
+  EXPECT_FALSE(jane3.is_type("Student"));
+  EXPECT_FALSE(jane3.is_type("StudentWorker"));
 
   cout << endl;
   StudentWorker jane4(ad, bd, cd);
@@ -50,6 +60,9 @@ TEST(PersonTest, CtorsTest) {
   EXPECT_EQ(1234u, jane4.badge_number());
   EXPECT_EQ(0, jane4.work_status().compare("Full-time"));
   EXPECT_EQ(0, jane4.start_date().compare("Mar 10, 1999"));
+  EXPECT_TRUE(jane4.is_type("Worker"));
+  EXPECT_TRUE(jane4.is_type("Student"));
+  EXPECT_TRUE(jane4.is_type("StudentWorker"));
 }
 
 class PersonPrintTest : public testing::Test {
