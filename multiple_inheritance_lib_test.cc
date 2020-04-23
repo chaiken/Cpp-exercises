@@ -7,13 +7,15 @@ using namespace std;
 namespace people_roles {
 namespace local_testing {
 
-const struct person_details ad(1948, 5, 28, "Jane", "Leadville CO", "F");
+const struct person_details ad(1948, 5, 28, "Jane", "Alsop", "Leadville CO",
+                               "F");
 const struct student_details bd(StudyYear::kJunior, 123, 4.2);
 const struct worker_details cd(1234, 1999, 3, 10, "F");
 
 TEST(PersonTest, CtorsTest) {
   Person jane(ad);
-  EXPECT_EQ(0, jane.name().compare("Jane"));
+  EXPECT_EQ(0, jane.first_name().compare("Jane"));
+  EXPECT_EQ(0, jane.last_name().compare("Alsop"));
   EXPECT_EQ(0, jane.address().compare("Leadville CO"));
   EXPECT_EQ(0, jane.gender().compare("Female"));
   EXPECT_EQ(0, jane.birthday().compare("May 28, 1948"));
@@ -24,7 +26,8 @@ TEST(PersonTest, CtorsTest) {
 
   cout << endl;
   Student jane2(ad, bd);
-  EXPECT_EQ(0, jane2.name().compare("Jane"));
+  EXPECT_EQ(0, jane2.first_name().compare("Jane"));
+  EXPECT_EQ(0, jane2.last_name().compare("Alsop"));
   EXPECT_EQ(0, jane2.address().compare("Leadville CO"));
   EXPECT_EQ(0, jane2.gender().compare("Female"));
   EXPECT_EQ(0, jane2.birthday().compare("May 28, 1948"));
@@ -37,7 +40,8 @@ TEST(PersonTest, CtorsTest) {
 
   cout << endl;
   Worker jane3(ad, cd);
-  EXPECT_EQ(0, jane3.name().compare("Jane"));
+  EXPECT_EQ(0, jane3.first_name().compare("Jane"));
+  EXPECT_EQ(0, jane3.last_name().compare("Alsop"));
   EXPECT_EQ(0, jane3.address().compare("Leadville CO"));
   EXPECT_EQ(0, jane3.gender().compare("Female"));
   EXPECT_EQ(0, jane3.birthday().compare("May 28, 1948"));
@@ -50,7 +54,8 @@ TEST(PersonTest, CtorsTest) {
 
   cout << endl;
   StudentWorker jane4(ad, bd, cd);
-  EXPECT_EQ(0, jane4.name().compare("Jane"));
+  EXPECT_EQ(0, jane4.first_name().compare("Jane"));
+  EXPECT_EQ(0, jane4.last_name().compare("Alsop"));
   EXPECT_EQ(0, jane4.address().compare("Leadville CO"));
   EXPECT_EQ(0, jane4.gender().compare("Female"));
   EXPECT_EQ(0, jane4.birthday().compare("May 28, 1948"));
@@ -96,7 +101,7 @@ TEST_F(PersonPrintTest, PersonExtractionOperator) {
   // cout << jane;
   jane.operator<<(cout);
   EXPECT_NE(string::npos,
-            strCout->str().find("Name: Jane, Address: Leadville "
+            strCout->str().find("Name: Jane Alsop, Address: Leadville "
                                 "CO, Gender: Female, Birthday: May "
                                 "28, 1948"));
 }
@@ -106,7 +111,7 @@ TEST_F(PersonPrintTest, StudentExtractionOperator) {
   jane.operator<<(cout);
   EXPECT_NE(string::npos,
             strCout->str().find(
-                "Name: Jane, Address: Leadville CO, Gender: Female, "
+                "Name: Jane Alsop, Address: Leadville CO, Gender: Female, "
                 "Birthday: May "
                 "28, 1948, Student id: 123, Study Year: Junior, GPA: 4.2"));
 }
@@ -116,7 +121,7 @@ TEST_F(PersonPrintTest, WorkerExtractionOperator) {
   jane.operator<<(cout);
   EXPECT_NE(string::npos,
             strCout->str().find(
-                "Name: Jane, Address: Leadville CO, Gender: Female, "
+                "Name: Jane Alsop, Address: Leadville CO, Gender: Female, "
                 "Birthday: May 28, 1948, Badge number: 1234, Work Status: "
                 "Full-time, Start Date: Mar 10, 1999"));
 }
@@ -126,26 +131,29 @@ TEST_F(PersonPrintTest, StudentWorkerExtractionOperator) {
   jane.operator<<(cout);
   EXPECT_NE(string::npos,
             strCout->str().find(
-                "Name: Jane, Address: Leadville CO, Gender: Female, "
+                "Name: Jane Alsop, Address: Leadville CO, Gender: Female, "
                 "Birthday: May 28, 1948, Student id: 123, Study Year: Junior, "
                 "GPA: 4.2, Badge number: 1234, Work Status: Full-time, Start "
                 "Date: Mar 10, 1999"));
 }
 
 TEST(PersonDeathTest, IllegalYear) {
-  const struct person_details bad(2038, 14, 40, "Jane", "Leadville CO", "F");
+  const struct person_details bad(2038, 14, 40, "Jane", "Alsop", "Leadville CO",
+                                  "F");
   EXPECT_EXIT(Person bp(bad), testing::KilledBySignal(SIGABRT),
               "Invalid birth year");
 }
 
 TEST(PersonDeathTest, IllegalMonth) {
-  const struct person_details bad(1948, 14, 40, "Jane", "Leadville CO", "F");
+  const struct person_details bad(1948, 14, 40, "Jane", "Alsop", "Leadville CO",
+                                  "F");
   EXPECT_EXIT(Person bp(bad), testing::KilledBySignal(SIGABRT),
               "Invalid month:");
 }
 
 TEST(PersonDeathTest, IllegalDay) {
-  const struct person_details bad(1948, 3, 40, "Jane", "Leadville CO", "F");
+  const struct person_details bad(1948, 3, 40, "Jane", "Alsop", "Leadville CO",
+                                  "F");
   EXPECT_EXIT(Person bp(bad), testing::KilledBySignal(SIGABRT),
               "Invalid birth day:");
 }

@@ -71,13 +71,14 @@ const std::map<WorkStatus, std::string> WorkStatusDescription = {
 
 struct person_details {
   person_details(unsigned int by, unsigned int bm, unsigned int bdom,
-                 std::string n, std::string a, std::string g)
-      : birth_year(by), birth_month(bm), birth_day_of_month(bdom), name(n),
-        address(a), gender(g) {}
+                 std::string fn, std::string ln, std::string a, std::string g)
+      : birth_year(by), birth_month(bm), birth_day_of_month(bdom),
+        first_name(fn), last_name(ln), address(a), gender(g) {}
   unsigned int birth_year;
   unsigned int birth_month;
   unsigned int birth_day_of_month;
-  std::string name;
+  std::string first_name;
+  std::string last_name;
   std::string address;
   std::string gender;
 };
@@ -107,7 +108,8 @@ class Person {
 public:
   Person(const struct person_details pd)
       : birth_year_(pd.birth_year), birth_day_of_month_(pd.birth_day_of_month),
-        name_(pd.name), address_(pd.address) {
+        first_name_(pd.first_name), last_name_(pd.last_name),
+        address_(pd.address) {
     std::cerr << "Person ctor" << std::endl;
     if (YearIsInvalid(birth_year_)) {
       std::cerr << "Invalid birth year: " << birth_year_ << std::endl;
@@ -120,7 +122,9 @@ public:
       assert_perror(EINVAL);
     }
   }
-  std::string name() const { return name_; }
+
+  std::string first_name() const { return first_name_; }
+  std::string last_name() const { return last_name_; }
   std::string address() const { return address_; }
   std::string gender() const;
   std::string birthday() const {
@@ -130,7 +134,7 @@ public:
 
   std::ostream &operator<<(std::ostream &out) {
     printer_has_run_ = true;
-    out << "Name: " << name_ << ", "
+    out << "Name: " << first_name_ << " " << last_name_ << ", "
         << "Address: " << address_ << ", "
         << "Gender: " << gender() << ", Birthday: " << birthday();
     return out;
@@ -148,7 +152,8 @@ protected:
 
   const unsigned int birth_year_;
   const unsigned int birth_day_of_month_;
-  const std::string name_;
+  const std::string first_name_;
+  const std::string last_name_;
   std::string address_;
   Month birth_month_;
   Gender gender_ = Gender::kUnknown;
@@ -232,7 +237,7 @@ public:
       Person::operator<<(out);
     } else {
       std::cerr << "Worker printer: Person printer has already been called."
-                  << std::endl;
+                << std::endl;
     }
     out << ", Badge number: " << badge_number_
         << ", Work Status: " << work_status()
