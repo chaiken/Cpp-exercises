@@ -125,11 +125,13 @@ public:
   std::string birthday() const {
     return FormatDate(birth_day_of_month_, birth_month_, birth_year_);
   }
-  std::ostream &operator<<(std::ostream &out) const {
-    out << "Person printer" << std::endl;
+  bool person_printer_has_run() { return printer_has_run_; }
+
+  std::ostream &operator<<(std::ostream &out) {
+    printer_has_run_ = true;
     out << "Name: " << name_ << ", "
         << "Address: " << address_ << ", "
-        << "Gender: " << gender() << ", Birthday: " << birthday() << std::endl;
+        << "Gender: " << gender() << ", Birthday: " << birthday();
     return out;
   }
 
@@ -140,6 +142,9 @@ protected:
   std::string address_;
   Month birth_month_;
   Gender gender_ = Gender::kUnknown;
+
+private:
+  bool printer_has_run_ = false;
 };
 
 // Largely copied from student_inheritance code.
@@ -165,11 +170,16 @@ public:
   std::string study_year() const;
 
   // Still not an override according to GCC.
-  std::ostream &operator<<(std::ostream &out) const {
-    out << "Student printer" << std::endl;
-    Person::operator<<(out);
+  std::ostream &operator<<(std::ostream &out) {
+    if (!person_printer_has_run()) {
+      std::cerr << "Student printer: calling Person printer." << std::endl;
+      Person::operator<<(out);
+    } else {
+      std::cerr << "Student printer: Person printer has already been called."
+                << std::endl;
+    }
     out << ", Student id: " << student_id_ << ", Study Year: " << study_year()
-        << ", GPA: " << gpa_ << std::endl;
+        << ", GPA: " << gpa_;
     return out;
   }
 
@@ -207,11 +217,16 @@ public:
   }
 
   std::ostream &operator<<(std::ostream &out) {
-    out << "Worker printer" << std::endl;
-    Person::operator<<(out);
+    if (!person_printer_has_run()) {
+      std::cerr << "Worker printer: calling Person printer." << std::endl;
+      Person::operator<<(out);
+    } else {
+      std::cerr << "Worker printer: Person printer has already been called."
+                  << std::endl;
+    }
     out << ", Badge number: " << badge_number_
         << ", Work Status: " << work_status()
-        << ", Start Date: " << start_date() << std::endl;
+        << ", Start Date: " << start_date();
     return out;
   }
 
@@ -232,6 +247,11 @@ public:
   StudentWorker(const struct person_details pd, const struct student_details sd,
                 const struct worker_details wd)
       : Person(pd), Student(pd, sd), Worker(pd, wd) {}
+  std::ostream &operator<<(std::ostream &out) {
+    Student::operator<<(out);
+    Worker::operator<<(out);
+    return out;
+  }
 };
 
 } // namespace people_roles

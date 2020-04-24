@@ -67,6 +67,7 @@ public:
   }
   ~PersonPrintTest() {
     cout.rdbuf(oldCoutStreamBuf);
+    cerr << "At test end, output is " << endl << strCout->str() << endl;
     delete strCout;
   }
   ostringstream *strCout;
@@ -84,7 +85,7 @@ TEST_F(PersonPrintTest, PersonExtractionOperator) {
   EXPECT_NE(string::npos,
             strCout->str().find("Name: Jane, Address: Leadville "
                                 "CO, Gender: Female, Birthday: May "
-                                "28, 1948\n"));
+                                "28, 1948"));
 }
 
 TEST_F(PersonPrintTest, StudentExtractionOperator) {
@@ -94,7 +95,7 @@ TEST_F(PersonPrintTest, StudentExtractionOperator) {
             strCout->str().find(
                 "Name: Jane, Address: Leadville CO, Gender: Female, "
                 "Birthday: May "
-                "28, 1948\n, Student id: 123, Study Year: Junior, GPA: 4.2\n"));
+                "28, 1948, Student id: 123, Study Year: Junior, GPA: 4.2"));
 }
 
 TEST_F(PersonPrintTest, WorkerExtractionOperator) {
@@ -103,8 +104,19 @@ TEST_F(PersonPrintTest, WorkerExtractionOperator) {
   EXPECT_NE(string::npos,
             strCout->str().find(
                 "Name: Jane, Address: Leadville CO, Gender: Female, "
-                "Birthday: May 28, 1948\n, Badge number: 1234, Work Status: "
-                "Full-time, Start Date: Mar 10, 1999\n"));
+                "Birthday: May 28, 1948, Badge number: 1234, Work Status: "
+                "Full-time, Start Date: Mar 10, 1999"));
+}
+
+TEST_F(PersonPrintTest, StudentWorkerExtractionOperator) {
+  StudentWorker jane(ad, bd, cd);
+  jane.operator<<(cout);
+  EXPECT_NE(string::npos,
+            strCout->str().find(
+                "Name: Jane, Address: Leadville CO, Gender: Female, "
+                "Birthday: May 28, 1948, Student id: 123, Study Year: Junior, "
+                "GPA: 4.2, Badge number: 1234, Work Status: Full-time, Start "
+                "Date: Mar 10, 1999"));
 }
 
 TEST(PersonDeathTest, IllegalYear) {
