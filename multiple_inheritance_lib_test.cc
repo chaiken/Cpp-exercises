@@ -52,19 +52,59 @@ TEST(PersonTest, CtorsTest) {
   EXPECT_EQ(0, jane4.start_date().compare("Mar 10, 1999"));
 }
 
-TEST(PersonTest, ExtractionOperators) {
-  Person jane1(ad);
-  ostringstream out;
-  out << jane1;
-  EXPECT_EQ("Name: Jane, Address: Leadville CO, Gender: Female, Birthday: May "
-            "28, 1948\n",
-            out.str());
-  Student jane2(ad, bd);
-  out.str().clear();
-  out << jane2;
-  EXPECT_EQ("Name: Jane, Address: Leadville CO, Gender: Female, Birthday: May "
-            "28, 1948\n, Student id: 123, Study Year: Junior, GPA: 4.2\n",
-            out.str());
+class PersonPrintTest : public testing::Test {
+  // Need to declare the old pointer first so that we can initialize this
+  // variable before the new one.
+private:
+  streambuf *oldCoutStreamBuf;
+
+public:
+  // See https://stackoverflow.com/questions/4810516/c-redirecting-stdout
+  // and async_logger_lib_test_improved.cc.
+  PersonPrintTest()
+      : oldCoutStreamBuf(cout.rdbuf()), strCout(new ostringstream) {
+    cout.rdbuf(strCout->rdbuf());
+  }
+  ~PersonPrintTest() {
+    cout.rdbuf(oldCoutStreamBuf);
+    delete strCout;
+  }
+  ostringstream *strCout;
+};
+
+TEST_F(PersonPrintTest, PersonExtractionOperator) {
+  Person jane(ad);
+  // Apparently without calling the object's method explicitly, the compiler is
+  // trying std::cout.
+  // clang-format off
+  // error: no match for ‘operator<<’ (operand types are ‘std::ostream’ {aka ‘std::basic_ostream<char>’} and ‘people_roles::Person’)
+  // clang-format on
+  // cout << jane;
+  jane.operator<<(cout);
+  EXPECT_NE(string::npos,
+            strCout->str().find("Name: Jane, Address: Leadville "
+                                "CO, Gender: Female, Birthday: May "
+                                "28, 1948\n"));
+}
+
+TEST_F(PersonPrintTest, StudentExtractionOperator) {
+  Student jane(ad, bd);
+  jane.operator<<(cout);
+  EXPECT_NE(string::npos,
+            strCout->str().find(
+                "Name: Jane, Address: Leadville CO, Gender: Female, "
+                "Birthday: May "
+                "28, 1948\n, Student id: 123, Study Year: Junior, GPA: 4.2\n"));
+}
+
+TEST_F(PersonPrintTest, WorkerExtractionOperator) {
+  Worker jane(ad, cd);
+  jane.operator<<(cout);
+  EXPECT_NE(string::npos,
+            strCout->str().find(
+                "Name: Jane, Address: Leadville CO, Gender: Female, "
+                "Birthday: May 28, 1948\n, Badge number: 1234, Work Status: "
+                "Full-time, Start Date: Mar 10, 1999\n"));
 }
 
 TEST(PersonDeathTest, IllegalYear) {

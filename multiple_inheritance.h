@@ -119,12 +119,18 @@ public:
       assert_perror(EINVAL);
     }
   }
-
   std::string name() const { return name_; }
   std::string address() const { return address_; }
   std::string gender() const;
   std::string birthday() const {
     return FormatDate(birth_day_of_month_, birth_month_, birth_year_);
+  }
+  std::ostream &operator<<(std::ostream &out) const {
+    out << "Person printer" << std::endl;
+    out << "Name: " << name_ << ", "
+        << "Address: " << address_ << ", "
+        << "Gender: " << gender() << ", Birthday: " << birthday() << std::endl;
+    return out;
   }
 
 protected:
@@ -154,17 +160,24 @@ public:
       assert_perror(EINVAL);
     }
   }
-  std::string study_year() const;
   int student_id() const { return student_id_; }
   double gpa() const { return gpa_; }
+  std::string study_year() const;
+
+  // Still not an override according to GCC.
+  std::ostream &operator<<(std::ostream &out) const {
+    out << "Student printer" << std::endl;
+    Person::operator<<(out);
+    out << ", Student id: " << student_id_ << ", Study Year: " << study_year()
+        << ", GPA: " << gpa_ << std::endl;
+    return out;
+  }
 
 protected:
   int student_id_;
   double gpa_;
   StudyYear y_;
 };
-
-std::ostream &operator<<(std::ostream &out, const Student &st);
 
 // "virtual public" prevents multiple Person objects being created by
 // StudentWorker's ctor.
@@ -193,6 +206,15 @@ public:
     return FormatDate(start_day_of_month_, start_month_, start_year_);
   }
 
+  std::ostream &operator<<(std::ostream &out) {
+    out << "Worker printer" << std::endl;
+    Person::operator<<(out);
+    out << ", Badge number: " << badge_number_
+        << ", Work Status: " << work_status()
+        << ", Start Date: " << start_date() << std::endl;
+    return out;
+  }
+
 protected:
   const unsigned int badge_number_;
   const unsigned int start_year_;
@@ -211,13 +233,6 @@ public:
                 const struct worker_details wd)
       : Person(pd), Student(pd, sd), Worker(pd, wd) {}
 };
-
-// Non-member functions in multiple_inheritance_lib.cc.
-// I had previously made extraction operators friends, but if all the data they
-// use has a const accessor function, there is no need.
-std::ostream &operator<<(std::ostream &out, const Person &person);
-std::ostream &operator<<(std::ostream &out, const Student &student);
-std::ostream &operator<<(std::ostream &out, const Worker &worker);
 
 } // namespace people_roles
 

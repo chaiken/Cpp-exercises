@@ -117,41 +117,6 @@ std::string FormatDate(const unsigned int day, const Month month,
   return date;
 }
 
-// Non-member printer functions
-std::ostream &operator<<(std::ostream &out, const Person &person) {
-  std::cout << "Person printer" << std::endl;
-  out << "Name: " << person.name() << ", "
-      << "Address: " << person.address() << ", "
-      << "Gender: " << person.gender() << ", Birthday: " << person.birthday()
-      << std::endl;
-  return out;
-}
-
-std::ostream &operator<<(std::ostream &out, const Student &st) {
-  std::cout << "Student printer" << std::endl;
-  if (typeid(Student) != typeid(st)) {
-    std::cerr << "typeid is " << typeid(st).name() << std::endl;
-  }
-
-  out << ", Student id: " << st.student_id()
-      << ", Study Year: " << st.study_year() << ", GPA: " << st.gpa()
-      << std::endl;
-  return out;
-}
-
-std::ostream &operator<<(std::ostream &out, const Worker &worker) {
-  std::cout << "Worker printer" << std::endl;
-  if (typeid(Worker) != typeid(worker)) {
-    std::cerr << "typeid is " << typeid(worker).name() << std::endl;
-  }
-
-  operator<<(out, worker);
-  out << ", Badge number: " << worker.badge_number()
-      << ", Work Status: " << worker.work_status()
-      << ", Start Date: " << worker.start_date() << std::endl;
-  return out;
-}
-
 //  Person member functions
 std::string Person::gender() const {
   std::map<Gender, std::string>::const_iterator it =
