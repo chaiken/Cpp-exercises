@@ -1,0 +1,12 @@
+FirstName: Bob, LastName: Johannson, Address: Leadville CO, Gender: M, BirthMonth: 5, BirthYear: 1948, BirthDate: 28, BadgeNumber: 1234, WorkStatus: R, StartMonth: 3, StartDate: 10, StartYear: 1999, #Worker1, Person2
+FirstName: Torsten, LastName: Paul, Address: Leadville CO, Gender: M, BirthMonth: 5, BirthYear: 1948, BirthDate: 28, ID: 123, StudyYear: J, GPA: 4.2, BadgeNumber: 1234, WorkStatus: F, StartMonth: 3, StartDate: 10, StartYear: 1999, #StudentWorker1, Student1, Worker2, Person3
+FirstName: Jane, LastName: #borked
+FirstName: Jane, LastName: Alsop, Address: Leadville CO, Gender: F, BirthMonth: 5, BirthYear: 1948, BirthDate: 28, #Person1
+FirstName: Bobby, LastName: Fuller, Address: Leadville CO, Gender: M, BirthMonth: 5, BirthYear: 1948, BirthDate: 28, #Person4
+
+FirstName: Dirk, LastName: Hast, Address: Leadville CO, Gender: M, BirthMonth: 5, BirthYear: 1948, BirthDate: 28, ID: 123, StudyYear: J, GPA: 4.2, #Student2, Person5
+FirstName: Jewlia, LastName: Behme, Address: Leadville CO, Gender: F, BirthMonth: 5, BirthYear: 1948, BirthDate: 28, ID: 123, StudyYear: J, GPA: 4.2, BadgeNumber: 1234, WorkStatus: P, StartMonth: 3, StartDate: 10, StartYear: 1999, #StudentWorker2, Student3, Worker3, Person6
+FirstName: Carla, LastName: Goldberg, Address: Leadville CO, Gender: F, BirthMonth: 5, BirthYear: 1948, BirthDate: 28, BadgeNumber: 1234, WorkStatus: F, StartMonth: 3, StartDate: 10, StartYear: 1999, #Worker4, Person7
+FirstName: Billie, LastName: Goldberg, Address: Leadville CO, Gender: F, BirthMonth: 5, BirthYear: 1948, BirthDate: 28, ID: 123, StudyYear: J, GPA: 4.2, #Student4, Person8
+FirstName: Davidlohr, LastName: Morton, Address: Leadville CO, Gender: M, BirthMonth: 5, BirthYear: 1948, BirthDate: 28, ID: 123, StudyYear: J, GPA: 4.2, BadgeNumber: 1234, WorkStatus: R, StartMonth: 3, StartDate: 10, StartYear: 1999, #StudentWorker3, Student5, Worker5, Person9
+FirstName: Ben, LastName: Bueno, Address: Leadville CO, Gender: M, BirthMonth: 5, BirthYear: 1948, BirthDate: 28, ID: 123, StudyYear: J, GPA: 4.2, BadgeNumber: 1234, WorkStatus: P, StartMonth: 3, StartDate: 10, 1999, # borked as Worker, Student6, Person10

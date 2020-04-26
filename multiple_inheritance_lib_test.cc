@@ -11,6 +11,25 @@ const struct person_details ad(1948, 5, 28, "Jane", "Alsop", "Leadville CO",
                                "F");
 const struct student_details bd(StudyYear::kJunior, 123, 4.2);
 const struct worker_details cd(1234, 1999, 3, 10, "F");
+persons_array pa;
+
+/*
+  clang-format off
+  Bjarne Stroustrup, _A Tour of C++_, 2nd edition, p. 166:
+  'Where do we use smart pointers (such as unique_ptr) rather than
+  resource handles with operations designed specifically for the
+  resource (such as vector or thread)?  Unsurprisingly, the answer is
+  "when we need pointer semantics."'
+  -- When we refer to a polymorphic object in classical
+     object-oriented code, we need a pointer (or reference) because we
+     don't know the exact type of the object referred to (or even its
+     size), so a unique_ptr becomes the obvious choice.
+  -- A shared polymorphic object typically requires shared_ptrs.
+  clang-format on
+*/
+std::list<std::shared_ptr<Person>> person_list, student_list, worker_list,
+    sw_list;
+persons_array plists{person_list, student_list, worker_list, sw_list};
 
 TEST(PersonTest, CtorsTest) {
   Person jane(ad);
@@ -135,6 +154,307 @@ TEST_F(PersonPrintTest, StudentWorkerExtractionOperator) {
                 "Birthday: May 28, 1948, Student id: 123, Study Year: Junior, "
                 "GPA: 4.2, Badge number: 1234, Work Status: Full-time, Start "
                 "Date: Mar 10, 1999"));
+}
+
+TEST(ItemParsingTest, GoodItem) {
+  const std::string item = "FirstName: Jane, LastName: Alsop, Address: "
+                           "Leadville, CO, Gender: Female, BirthYear: "
+                           "1994, BirthMonth: May, BirthDate: 28";
+  std::string response = GetDetail(item, "FirstName");
+  EXPECT_EQ(0, response.compare("Jane"));
+}
+
+TEST(ItemParsingTest, BadItem) {
+  const std::string item = "FirstName: Jane, LastName: Alsop, 28";
+  std::string response = GetDetail(item, "birth_month");
+  EXPECT_EQ(0, response.compare("Unknown"));
+}
+
+TEST(ItemParsingTest, GoodStudentDetails) {
+  bool is_person = false, is_student = false, is_worker = false;
+  const std::string item =
+      "LastName: Alsop, FirstName: Jane, Address: Leadville CO, Gender: "
+      "Female, BirthYear: 1948, BirthMonth: 5, BirthDate: 28, ID: 123, "
+      "StudyYear: J, GPA: 4.2";
+  const struct person_details pd = PopulatePersonDetails(item, &is_person);
+  const struct student_details sd = PopulateStudentDetails(item, &is_student);
+  const struct worker_details wd = PopulateWorkerDetails(item, &is_worker);
+  EXPECT_TRUE(is_student);
+  EXPECT_FALSE(is_worker);
+  EXPECT_EQ(1948u, pd.birth_year);
+  EXPECT_EQ(5u, pd.birth_month);
+  EXPECT_EQ(28u, pd.birth_day_of_month);
+  EXPECT_EQ(0, pd.first_name.compare("Jane"));
+  EXPECT_EQ(0, pd.last_name.compare("Alsop"));
+  EXPECT_EQ(0, pd.address.compare("Leadville CO"));
+  EXPECT_EQ(0, pd.gender.compare("Female"));
+  EXPECT_EQ(StudyYear::kJunior, sd.y);
+  EXPECT_EQ(123, sd.id);
+  EXPECT_EQ(4.2, sd.GPA);
+  EXPECT_EQ(0u, wd.badge_number);
+  EXPECT_EQ(0u, wd.start_year);
+  EXPECT_EQ(0u, wd.start_month);
+  EXPECT_EQ(0u, wd.start_day_of_month);
+  EXPECT_EQ("Unknown", wd.work_status);
+}
+
+TEST(ItemParsingTest, BadStudentDetails) {
+  bool is_person = false, is_student = false, is_worker = false;
+  // StudyYear should be 'J'.  "gpa" should be capitalized.
+  const std::string item =
+      "LastName: Alsop, FirstName: Jane, Address: Leadville CO, Gender: "
+      "Female, BirthYear: 1948, BirthMonth: 5, BirthDate: 28, ID: 123, "
+      "StudyYear: Junior, gpa: 4.2";
+  const struct person_details pd = PopulatePersonDetails(item, &is_person);
+  const struct student_details sd = PopulateStudentDetails(item, &is_student);
+  EXPECT_FALSE(is_student);
+  EXPECT_FALSE(is_worker);
+  EXPECT_EQ(1948u, pd.birth_year);
+  EXPECT_EQ(5u, pd.birth_month);
+  EXPECT_EQ(28u, pd.birth_day_of_month);
+  EXPECT_EQ(0, pd.first_name.compare("Jane"));
+  EXPECT_EQ(0, pd.last_name.compare("Alsop"));
+  EXPECT_EQ(0, pd.address.compare("Leadville CO"));
+  EXPECT_EQ(0, pd.gender.compare("Female"));
+  EXPECT_EQ(StudyYear::kUnknown, sd.y);
+  EXPECT_EQ(123, sd.id);
+  EXPECT_EQ(-1.0, sd.GPA);
+}
+
+TEST(ItemParsingTest, GoodWorkerDetails) {
+  bool is_person = false, is_student = false, is_worker = false;
+  const std::string item =
+      "FirstName: Jane, LastName: Alsop, Address: Leadville CO, Gender: "
+      "Female, BirthDate: 28, BirthYear: 1948, BirthMonth: 5, BadgeNumber: "
+      "1234, WorkStatus: Full-time, StartDate: 10, StartMonth: 3, StartYear: "
+      "1999";
+  const struct person_details pd = PopulatePersonDetails(item, &is_person);
+  const struct student_details sd = PopulateStudentDetails(item, &is_student);
+  const struct worker_details wd = PopulateWorkerDetails(item, &is_worker);
+  EXPECT_FALSE(is_student);
+  EXPECT_TRUE(is_worker);
+  EXPECT_EQ(1948u, pd.birth_year);
+  EXPECT_EQ(5u, pd.birth_month);
+  EXPECT_EQ(28u, pd.birth_day_of_month);
+  EXPECT_EQ(0, pd.first_name.compare("Jane"));
+  EXPECT_EQ(0, pd.last_name.compare("Alsop"));
+  EXPECT_EQ(0, pd.address.compare("Leadville CO"));
+  EXPECT_EQ(0, pd.gender.compare("Female"));
+  EXPECT_EQ(StudyYear::kUnknown, sd.y);
+  EXPECT_EQ(-1.0, sd.id);
+  EXPECT_EQ(-1.0, sd.GPA);
+  EXPECT_EQ(1234u, wd.badge_number);
+  EXPECT_EQ(1999u, wd.start_year);
+  EXPECT_EQ(3u, wd.start_month);
+  EXPECT_EQ(10u, wd.start_day_of_month);
+  EXPECT_EQ("Full-time", wd.work_status);
+}
+
+TEST(ItemParsingTest, BadWorkerDetails) {
+  bool is_person = false, is_student = false, is_worker = false;
+  // Missing comma.
+  const std::string item =
+      "FirstName: Jane, LastName: Alsop, Address: Leadville CO, Gender: "
+      "Female,  BirthMonth: 5, BirthDate: 28, BirthYear: 1948, Badge number: "
+      "1234 WorkStatus: Full-time, StartDate: 10, StartMonth: 3, StartYear: "
+      "1999";
+  const struct person_details pd = PopulatePersonDetails(item, &is_person);
+  const struct worker_details wd = PopulateWorkerDetails(item, &is_worker);
+  EXPECT_FALSE(is_student);
+  EXPECT_FALSE(is_worker);
+  EXPECT_EQ(1948u, pd.birth_year);
+  EXPECT_EQ(5u, pd.birth_month);
+  EXPECT_EQ(28u, pd.birth_day_of_month);
+  EXPECT_EQ(0, pd.first_name.compare("Jane"));
+  EXPECT_EQ(0, pd.last_name.compare("Alsop"));
+  EXPECT_EQ(0, pd.address.compare("Leadville CO"));
+  EXPECT_EQ(0, pd.gender.compare("Female"));
+  EXPECT_EQ(0u, wd.badge_number);
+  EXPECT_EQ(1999u, wd.start_year);
+  EXPECT_EQ(3u, wd.start_month);
+  EXPECT_EQ(10u, wd.start_day_of_month);
+  EXPECT_EQ("Full-time", wd.work_status);
+}
+
+TEST(ItemParsingTest, GoodStudentWorkerDetails) {
+  bool is_person = false, is_student = false, is_worker = false;
+  const std::string item =
+      "FirstName: Jane, LastName: Alsop, Address: Leadville CO, Gender: "
+      "Female, BirthDate: 28, BirthYear: 1948, BirthMonth: 5, BadgeNumber: "
+      "1234, WorkStatus: Full-time, StartMonth: 3, StartDate: 10, StartYear: "
+      "1999,  ID: 123, StudyYear: J, GPA: 4.2";
+  const struct person_details pd = PopulatePersonDetails(item, &is_person);
+  const struct student_details sd = PopulateStudentDetails(item, &is_student);
+  const struct worker_details wd = PopulateWorkerDetails(item, &is_worker);
+  EXPECT_TRUE(is_student);
+  EXPECT_TRUE(is_worker);
+  EXPECT_EQ(1948u, pd.birth_year);
+  EXPECT_EQ(StudyYear::kJunior, sd.y);
+  EXPECT_EQ(1234u, wd.badge_number);
+}
+
+TEST(ItemParsingTest, BadPersonDetails) {
+  bool is_person = false, is_student = false, is_worker = false;
+  // Month should be a number.
+  const std::string item = "FirstName: Jane, LastName: Alsop, Address: "
+                           "Leadville CO, Gender: Female, BirthYear: "
+                           "1994, BirthMonth: May, BirthDate: 28";
+  const struct person_details pd = PopulatePersonDetails(item, &is_person);
+  EXPECT_FALSE(is_person);
+  EXPECT_FALSE(is_student);
+  EXPECT_FALSE(is_worker);
+  EXPECT_EQ(0u, pd.birth_month);
+  EXPECT_EQ(1994u, pd.birth_year);
+  EXPECT_EQ(28u, pd.birth_day_of_month);
+  EXPECT_EQ(0, pd.first_name.compare("Jane"));
+  EXPECT_EQ(0, pd.last_name.compare("Alsop"));
+  EXPECT_EQ(0, pd.address.compare("Leadville CO"));
+  EXPECT_EQ(0, pd.gender.compare("Female"));
+}
+
+void ClearLists() {
+  for (unsigned int i = 0u; i < number_person_types; i++) {
+    pa[i].clear();
+  }
+}
+
+TEST(ListPopulationTest, GoodPersonTest) {
+  const std::string item = "FirstName: Jane, LastName: Alsop, Address: "
+                           "Leadville CO, Gender: Female, BirthYear: "
+                           "1994, BirthMonth: 5, BirthDate: 28";
+  ClearLists();
+  EXPECT_TRUE(pa[GetPersonIndex(PersonType::Person)].empty());
+  ProcessPerson(item, &pa);
+  EXPECT_FALSE(pa[GetPersonIndex(PersonType::Person)].empty());
+  EXPECT_TRUE(pa[GetPersonIndex(PersonType::Student)].empty());
+  EXPECT_TRUE(pa[GetPersonIndex(PersonType::Worker)].empty());
+  EXPECT_TRUE(pa[GetPersonIndex(PersonType::StudentWorker)].empty());
+  EXPECT_TRUE(pa[GetPersonIndex(PersonType::Person)].back()->is_type("Person"));
+  EXPECT_FALSE(
+      pa[GetPersonIndex(PersonType::Person)].back()->is_type("Student"));
+  EXPECT_FALSE(
+      pa[GetPersonIndex(PersonType::Person)].back()->is_type("Worker"));
+}
+
+TEST(ListPopulationTest, BadPersonTest) {
+  const std::string item = "FirstName: Jane, LastName: Alsop, Address: "
+                           "Leadville CO, Gender: female, BirthYear: "
+                           "1994, BirthMonth: May, BirthDate: 28";
+  ClearLists();
+  EXPECT_TRUE(pa[GetPersonIndex(PersonType::Person)].empty());
+  ProcessPerson(item, &pa);
+  EXPECT_TRUE(pa[GetPersonIndex(PersonType::Person)].empty());
+}
+
+TEST(ListPopulationTest, GoodStudentTest) {
+  const std::string item =
+      "LastName: Alsop, FirstName: Jane, Address: Leadville CO, Gender: "
+      "Female, BirthYear: 1948, BirthMonth: 5, BirthDate: 28, ID: 123, "
+      "StudyYear: J, GPA: 4.2";
+  ClearLists();
+  EXPECT_TRUE(pa[GetPersonIndex(PersonType::Student)].empty());
+  ProcessPerson(item, &pa);
+  EXPECT_FALSE(pa[GetPersonIndex(PersonType::Person)].empty());
+  EXPECT_FALSE(pa[GetPersonIndex(PersonType::Student)].empty());
+  EXPECT_TRUE(pa[GetPersonIndex(PersonType::Worker)].empty());
+  EXPECT_TRUE(pa[GetPersonIndex(PersonType::StudentWorker)].empty());
+  EXPECT_TRUE(pa[GetPersonIndex(PersonType::StudentWorker)].empty());
+  EXPECT_TRUE(
+      pa[GetPersonIndex(PersonType::Person)].back()->is_type("Student"));
+  EXPECT_FALSE(
+      pa[GetPersonIndex(PersonType::Person)].back()->is_type("Person"));
+  EXPECT_TRUE(
+      pa[GetPersonIndex(PersonType::Student)].back()->is_type("Student"));
+  EXPECT_FALSE(
+      pa[GetPersonIndex(PersonType::Student)].back()->is_type("Worker"));
+}
+
+TEST(ListPopulationTest, BadStudentTest) {
+  const std::string item =
+      "LastName: Alsop, FirstName: Jane, Address: Leadville CO, Gender: "
+      "Female, BirthYear: 1948, BirthMonth: 5, BirthDate: 28, ID: 123, "
+      "StudyYear: Junior, gpa: 4.2";
+  ClearLists();
+  EXPECT_TRUE(pa[GetPersonIndex(PersonType::Student)].empty());
+  ProcessPerson(item, &pa);
+  EXPECT_FALSE(pa[GetPersonIndex(PersonType::Person)].empty());
+  EXPECT_FALSE(
+      pa[GetPersonIndex(PersonType::Person)].back()->is_type("Student"));
+  EXPECT_TRUE(pa[GetPersonIndex(PersonType::Student)].empty());
+}
+
+TEST(ListPopulationTest, GoodWorkerTest) {
+  const std::string item =
+      "FirstName: Jane, LastName: Alsop, Address: Leadville CO, Gender: "
+      "Female, BirthDate: 28, BirthYear: 1948, BirthMonth: 5, BadgeNumber: "
+      "1234, WorkStatus: Full-time, StartDate: 10, StartMonth: 3, StartYear: "
+      "1999";
+  ClearLists();
+  EXPECT_TRUE(pa[GetPersonIndex(PersonType::Worker)].empty());
+  ProcessPerson(item, &pa);
+  EXPECT_FALSE(pa[GetPersonIndex(PersonType::Worker)].empty());
+  EXPECT_TRUE(pa[GetPersonIndex(PersonType::Person)].back()->is_type("Worker"));
+  EXPECT_FALSE(
+      pa[GetPersonIndex(PersonType::Person)].back()->is_type("Person"));
+  EXPECT_TRUE(pa[GetPersonIndex(PersonType::Worker)].back()->is_type("Worker"));
+  EXPECT_FALSE(
+      pa[GetPersonIndex(PersonType::Worker)].back()->is_type("Student"));
+}
+
+TEST(ListPopulationTest, BadWorkerTest) {
+  // Missing comma.
+  const std::string item =
+      "FirstName: Jane, LastName: Alsop, Address: Leadville CO, Gender: "
+      "Female,  BirthMonth: 5, BirthDate: 28, BirthYear: 1948, Badge number: "
+      "1234 WorkStatus: Full-time, StartDate: 10, StartMonth: 3, StartYear: "
+      "1999";
+  ClearLists();
+  EXPECT_TRUE(pa[GetPersonIndex(PersonType::Worker)].empty());
+  ProcessPerson(item, &pa);
+  EXPECT_FALSE(pa[GetPersonIndex(PersonType::Person)].empty());
+  EXPECT_TRUE(pa[GetPersonIndex(PersonType::Worker)].empty());
+  EXPECT_TRUE(pa[GetPersonIndex(PersonType::Person)].back()->is_type("Person"));
+  EXPECT_FALSE(
+      pa[GetPersonIndex(PersonType::Person)].back()->is_type("Worker"));
+}
+
+TEST(ListPopulationTest, GoodStudentWorkerTest) {
+  const std::string item =
+      "FirstName: Jane, LastName: Alsop, Address: Leadville CO, Gender: "
+      "Female, BirthDate: 28, BirthYear: 1948, BirthMonth: 5, BadgeNumber: "
+      "1234, WorkStatus: Full-time, StartMonth: 3, StartDate: 10, StartYear: "
+      "1999,  ID: 123, StudyYear: J, GPA: 4.2";
+  ClearLists();
+  EXPECT_TRUE(pa[GetPersonIndex(PersonType::StudentWorker)].empty());
+  ProcessPerson(item, &pa);
+  EXPECT_FALSE(pa[GetPersonIndex(PersonType::StudentWorker)].empty());
+  EXPECT_TRUE(
+      pa[GetPersonIndex(PersonType::Person)].back()->is_type("StudentWorker"));
+  EXPECT_FALSE(
+      pa[GetPersonIndex(PersonType::Person)].back()->is_type("Person"));
+  EXPECT_TRUE(pa[GetPersonIndex(PersonType::StudentWorker)].back()->is_type(
+      "StudentWorker"));
+  // True based on how is_type() is defined for StudentWorker.
+  EXPECT_TRUE(
+      pa[GetPersonIndex(PersonType::StudentWorker)].back()->is_type("Student"));
+  EXPECT_TRUE(
+      pa[GetPersonIndex(PersonType::StudentWorker)].back()->is_type("Worker"));
+}
+
+TEST(ListPopulationTest, BadStudentWorkerTest) {
+  const std::string item =
+      "FirstName: Jane, LastName: Alsop, Address: Leadville CO, Gender: "
+      "Female, BirthDate: 28, BirthYear: 1948, BirthMonth: 5, BadgeNumber: "
+      "1234, WorkStatus: Full-time, StartMonth: March, StartDate: 10, "
+      "StartYear: 1999,  ID: 123, StudyYear: J, gpa: 4.2";
+  ClearLists();
+  EXPECT_TRUE(pa[GetPersonIndex(PersonType::StudentWorker)].empty());
+  ProcessPerson(item, &pa);
+  EXPECT_FALSE(pa[GetPersonIndex(PersonType::Person)].empty());
+  EXPECT_TRUE(pa[GetPersonIndex(PersonType::StudentWorker)].empty());
+  EXPECT_TRUE(pa[GetPersonIndex(PersonType::Person)].back()->is_type("Person"));
+  EXPECT_FALSE(
+      pa[GetPersonIndex(PersonType::Person)].back()->is_type("StudentWorker"));
 }
 
 TEST(PersonDeathTest, IllegalYear) {

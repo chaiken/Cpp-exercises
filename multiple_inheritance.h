@@ -5,10 +5,15 @@
 #include <ctime>
 
 #include <iostream>
+#include <list>
 #include <map>
+#include <memory>
 #include <type_traits>
 
 namespace people_roles {
+
+constexpr uint32_t number_person_types = 4u;
+enum class PersonType { Person, Student, Worker, StudentWorker };
 
 enum class Month {
   kJan,
@@ -70,6 +75,10 @@ const std::map<WorkStatus, std::string> WorkStatusDescription = {
     {WorkStatus::kUnknown, "Unknown"}};
 
 struct person_details {
+  person_details()
+      : birth_year(0u), birth_month(0u), birth_day_of_month(0u),
+        first_name("Unknown"), last_name("Unknown"), address("Unknown"),
+        gender("Unknown") {}
   person_details(unsigned int by, unsigned int bm, unsigned int bdom,
                  std::string fn, std::string ln, std::string a, std::string g)
       : birth_year(by), birth_month(bm), birth_day_of_month(bdom),
@@ -86,6 +95,7 @@ struct person_details {
 // student_details could inherit from person_details, but what would be the
 // benefit?
 struct student_details {
+  student_details() : y(StudyYear::kUnknown), id(-1), GPA(-1.0) {}
   student_details(StudyYear a, int b, double c) : y(a), id(b), GPA(c) {}
   StudyYear y;
   const int id;
@@ -93,6 +103,9 @@ struct student_details {
 };
 
 struct worker_details {
+  worker_details()
+      : badge_number(0u), start_year(0u), start_month(0u),
+        start_day_of_month(0u), work_status("Unknown") {}
   worker_details(unsigned int bn, unsigned int sy, unsigned int sm,
                  unsigned int dom, std::string ws)
       : badge_number(bn), start_year(sy), start_month(sm),
@@ -123,6 +136,7 @@ public:
     }
   }
 
+  virtual PersonType person_type() const { return PersonType::Person; }
   std::string first_name() const { return first_name_; }
   std::string last_name() const { return last_name_; }
   std::string address() const { return address_; }
@@ -132,13 +146,8 @@ public:
   }
   bool person_printer_has_run() { return printer_has_run_; }
 
-  std::ostream &operator<<(std::ostream &out) {
-    printer_has_run_ = true;
-    out << "Name: " << first_name_ << " " << last_name_ << ", "
-        << "Address: " << address_ << ", "
-        << "Gender: " << gender() << ", Birthday: " << birthday();
-    return out;
-  }
+  std::ostream &operator<<(std::ostream &out);
+  // Cannot check for exact match due to name mangling.
   bool is_type(const std::string &tname) const {
     return (std::string::npos != type_name().find(tname));
   }
@@ -180,23 +189,13 @@ public:
       assert_perror(EINVAL);
     }
   }
+  PersonType person_type() const { return PersonType::Student; }
   int student_id() const { return student_id_; }
   double gpa() const { return gpa_; }
   std::string study_year() const;
 
   // Still not an override according to GCC.
-  std::ostream &operator<<(std::ostream &out) {
-    if (!person_printer_has_run()) {
-      std::cerr << "Student printer: calling Person printer." << std::endl;
-      Person::operator<<(out);
-    } else {
-      std::cerr << "Student printer: Person printer has already been called."
-                << std::endl;
-    }
-    out << ", Student id: " << student_id_ << ", Study Year: " << study_year()
-        << ", GPA: " << gpa_;
-    return out;
-  }
+  std::ostream &operator<<(std::ostream &out);
 
 protected:
   int student_id_;
@@ -223,6 +222,7 @@ public:
       assert_perror(EINVAL);
     }
   }
+  PersonType person_type() const { return PersonType::Worker; }
   unsigned int badge_number() const { return badge_number_; }
   std::string work_status() const {
     return WorkStatusDescription.find(work_status_)->second;
@@ -231,19 +231,7 @@ public:
     return FormatDate(start_day_of_month_, start_month_, start_year_);
   }
 
-  std::ostream &operator<<(std::ostream &out) {
-    if (!person_printer_has_run()) {
-      std::cerr << "Worker printer: calling Person printer." << std::endl;
-      Person::operator<<(out);
-    } else {
-      std::cerr << "Worker printer: Person printer has already been called."
-                << std::endl;
-    }
-    out << ", Badge number: " << badge_number_
-        << ", Work Status: " << work_status()
-        << ", Start Date: " << start_date();
-    return out;
-  }
+  std::ostream &operator<<(std::ostream &out);
 
 protected:
   const unsigned int badge_number_;
@@ -262,17 +250,50 @@ public:
   StudentWorker(const struct person_details pd, const struct student_details sd,
                 const struct worker_details wd)
       : Person(pd), Student(pd, sd), Worker(pd, wd) {}
+  std::ostream &operator<<(std::ostream &out);
+  PersonType person_type() const { return PersonType::StudentWorker; }
 
-  std::ostream &operator<<(std::ostream &out) {
-    Student::operator<<(out);
-    Worker::operator<<(out);
-    return out;
-  }
   bool is_student_worker() const {
     return (is_type("Student") && is_type("Worker"));
   }
 };
 
-} // namespace people_roles
+// Non-member functions defined in multiple_inheritance_lib.cc.  These
+// functions are visible in the people_roles namespace only so that
+// tests can access them.
 
+// Find data fields that terminate with ": " and include all data up until the
+// next comma on a newline in them.
+std::string GetDetail(const std::string item, const std::string detail);
+
+// Process Person data so that is suitable for constructing person_details,
+// indicating error on failure.
+struct person_details PopulatePersonDetails(const std::string item,
+                                            bool *is_person);
+// Process Person data so that is suitable for constructing student_details,
+// indicating error on failure.
+struct student_details PopulateStudentDetails(const std::string item,
+                                              bool *is_student);
+// Process Person data so that is suitable for constructing worker_details,
+// indicating error on failure.
+struct worker_details PopulateWorkerDetails(const std::string item,
+                                            bool *is_worker);
+
+// The kind of array in which lists of Person pointers are stored.
+typedef std::array<std::list<std::shared_ptr<Person>>, number_person_types>
+    persons_array;
+
+// Return the index in a persons_array where the given PersonType
+// appears.  Must have number_person_types values and be consistent
+// with the enum class PersonType.
+unsigned int GetPersonIndex(PersonType pt);
+
+// Process data item and classify person based on contents, then place on any
+// applicable Person-type lists.
+void ProcessPerson(const std::string &item, persons_array *pa);
+
+// Given a file containing data about Persons, populate them into the 4 lists.
+void PopulateLists(const std::string &file_path, persons_array *pa);
+
+} // namespace people_roles
 #endif
