@@ -2,6 +2,8 @@
 
 #include "gtest/gtest.h"
 
+#include <type_traits>
+
 using namespace std;
 
 namespace people_roles {
@@ -455,6 +457,51 @@ TEST(ListPopulationTest, BadStudentWorkerTest) {
   EXPECT_TRUE(pa[GetPersonIndex(PersonType::Person)].back()->is_type("Person"));
   EXPECT_FALSE(
       pa[GetPersonIndex(PersonType::Person)].back()->is_type("StudentWorker"));
+}
+
+TEST(FileIOTest, BasicTest) {
+  ClearLists();
+  PopulateLists(
+      "/home/alison/gitsrc/Cpp-Exercises/multiple_inheritance_test_data.txt",
+      &pa);
+  EXPECT_FALSE(pa[GetPersonIndex(PersonType::Person)].empty());
+  EXPECT_FALSE(pa[GetPersonIndex(PersonType::Student)].empty());
+  EXPECT_FALSE(pa[GetPersonIndex(PersonType::Worker)].empty());
+  EXPECT_FALSE(pa[GetPersonIndex(PersonType::StudentWorker)].empty());
+  cerr << endl << "Persons";
+  PrintList(pa[GetPersonIndex(PersonType::Person)]);
+  cerr << endl << "Students";
+  PrintList(pa[GetPersonIndex(PersonType::Student)]);
+  cerr << endl << "Workers";
+  PrintList(pa[GetPersonIndex(PersonType::Worker)]);
+  cerr << endl << "StudentWorkers";
+  PrintList(pa[GetPersonIndex(PersonType::StudentWorker)]);
+  EXPECT_EQ(10u, pa[GetPersonIndex(PersonType::Person)].size());
+  EXPECT_EQ(6u, pa[GetPersonIndex(PersonType::Student)].size());
+  EXPECT_EQ(5u, pa[GetPersonIndex(PersonType::Worker)].size());
+  EXPECT_EQ(3u, pa[GetPersonIndex(PersonType::StudentWorker)].size());
+}
+
+TEST(SortingTest, PersonTest) {
+  ClearLists();
+  PopulateLists(
+      "/home/alison/gitsrc/Cpp-Exercises/multiple_inheritance_test_data.txt",
+      &pa);
+  EXPECT_EQ(10u, pa[GetPersonIndex(PersonType::Person)].size());
+  EXPECT_EQ("Johannson",
+            pa[GetPersonIndex(PersonType::Person)].front().get()->last_name());
+  EXPECT_EQ("Bueno",
+            pa[GetPersonIndex(PersonType::Person)].back().get()->last_name());
+  cerr << endl << "Unsorted Persons:";
+  PrintList(pa[GetPersonIndex(PersonType::Person)]);
+  SortLists(&pa);
+  EXPECT_EQ(10u, pa[GetPersonIndex(PersonType::Person)].size());
+  EXPECT_EQ("Alsop",
+            pa[GetPersonIndex(PersonType::Person)].front().get()->last_name());
+  EXPECT_EQ("Paul",
+            pa[GetPersonIndex(PersonType::Person)].back().get()->last_name());
+  cerr << endl << "Sorted Persons";
+  PrintList(pa[GetPersonIndex(PersonType::Person)]);
 }
 
 TEST(PersonDeathTest, IllegalYear) {

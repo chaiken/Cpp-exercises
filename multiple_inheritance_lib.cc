@@ -174,6 +174,24 @@ std::string FormatDate(const unsigned int day, const Month month,
   return date;
 }
 
+void PrintList(const std::list<std::shared_ptr<Person>> &pl) {
+  std::string tn = typeid(*(pl.front().get())).name();
+  std::cout << std::endl << "List of " << tn << std::endl;
+  for (auto x : pl) {
+    x.get()->operator<<(std::cout);
+    std::cout << std::endl;
+  }
+}
+
+void PrintListArray(const persons_array pa) {
+  int i = number_person_types - 1;
+  std::cout << std::endl;
+  for (auto x : pa) {
+    PrintList(pa[i]);
+    i--;
+  }
+}
+
 std::string GetDetail(const std::string item, const std::string detail) {
   const size_t cursor = item.find(detail);
   if (std::string::npos == cursor) {
@@ -246,7 +264,7 @@ void ProcessPerson(const std::string &item, persons_array *pa) {
   const struct person_details pd = PopulatePersonDetails(item, &is_person);
   const struct student_details sd = PopulateStudentDetails(item, &is_student);
   const struct worker_details wd = PopulateWorkerDetails(item, &is_worker);
-  if (!is_person) {
+  if (item.empty() || (!is_person)) {
     std::cerr << "Illegal person data: " << item << std::endl;
     return;
   }
@@ -262,7 +280,6 @@ void ProcessPerson(const std::string &item, persons_array *pa) {
       std::shared_ptr<Person> astudent(new Student(pd, sd));
       (*pa)[GetPersonIndex(PersonType::Person)].push_back(astudent);
       (*pa)[GetPersonIndex(PersonType::Student)].push_back(astudent);
-      std::cout << "Pushing a Student" << std::endl;
     }
   } else {
     if (is_worker) {
@@ -272,7 +289,6 @@ void ProcessPerson(const std::string &item, persons_array *pa) {
     } else {
       std::shared_ptr<Person> aperson(new Person(pd));
       (*pa)[GetPersonIndex(PersonType::Person)].push_back(aperson);
-      (*pa)[GetPersonIndex(PersonType::Person)].push_back(aperson);
     }
   }
 }
@@ -280,10 +296,10 @@ void ProcessPerson(const std::string &item, persons_array *pa) {
 void PopulateLists(const std::string &file_path, persons_array *pa) {
   assert(!file_path.empty());
   // Calls open() implicitly.
-  std::ifstream in_file(file_path, std::ifstream::in);
-  std::string item;
+  std::ifstream in_file(file_path);
   if (in_file.is_open()) {
     while (in_file.good()) {
+      std::string item;
       std::getline(in_file, item);
       if (!item.empty()) {
         if (std::string::npos == item.find("LastName: ")) {
@@ -294,10 +310,34 @@ void PopulateLists(const std::string &file_path, persons_array *pa) {
       }
     }
   } else {
-    std::cerr << "Open of file " << file_path << "failed." << std::endl;
-    assert_perror(EPERM);
+    std::ios::iostate is = in_file.rdstate();
+    if ((is & std::ifstream::failbit) != 0) {
+      std::cerr << "Logical error on I/O operation for " << file_path << "."
+                << std::endl;
+    }
+    if ((is & std::ifstream::badbit) != 0) {
+      std::cerr << "Read/writing error on I/O operation for " << file_path
+                << "." << std::endl;
+    }
+    if ((is & std::ifstream::eofbit) != 0) {
+      std::cerr << "EOF on I/O operation for " << file_path << "." << std::endl;
+    }
+    return;
+    //    assert_perror(EPERM);
   }
+
   in_file.close();
+}
+
+bool last_name_comparison(const std::shared_ptr<Person> first,
+                          const std::shared_ptr<Person> second) {
+  return (first.get()->last_name() < second.get()->last_name());
+}
+
+void SortLists(persons_array *unsorted) {
+  for (uint32_t i = 0u; i < number_person_types; i++) {
+    (*unsorted)[i].sort(last_name_comparison);
+  }
 }
 
 //  Person member functions
@@ -312,7 +352,7 @@ std::string Person::gender() const {
 }
 
 std::ostream &Person::operator<<(std::ostream &out) {
-  printer_has_run_ = true;
+  set_printer_has_run(true);
   out << "Name: " << first_name_ << " " << last_name_ << ", "
       << "Address: " << address_ << ", "
       << "Gender: " << gender() << ", Birthday: " << birthday();
@@ -334,29 +374,57 @@ std::string Student::study_year() const {
 }
 
 std::ostream &Student::operator<<(std::ostream &out) {
-  if (!person_printer_has_run()) {
-    std::cerr << "Student printer: calling Person printer." << std::endl;
+  if (!printer_has_run()) {
     Person::operator<<(out);
-  } else {
+  }
+#ifdef DEBUG
+  else {
     std::cerr << "Student printer: Person printer has already been called."
               << std::endl;
   }
+#endif
   out << ", Student id: " << student_id_ << ", Study Year: " << study_year()
       << ", GPA: " << gpa_;
+  // The cast succeeds when the Person is a StudentWorker, but fails for a plain
+  // Student, which is just what is needed here. This type detection method
+  // comes from Stroustrup's _A Tour of C++_, 2nd Edition, p. 61.
+  Worker *w = dynamic_cast<Worker *>(this);
+  if (nullptr == w) {
+#ifdef DEBUG
+    std::cerr << "***Worker cast failed.***" << std::endl;
+#endif
+    set_printer_has_run(false);
+  }
   return out;
 }
 
 // Worker member functions.
 std::ostream &Worker::operator<<(std::ostream &out) {
-  if (!person_printer_has_run()) {
+  if (!printer_has_run()) {
+#ifdef DEBUG
     std::cerr << "Worker printer: calling Person printer." << std::endl;
+#endif
     Person::operator<<(out);
-  } else {
-    std::cerr << "Worker printer: Person printer has already been called."
+  }
+#ifdef DEBUG
+  else {
+    std::cerr << "Student printer: Person printer has already been called."
               << std::endl;
   }
+#endif
+
   out << ", Badge number: " << badge_number_
       << ", Work Status: " << work_status() << ", Start Date: " << start_date();
+  // The cast succeeds when the Person is a StudentWorker, but fails for a plain
+  // Worker, which is just what is needed here. This type detection method comes
+  // from Stroustrup's _A Tour of C++_, 2nd Edition, p. 61.
+  Student *st = dynamic_cast<Student *>(this);
+  if (nullptr == st) {
+#ifdef DEBUG
+    std::cerr << "****Student cast failed.***" << std::endl;
+#endif
+    set_printer_has_run(false);
+  }
   return out;
 }
 
@@ -364,6 +432,7 @@ std::ostream &Worker::operator<<(std::ostream &out) {
 std::ostream &StudentWorker::operator<<(std::ostream &out) {
   Student::operator<<(out);
   Worker::operator<<(out);
+  set_printer_has_run(false);
   return out;
 }
 

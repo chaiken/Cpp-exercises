@@ -123,7 +123,9 @@ public:
       : birth_year_(pd.birth_year), birth_day_of_month_(pd.birth_day_of_month),
         first_name_(pd.first_name), last_name_(pd.last_name),
         address_(pd.address) {
+#ifdef DEBUG
     std::cerr << "Person ctor" << std::endl;
+#endif
     if (YearIsInvalid(birth_year_)) {
       std::cerr << "Invalid birth year: " << birth_year_ << std::endl;
       assert_perror(EINVAL);
@@ -144,9 +146,13 @@ public:
   std::string birthday() const {
     return FormatDate(birth_day_of_month_, birth_month_, birth_year_);
   }
-  bool person_printer_has_run() { return printer_has_run_; }
-
-  std::ostream &operator<<(std::ostream &out);
+  bool printer_has_run() { return printer_has_run_; }
+  // Classes which are final derivatives should set the bool false.
+  void set_printer_has_run(bool printer_has_run) {
+    printer_has_run_ = printer_has_run;
+  }
+  // Without virtual, printing of Person* always calls this version.
+  virtual std::ostream &operator<<(std::ostream &out);
   // Cannot check for exact match due to name mangling.
   bool is_type(const std::string &tname) const {
     return (std::string::npos != type_name().find(tname));
@@ -155,7 +161,7 @@ public:
 protected:
   // Without "virtual", all is_type() tests for derived classes will fail.
   virtual std::string type_name() const {
-    std::cout << typeid(*this).name() << std::endl;
+    std::cout << std::endl << typeid(*this).name() << std::endl;
     return (typeid(*this).name());
   }
 
@@ -178,7 +184,9 @@ class Student : virtual public Person {
 public:
   Student(const struct person_details pd, const struct student_details sd)
       : Person(pd), student_id_(sd.id), gpa_(sd.GPA), y_(sd.y) {
+#ifdef DEBUG
     std::cerr << "Student ctor" << std::endl;
+#endif
     std::map<StudyYear, std::string>::const_iterator idx =
         StudyYearDescription.find(y_);
     // Prevents a Student* from pointing to a GradStudent.
@@ -189,6 +197,7 @@ public:
       assert_perror(EINVAL);
     }
   }
+
   PersonType person_type() const { return PersonType::Student; }
   int student_id() const { return student_id_; }
   double gpa() const { return gpa_; }
@@ -210,7 +219,9 @@ public:
   Worker(const person_details pd, const worker_details wd)
       : Person(pd), badge_number_(wd.badge_number), start_year_(wd.start_year),
         start_day_of_month_(wd.start_day_of_month) {
+#ifdef DEBUG
     std::cerr << "Worker ctor" << std::endl;
+#endif
     if (YearIsInvalid(start_year_)) {
       std::cerr << "Invalid birth year: " << start_year_ << std::endl;
       assert_perror(EINVAL);
@@ -245,7 +256,7 @@ protected:
 // StudentWorker must explicitly invoke the Person constructor.   Notably
 // StudentWorker, Student and Worker could all invoke different Person
 // constructors if there were several choices.
-class StudentWorker : public Student, public Worker {
+class StudentWorker final : public Student, public Worker {
 public:
   StudentWorker(const struct person_details pd, const struct student_details sd,
                 const struct worker_details wd)
@@ -283,6 +294,11 @@ struct worker_details PopulateWorkerDetails(const std::string item,
 typedef std::array<std::list<std::shared_ptr<Person>>, number_person_types>
     persons_array;
 
+// Print a single list of Persons with their appropriate operator<<().
+void PrintList(const std::list<std::shared_ptr<Person>> &pl);
+// Print all the lists of Persons.
+void PrintListArray(const persons_array pa);
+
 // Return the index in a persons_array where the given PersonType
 // appears.  Must have number_person_types values and be consistent
 // with the enum class PersonType.
@@ -292,8 +308,17 @@ unsigned int GetPersonIndex(PersonType pt);
 // applicable Person-type lists.
 void ProcessPerson(const std::string &item, persons_array *pa);
 
-// Given a file containing data about Persons, populate them into the 4 lists.
+// Given a file containing data about Persons, populate them into the 4 lists in
+// the persons_array.
 void PopulateLists(const std::string &file_path, persons_array *pa);
+
+// The string comparison operator that SortLists() needs in order to find the
+// Person last names inside the shared_ptrs.
+bool last_name_comparison(const std::shared_ptr<Person> first,
+                          const std::shared_ptr<Person> second);
+
+// Sort the lists of shared_ptrs to Persons inside the persons_array.
+void SortLists(persons_array *unsorted);
 
 } // namespace people_roles
 #endif
