@@ -1,26 +1,32 @@
-#include <cassert>
+#include <exception>
 #include <iostream>
+#include <stdexcept>
 #include <type_traits>
 
 namespace template_vect {
-
 template <typename T> T &TemplateVector<T>::operator[](int i) {
-  assert((i <= ub()) && (i >= 0));
+  if ((i > ub()) || (i < 0)) {
+    throw std::out_of_range{"TemplateVector::operator[]"};
+  }
   return p_[i];
 }
 
 template <typename T> const T &TemplateVector<T>::operator[](int i) const {
-  assert((i <= ub()) && (i >= 0));
+  if ((i > ub()) || (i < 0)) {
+    throw std::out_of_range{"TemplateVector::operator[]"};
+  }
   return p_[i];
 }
 
 template <typename T> TemplateVector<T>::TemplateVector(int n) : size_(n) {
   ::std::cout << "Default ctor" << ::std::endl;
   if (n <= 0) {
-    assert_perror(EINVAL);
+    throw std::length_error{"TemplateVector constructor: illegal size"};
   }
   p_ = new T[n];
-  assert(nullptr != p_);
+  if (nullptr == p_) {
+    throw std::bad_alloc{};
+  }
 }
 
 template <typename T>
@@ -28,9 +34,13 @@ TemplateVector<T>::TemplateVector(const T *v, int sz) : size_(sz) {
 #ifdef DEBUG
   ::std::cout << "Array ctor" << ::std::endl;
 #endif
-  assert(size_ > 0);
+  if (size_ <= 0) {
+    throw std::length_error{"TemplateVector constructor: illegal size"};
+  }
   p_ = new T[size_];
-  assert(nullptr != p_);
+  if (nullptr == p_) {
+    throw std::bad_alloc{};
+  }
   for (int i = 0; i < size_; i++) {
     p_[i] = v[i];
   }
@@ -40,9 +50,13 @@ template <typename T>
 TemplateVector<T>::TemplateVector(const ::std::vector<T> vec)
     : size_(vec.size()) {
   ::std::cout << "::std::vector ctor" << ::std::endl;
-  assert(size_ > 0);
+  if (size_ <= 0) {
+    throw std::length_error{"TemplateVector constructor: illegal size"};
+  }
   p_ = new T[size_];
-  assert(nullptr != p_);
+  if (nullptr == p_) {
+    throw std::bad_alloc{};
+  }
   // clang-format off
   // error: conversion from ‘__normal_iterator<const double*,[...]>’ to non-scalar type ‘__normal_iterator<double*,[...]>’ requested
   //  for (typename ::std::vector<T>::iterator it = vec.cbegin(); it != vec.cend(); it++, i++) {
@@ -58,7 +72,9 @@ TemplateVector<T>::TemplateVector(const ::std::vector<T> vec)
 template <typename T>
 TemplateVector<T>::TemplateVector(TemplateVector &&vec) : size_(vec.size_) {
   ::std::cout << "Move ctor" << ::std::endl;
-  assert(size_ > 0);
+  if (size_ <= 0) {
+    throw std::length_error{"TemplateVector constructor: illegal size"};
+  }
   // This move() is not needed, as vec is already an R-value reference.
   //  p_ = ::std::move(vec.p_);
   p_ = vec.p_;
@@ -125,15 +141,13 @@ static void tvassign(TemplateVector<U> &uvec, TemplateVector<V> &vvec) {
   constexpr bool ans2 = ::std::is_convertible<U, V>::value;
   if (!ans2) {
     // Apparently not reached, as compilation fails.
-    ::std::cerr << "Types are not convertible." << ::std::endl;
-    assert(true == ans2);
+    throw assignment_error{"Types are not convertible."};
   } else {
     ::std::cout << "Types are convertible." << ::std::endl;
   }
   if (uvec.size_ != vvec.size_) {
-    ::std::cerr << "Cannot assign a TemplateVector to one of another size."
-                << ::std::endl;
-    assert(uvec.size_ == vvec.size_);
+    throw assignment_error{
+        "Cannot assign a TemplateVector to one of another size."};
   }
   // template argument deduction/substitution failed:
   // In file included from template_vector_lib_test.cc:1:

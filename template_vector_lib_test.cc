@@ -18,7 +18,19 @@ namespace template_vect {
 namespace testing {
 
 TEST(TemplateVectorDeathTest, ZeroLengthVector) {
-  EXPECT_DEATH(TemplateVector<int>(0), "Invalid argument");
+  // EXPECT_DEATH(TemplateVector<int>(0), "Invalid argument");
+  ASSERT_THROW(TemplateVector<int>(0), length_error);
+  // As suggested by
+  // https://stackoverflow.com/questions/18774522/verifying-exception-messages-with-googletest
+  try {
+    TemplateVector<int> tv(-1);
+  } catch (length_error &le) {
+    string str(le.what());
+    // Apparently what() contains non-printing characters, maybe whitespace?
+    // ASSERT_EQ("TemplateVector constructor: illegal size", le.what());
+    ASSERT_TRUE(string::npos !=
+                str.find("TemplateVector constructor: illegal size"));
+  }
 }
 
 TEST(TemplateVectorTest, DefaultCtor) {
@@ -78,6 +90,23 @@ TEST(TemplateVectorTest, MoveAssignment) {
   }
 }
 
+TEST(TemplateVectorTest, ElementAccessOperator) {
+  vector<double> vec1{{-3.0, -2.0, -1.0}};
+  TemplateVector<double> tv1(vec1);
+  int i = 0;
+  for (auto x : vec1) {
+    tv1[i++] = x;
+  }
+  ASSERT_THROW(tv1[-1], out_of_range);
+  ASSERT_THROW(tv1[tv1.ub() + 1], out_of_range);
+  try {
+    tv1[-1];
+  } catch (out_of_range &oe) {
+    string errorstr(oe.what());
+    ASSERT_TRUE(string::npos != errorstr.find("TemplateVector::operator[]"));
+  }
+}
+
 TEST(TemplateVectorTest, AssignmentSizeMismatch) {
   vector<double> vec1{{-3.0, -2.0, -1.0}}, vec2{{1.0, 2.0, 3.0, 4.0, 5.0}};
   TemplateVector<double> tv1(vec1), tv2(vec2);
@@ -112,9 +141,38 @@ TEST(TemplateVectorDeathTest, AssignmentFailsSize) {
   vector<int> intvec{{83, 84, 85}};
   TemplateVector<char> cvec(charvec);
   TemplateVector<int> ivec(intvec);
-  EXPECT_DEATH(tvassign(cvec, ivec),
-               "Cannot assign a TemplateVector to one of another size.");
+  // EXPECT_DEATH(tvassign(cvec, ivec), "Cannot assign a TemplateVector to one
+  // of another size.");
+  ASSERT_THROW(tvassign(cvec, ivec), assignment_error);
+  try {
+    tvassign(cvec, ivec);
+  } catch (assignment_error &ae) {
+    std::string aestr(ae.what());
+    ASSERT_FALSE(
+        std::string::npos ==
+        aestr.find("Cannot assign a TemplateVector to one of another size."));
+  }
 }
+
+/*
+Maybe code that would throw will never compile?
+clang-format off
+template_vector_impl.h: In instantiation of ‘void
+template_vect::tvassign(template_vect::TemplateVec tor<T>&,
+template_vect::TemplateVector<V>&) [with U = std::__cxx11::basic_string<char>; V
+= double]’
+:
+template_vector_lib_test.cc:163:3:   required from here
+template_vector_impl.h:158:15: error: no matching function for call to
+‘std::__cxx11::basic_string<c har>::basic_string(double&)’ uvec[i] =
+static_cast<U>(vvec[i]); clang-format on TEST(TemplateVectorTest,
+AssignmentTypeMismatch) { vector<double> vec1{{-3.0, -2.0, -1.0, 0.0, 1.0}};
+TemplateVector<double> tv1(vec1);
+vector<string> vec2{{"abc", "defg", "hijk", "..."}};
+TemplateVector<string> tv2(vec2);
+ASSERT_EQ(tv1.ub(), tv2.ub());
+ASSERT_THROW(tvassign(tv2, tv1), assignment_error);
+} */
 
 TEST(TemplateVectorTest, AssignmentWorks) {
   vector<char> charvec{{'a', 'b', 'c', 'd', 'e'}};

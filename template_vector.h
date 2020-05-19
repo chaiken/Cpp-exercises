@@ -1,7 +1,6 @@
 #ifndef VECTOR_IT_H
 #define VECTOR_IT_H
 
-#include <cassert>
 #include <functional>
 #include <iostream>
 #include <vector>
@@ -50,6 +49,15 @@ private:
   T *p_;
   int size_;
   int cursor_ = 0;
+};
+
+// http://www.cplusplus.com/reference/stdexcept/invalid_argument/
+class assignment_error : public std::logic_error {
+public:
+  explicit assignment_error(const std::string &what_arg)
+      : std::logic_error(what_arg) {}
+  explicit assignment_error(const char *what_arg)
+      : std::logic_error(what_arg) {}
 };
 
 } // namespace template_vect
