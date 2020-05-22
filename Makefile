@@ -169,6 +169,9 @@ template_vector_lib_test: template_vector.h template_vector_impl.h template_vect
 template_vector_lib_test_debug: template_vector.h template_vector_impl.h template_vector_lib_test.cc complex.h complex_lib.cc $(GTEST_HEADERS)
 	$(CC) $(CXXFLAGS) -DDEBUG="DEBUG" $(LDFLAGS) $(GTESTLIBS) template_vector_lib_test.cc complex_lib.cc -o $@
 
+template_vector_main: template_vector.h template_vector_impl.h term.h term_impl.h term_vector.h term_lib.cc term_vector_lib.cc template_vector_main.cc
+	$(CC) $(CXXFLAGS) $(LDFLAGS) template_vector_main.cc term_lib.cc term_vector_lib.cc -o $@
+
 template_list_lib_test: template_list.h template_list_impl.h template_list_lib.cc template_list_lib_test.cc complex.h complex_lib.cc
 	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) complex_lib.cc template_list_lib.cc template_list_lib_test.cc -o $@
 
