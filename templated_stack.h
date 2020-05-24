@@ -60,6 +60,17 @@ public:
   // function is not a template, but the template acts as a factory for "making"
   // new friends. A new non-template function is created for each
   // specialization.
+  //
+  // https://www.justsoftwaresolutions.co.uk/cplusplus/hidden-friends.html
+  // A friend defined (not just declared) inside a class is a hidden friend.
+  // Hidden friends are visible to other code only if the friend takes the
+  // object whose class in which it apppears as a parameter, in which case
+  // Argument Dependent Lookup can find it.
+  //
+  // See also "Profiting from the Folly of Others":
+  // https://accu.org/index.php/journals/2776
+  // "another way of allowing the compiler to find hidden friends, and that is
+  // to put a declaration of the function in the enclosing namespace"
   friend ::std::ostream &operator<<(::std::ostream &out,
                                     const TemplatedStack<T> &ts) {
     int i = ts.top_;
