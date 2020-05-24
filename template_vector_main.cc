@@ -46,7 +46,7 @@ Here, konsole encoding is UTF.
 Setting default character value.
 achar is now �
 
-Here, konsole encoding is ISO-8859-1.
+Here, konsole encoding is ISO-8859-1, although ISO-8859-15 is better for German.
 [alison@hildesheim Cpp-Exercises (master)]$ ./template_vector_main
 ::std::vector ctor
 Setting default character value.
