@@ -61,17 +61,6 @@ TEST_F(SmarterStackTest, PushIntoEmpty) {
   EXPECT_TRUE(st3->empty());
 }
 
-using SmarterStackDeathTest = SmarterStackTest;
-
-TEST_F(SmarterStackDeathTest, Empty) {
-  EXPECT_DEATH(st3->Pop(), "Invalid argument.");
-}
-
-TEST_F(SmarterStackDeathTest, Full) {
-  st3->Push(6.0);
-  EXPECT_DEATH(st3->Push(6.0), "No space left on device.");
-}
-
 TEST_F(SmarterStackTest, Equality) {
   vector<double> data1 = {0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0};
   SmarterStack st4(data1);
@@ -103,14 +92,6 @@ TEST_F(SmarterStackTest, DoubleReverseIsIdempotent) {
   EXPECT_EQ("0123456", ost1.str());
 }
 
-TEST_F(SmarterStackDeathTest, EmptySingleEndedSubsequence) {
-  EXPECT_DEATH(SmarterStack teststack = (*st1)(-1), "Invalid argument.");
-}
-
-TEST_F(SmarterStackDeathTest, OverlongSingleEndedSubsequence) {
-  EXPECT_DEATH(SmarterStack teststack = (*st1)(100), "Invalid argument.");
-}
-
 TEST_F(SmarterStackTest, SingleEndedSubsequenceTest) {
   SmarterStack teststack = (*st1)(3);
   EXPECT_FALSE(teststack.empty());
@@ -131,14 +112,35 @@ TEST_F(SmarterStackTest, SingleEndedSubsequenceTest) {
 }
 
 TEST_F(SmarterStackTest, EmptyDoubleEndedSubsequence) {
-  EXPECT_DEATH(SmarterStack teststack = (*st1)(-1, 0), "Invalid argument.");
+  try {
+    SmarterStack teststack = (*st1)(-1, 0);
+  } catch (const SmarterStackException &sse) {
+    string str = sse.what();
+    cerr << str << endl;
+    ASSERT_NE(string::npos, str.find("Out of range."));
+    ASSERT_NE(string::npos, str.find("range_error"));
+  }
   // Produces a subsequence with element 0.
   //  EXPECT_DEATH(SmarterStack teststack = (*st1)(0, 0), "Invalid argument.");
-  EXPECT_DEATH(SmarterStack teststack = (*st1)(5, 0), "Invalid argument.");
+  try {
+    SmarterStack teststack = (*st1)(5, 0);
+  } catch (const SmarterStackException &sse) {
+    string str(sse.what());
+    cerr << str << endl;
+    ASSERT_NE(string::npos, str.find("Out of range."));
+    ASSERT_NE(string::npos, str.find("range_error"));
+  }
 }
 
 TEST_F(SmarterStackTest, OverlongDoubleEndedSubsequence) {
-  EXPECT_DEATH(SmarterStack teststack = (*st1)(100), "Invalid argument.");
+  try {
+    SmarterStack teststack = (*st1)(100);
+  } catch (const SmarterStackException &sse) {
+    string str(sse.what());
+    cerr << str << endl;
+    ASSERT_NE(string::npos, str.find("Out of range."));
+    ASSERT_NE(string::npos, str.find("range_error"));
+  }
 }
 
 TEST_F(SmarterStackTest, DoubleEndedSubsequenceTest) {
@@ -172,6 +174,18 @@ TEST_F(SmarterStackTest, IncreasingSubsequences) {
   ostringstream ost;
   PrintIncreasingSubsequences(ost, st);
   EXPECT_EQ("(79),(3),(2689),(2),", ost.str());
+}
+
+TEST(SmarterStackExceptionTest, EmptyCtor) {
+  try {
+    SmarterStack st(-1);
+  } catch (const SmarterStackException &sse) {
+    string str = sse.what();
+    cerr << str << endl;
+    ASSERT_NE(string::npos,
+              str.find("SmarterStack depth must be greater than zero."));
+    ASSERT_NE(string::npos, str.find("length_error"));
+  }
 }
 
 } // namespace testing

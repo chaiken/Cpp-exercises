@@ -1,6 +1,5 @@
 #include "smarter_stack.h"
 
-#include <cassert>
 #include <cerrno>
 
 #include <limits>
@@ -32,12 +31,18 @@ ostream &operator<<(ostream &out, const SmarterStack &stack) {
 }
 
 double SmarterStack::operator[](int i) {
-  assert((i <= top_) && (i >= 0));
+  if ((i > top_) || (i < 0)) {
+    range_error re("Out of range.");
+    throw SmarterStackException(re);
+  }
   return data_[i];
 }
 
 double SmarterStack::operator[](int i) const {
-  assert((i <= top_) && (i >= 0));
+  if ((i > top_) || (i < 0)) {
+    range_error re("Out of range.");
+    throw SmarterStackException(re);
+  }
   return data_[i];
 }
 
@@ -74,7 +79,8 @@ bool operator==(const SmarterStack &a, const SmarterStack &b) {
 SmarterStack SmarterStack::operator()(int to) const {
   // Last valid index in data_[] is top_.
   if ((to < 0) || (to > top_)) {
-    assert_perror(EINVAL);
+    range_error re("Out of range.");
+    throw SmarterStackException(re);
   }
   vector<double> temp;
   for (int j = 0; j <= to; j++) {
@@ -87,7 +93,8 @@ SmarterStack SmarterStack::operator()(int to) const {
 SmarterStack SmarterStack::operator()(int from, int to) const {
   // Last valid index in data_[] is top_.
   if ((to > top_) || (to < from) || (from < 0)) {
-    assert_perror(EINVAL);
+    range_error re("Out of range.");
+    throw SmarterStackException(re);
   }
   vector<double> temp;
   for (int j = from; j <= to; j++) {
@@ -99,7 +106,8 @@ SmarterStack SmarterStack::operator()(int from, int to) const {
 
 void SmarterStack::Push(double datum) {
   if (full()) {
-    assert_perror(ENOSPC);
+    overflow_error oe("SmarterStack is full.");
+    throw SmarterStackException(oe);
   }
   // top_ is equal to the index of the the last element in the array.
   data_[++top_] = datum;
@@ -107,7 +115,8 @@ void SmarterStack::Push(double datum) {
 
 double SmarterStack::Pop() {
   if (empty()) {
-    assert_perror(EINVAL);
+    underflow_error ue("SmarterStack is empty.");
+    throw SmarterStackException(ue);
   }
   // The last element that can be popped is at index 0.
   return (data_[top_--]);
@@ -122,8 +131,10 @@ void SmarterStack::Reverse() {
     Pop();
     i++;
   }
-  assert(temp.full());
-  assert(empty());
+  if ((!temp.full()) || (!empty())) {
+    logic_error le("SmarterStack has changed depth?");
+    throw SmarterStackException(le);
+  }
   while (!temp.empty()) {
     Push(temp.Pop());
   }
@@ -133,7 +144,11 @@ void PrintIncreasingSubsequences(ostream &out, const SmarterStack &st) {
   int from = 0, to = 0;
   // depth() returns number of elements, which equals highest populated index+1.
   while ((to < st.depth())) {
-    assert(from <= to);
+    if (from > to) {
+      invalid_argument iae("SmarterStack: beginning of range must be less "
+                           "than or equal to the end");
+      throw SmarterStackException(iae);
+    }
     // A single-element stack is defined increasing.
     if (!is_increasing(st(from, to))) {
       out << "(";
@@ -151,6 +166,15 @@ void PrintIncreasingSubsequences(ostream &out, const SmarterStack &st) {
     out << st(from, from);
     out << "),";
   }
+}
+
+const char *SmarterStackException::what() const noexcept {
+  // This code caused a use-after-free when it ran.  I moved the operation to
+  // the constructor instead.   At the time, the two variables were private and
+  // were in the constructor's initialization list. std::string holder =
+  // std::string(exception_name_) + std::string(more_); return holder.c_str();
+  return extended_error_.c_str();
+  // return "a";
 }
 
 } // namespace smarter_stack
