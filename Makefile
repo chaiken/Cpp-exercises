@@ -139,6 +139,9 @@ reference_count_string_timer_debug: reference_count_string_timer.cc reference_co
 smarter_stack_lib_test: smarter_stack_lib.cc smarter_stack_lib_test.cc smarter_stack.h $(GTEST_HEADERS)
 	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) smarter_stack_lib.cc smarter_stack_lib_test.cc -o $@
 
+smarter_stack_lib_test_coverage: smarter_stack_lib.cc smarter_stack_lib_test.cc smarter_stack.h $(GTEST_HEADERS)
+	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) --coverage smarter_stack_lib.cc smarter_stack_lib_test.cc -o $@
+
 smarter_queue_lib_test: smarter_queue_lib.cc smarter_queue_lib_test.cc smarter_queue.h $(GTEST_HEADERS)
 	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) smarter_queue_lib.cc smarter_queue_lib_test.cc -o $@
 
@@ -210,3 +213,12 @@ override_vs_overload_main: override_vs_overload.h override_vs_overload_main.cc
 
 multiple_inheritance_lib_test: multiple_inheritance.h multiple_inheritance_lib.cc multiple_inheritance_lib_test.cc student_inheritance.h student_inheritance_lib.cc
 	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) multiple_inheritance_lib.cc multiple_inheritance_lib_test.cc student_inheritance_lib.cc -o $@
+
+
+BINARY_LIST = num_digits libcalcfuncs gcd gcd_lib_test reverse_char_stack reverse_char_stack_lib_test dyn_string_lib_test dyn_string notqsort notqsort_lib_test dbl_vector_lib_test dbl_vector_lib_test2 dbl_vector_time slist_main slist_lib_test slist_lib2_test matrix_lib_test matrix_lib_test_debug term_lib_test polynomial_lib_test polynomial_lib_test_debug reference_count_string_test rational_lib_test complex_lib_test complex_vector_lib_test reference_count_string_timer reference_count_string_timer_debug smarter_stack_lib_test smarter_stack_lib_test_coverage smarter_queue_lib_test smarter_list_lib_test new_clock_lib_test templated_stack_lib_test const_templated_stack_lib_test macro-vs-template template_cycle_lib_test template_rotate_lib_test template_vector_lib_test template_vector_lib_test_debug template_vector_main template_list_lib_test template_largest_lib_test template_integrate_lib_test reverse_list_lib_test student_inheritance_lib_test async_logger_orig async_logger_lib_test async_logger_improved async_logger_lib_test_improved one_index_vector_lib_test override_vs_overload_main multiple_inheritance_lib_test
+
+clean:
+	rm -f $(BINARY_LIST) *.o *~ *.gcda *.gcov *.gcno
+
+all:
+	make $(BINARY_LIST)

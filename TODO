@@ -1,6 +1,6 @@
-0. Add comments to the source files identifying the exercises for which they are solutions.
+0. Add comments to the source files identifying the exercises for which they are solutions.  (Status: partial.)
 
-1. Add a coverage tool, and write unit tests for earlier exercises which had none.
+1. Add a coverage tool, and write unit tests for earlier exercises which had none.  (Status: just beginning.)
 
 2. Create a Makefile target that runs all the tests.
 
