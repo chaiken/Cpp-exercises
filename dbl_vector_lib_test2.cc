@@ -17,7 +17,7 @@ TEST(DoubleVectorTest, CopyConstructorWorks) {
   DoubleVector a(5);
   int i = 0;
   while (i <= a.ub()) {
-    a.element(i) = 2.0 * i;
+    a.Element(i) = 2.0 * i;
     i++;
   }
   DoubleVector b(a);
@@ -46,8 +46,8 @@ TEST(DoubleVectorTest, AddWorks) {
   DoubleVector a(5), b(5);
   int i = 0;
   while (i <= a.ub()) {
-    a.element(i) = i;
-    b.element(i) = -i;
+    a.Element(i) = i;
+    b.Element(i) = -i;
     i++;
   }
   ASSERT_EQ(10, a.SumElements());
@@ -69,8 +69,8 @@ TEST(DoubleVectorTest, SumVectorsWorks) {
   DoubleVector a(5), b(5);
   int i = 0;
   while (i <= a.ub()) {
-    a.element(i) = i;
-    b.element(i) = -i;
+    a.Element(i) = i;
+    b.Element(i) = -i;
     i++;
   }
   ASSERT_LT(0, a.SumElements());

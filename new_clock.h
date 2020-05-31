@@ -18,8 +18,8 @@ public:
     assert(nullptr != time_);
   }
   ~NewClock() { delete time_; }
-  void operator++(int seconds = 1);
-  void operator--(int seconds = 1);
+  void operator++(int seconds);
+  void operator--(int seconds);
   friend ::std::ostream &operator<<(::std::ostream &out, const NewClock &nc);
   long int GetSeconds() const;
 

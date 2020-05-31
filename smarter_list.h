@@ -57,7 +57,7 @@ public:
       // Only changes cursor_, which is mutable.
       sl.reset();
       while (sl.cursor_->next) {
-        ListNode *ln = new ListNode(*(sl.cursor_->next));
+        ListNode *ln = new ListNode(sl.cursor_->next);
         assert(nullptr != ln);
         current->next = ln;
         current = current->next;

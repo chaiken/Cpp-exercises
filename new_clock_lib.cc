@@ -26,7 +26,7 @@ long int NewClock::GetSeconds() const {
   return epoch_offset.count() / GetClockPeriod();
 }
 
-void NewClock::operator++(int seconds = 1) {
+void NewClock::operator++(int seconds) {
   assert(nullptr != time_);
   const duration<int> interval(seconds);
   *time_ += interval;

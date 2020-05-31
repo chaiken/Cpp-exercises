@@ -47,7 +47,18 @@ SmarterList &SmarterList::operator+(const ListNode &ln) {
   // thing?  The two lines below result in SEGV.
   // unique_ptr<ListNode> newln = make_unique<ListNode>(ln);
   // cursor_->next = newln.get();
-  ListNode *newln = new ListNode(ln);
+  //
+  // clang-format off
+  // The more obvious
+  // ListNode *newln = new ListNode(ln);
+  // results in
+  // smarter_list_lib.cc:50:33: warning: implicitly-declared ‘smarter_list::ListNode::ListNode(const smarter_list::ListNode&)’ is deprecated [-Wdeprecated-copy]
+  //   ListNode *newln = &ListNode(ln);
+  // smarter_list.h:16:13: note: because ‘smarter_list::ListNode’ has user-provided ‘smarter_list::ListNode& smarter_list::ListNode::operator=(const smarter_list::ListNode&)’
+  //   ListNode &operator=(const ListNode &ln) {
+  // clang-format on
+  ListNode *newln = new ListNode();
+  *newln = ln;
   // No need to reset(), as we want the last node anyway.
   if (nullptr != head_) {
     while (nullptr != cursor_->next) {

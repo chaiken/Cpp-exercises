@@ -36,7 +36,7 @@ int main(void) {
   time(&now);
   clock_gettime(CLOCK_MONOTONIC, &start);
   while (i <= fancy.ub()) {
-    sum1 += fancy.element(i);
+    sum1 += fancy.Element(i);
     i++;
   }
   clock_gettime(CLOCK_MONOTONIC, &finish);
