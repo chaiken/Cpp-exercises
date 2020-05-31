@@ -34,3 +34,10 @@
 *~
 *cscope*
 
+# gcov files
+*.gcda
+*.gcno
+*.info
+*.png
+*.html
+*.css
