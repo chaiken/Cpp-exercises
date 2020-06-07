@@ -124,7 +124,7 @@ public:
         first_name_(pd.first_name), last_name_(pd.last_name),
         address_(pd.address) {
 #ifdef DEBUG
-    std::cerr << "Person ctor" << std::endl;
+    std::cout << "Person ctor" << std::endl;
 #endif
     if (YearIsInvalid(birth_year_)) {
       std::cerr << "Invalid birth year: " << birth_year_ << std::endl;
@@ -185,7 +185,7 @@ public:
   Student(const struct person_details pd, const struct student_details sd)
       : Person(pd), student_id_(sd.id), gpa_(sd.GPA), y_(sd.y) {
 #ifdef DEBUG
-    std::cerr << "Student ctor" << std::endl;
+    std::cout << "Student ctor" << std::endl;
 #endif
     std::map<StudyYear, std::string>::const_iterator idx =
         StudyYearDescription.find(y_);
@@ -220,7 +220,7 @@ public:
       : Person(pd), badge_number_(wd.badge_number), start_year_(wd.start_year),
         start_day_of_month_(wd.start_day_of_month) {
 #ifdef DEBUG
-    std::cerr << "Worker ctor" << std::endl;
+    std::cout << "Worker ctor" << std::endl;
 #endif
     if (YearIsInvalid(start_year_)) {
       std::cerr << "Invalid birth year: " << start_year_ << std::endl;

@@ -106,7 +106,7 @@ public:
   }
   ~PersonPrintTest() {
     cout.rdbuf(oldCoutStreamBuf);
-    cerr << "At test end, output is " << endl << strCout->str() << endl;
+    cout << "At test end, output is " << endl << strCout->str() << endl;
     delete strCout;
   }
   ostringstream *strCout;
@@ -468,13 +468,13 @@ TEST(FileIOTest, BasicTest) {
   EXPECT_FALSE(pa[GetPersonIndex(PersonType::Student)].empty());
   EXPECT_FALSE(pa[GetPersonIndex(PersonType::Worker)].empty());
   EXPECT_FALSE(pa[GetPersonIndex(PersonType::StudentWorker)].empty());
-  cerr << endl << "Persons";
+  cout << endl << "Persons";
   PrintList(pa[GetPersonIndex(PersonType::Person)]);
-  cerr << endl << "Students";
+  cout << endl << "Students";
   PrintList(pa[GetPersonIndex(PersonType::Student)]);
-  cerr << endl << "Workers";
+  cout << endl << "Workers";
   PrintList(pa[GetPersonIndex(PersonType::Worker)]);
-  cerr << endl << "StudentWorkers";
+  cout << endl << "StudentWorkers";
   PrintList(pa[GetPersonIndex(PersonType::StudentWorker)]);
   EXPECT_EQ(10u, pa[GetPersonIndex(PersonType::Person)].size());
   EXPECT_EQ(6u, pa[GetPersonIndex(PersonType::Student)].size());
@@ -492,7 +492,7 @@ TEST(SortingTest, PersonTest) {
             pa[GetPersonIndex(PersonType::Person)].front().get()->last_name());
   EXPECT_EQ("Bueno",
             pa[GetPersonIndex(PersonType::Person)].back().get()->last_name());
-  cerr << endl << "Unsorted Persons:";
+  cout << endl << "Unsorted Persons:";
   PrintList(pa[GetPersonIndex(PersonType::Person)]);
   SortLists(&pa);
   EXPECT_EQ(10u, pa[GetPersonIndex(PersonType::Person)].size());
@@ -500,7 +500,7 @@ TEST(SortingTest, PersonTest) {
             pa[GetPersonIndex(PersonType::Person)].front().get()->last_name());
   EXPECT_EQ("Paul",
             pa[GetPersonIndex(PersonType::Person)].back().get()->last_name());
-  cerr << endl << "Sorted Persons";
+  cout << endl << "Sorted Persons";
   PrintList(pa[GetPersonIndex(PersonType::Person)]);
 }
 
