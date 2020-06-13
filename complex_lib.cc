@@ -108,7 +108,8 @@ Complex sqrt(const Complex &z) {
   double coeffs[]{0.0, 0.0};
   // NaN.
   if ((0.0 == z.imag_) && (z.real_ < 0)) {
-    return coeffs;
+    // gcov claims this line is untested but BadSqrt exercises it.
+    assert_perror(EINVAL);
   }
   // z = r*cos(theta) + i* r*sin(theta)
   // Without ::std:: prefix, compiler cannot decide whether the function is

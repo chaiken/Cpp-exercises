@@ -9,7 +9,7 @@
 using namespace std;
 
 namespace complex {
-namespace testing {
+namespace local_testing {
 
 TEST(ComplexLibTest, DoubleTest) {
   Complex first(3.0, 4.0);
@@ -139,5 +139,10 @@ TEST(ComplexLibTest, FunctionalComparisonTest) {
   EXPECT_FALSE(a(b));
 }
 
-} // namespace testing
+TEST(ComplexLibDeathTest, BadSqrt) {
+  EXPECT_EXIT(sqrt(Complex(-2.0, 0.0)), testing::KilledBySignal(SIGABRT),
+              "Invalid argument");
+}
+
+} // namespace local_testing
 } // namespace complex

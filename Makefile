@@ -43,21 +43,21 @@ CC=/usr/bin/g++
 #CC=/usr/bin/clang
 LIBWR=-Llibwr -lwr
 
-num_digits: num_digits.cc num_digits.h
-	$(CC) $(CFLAGS) $(LDFLAGS) calc_num_digits.cc -lm
+calc_num_digits: calc_num_digits.cc
+	$(CC) $(CXXFLAGS) $(LDFLAGS) calc_num_digits.cc -lm -o $@
 
-libcalcfuncs: num_digits.o
+libcalcfuncs: num_digits.o num_digits.h
 	ar rvs libcalcfuncs.a num_digits.o
 
 gcd: gcd.cc gcd_lib.cc gcd_lib.h
-	$(CC) $(CFLAGS) $(LDFLAGS) gcd.cc gcd_lib.cc -o $@
+	$(CC) $(CXXFLAGS) $(LDFLAGS) gcd.cc gcd_lib.cc -o $@
 
 gcd_lib_test: gcd_lib_test.cc gcd_lib.cc gcd_lib.h $(GTEST_HEADERS)
 	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) gcd_lib_test.cc gcd_lib.cc -o $@
 
 reverse_char_stack: reverse_char_stack.cc reverse_char_stack_lib.cc \
     reverse_char_stack_lib.h
-	$(CC) $(CFLAGS) $(LDFLAGS) reverse_char_stack.cc \
+	$(CC) $(CXXFLAGS) $(LDFLAGS) reverse_char_stack.cc \
            reverse_char_stack_lib.cc -o $@
 
 reverse_char_stack_lib_test: reverse_char_stack_lib_test.cc \
@@ -209,7 +209,7 @@ multiple_inheritance_lib_test: multiple_inheritance.h multiple_inheritance_lib.c
 	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) multiple_inheritance_lib.cc multiple_inheritance_lib_test.cc student_inheritance_lib.cc -o $@
 
 # async_logger_lib_test_improved: currently broken
-BINARY_LIST = num_digits libcalcfuncs gcd gcd_lib_test reverse_char_stack reverse_char_stack_lib_test dyn_string_lib_test dyn_string notqsort notqsort_lib_test dbl_vector_lib_test dbl_vector_time slist_main slist_lib_test slist_lib2_test matrix_lib_test matrix_lib_test_debug term_lib_test polynomial_lib_test polynomial_lib_test_debug reference_count_string_test rational_lib_test complex_lib_test complex_vector_lib_test reference_count_string_timer reference_count_string_timer_debug smarter_stack_lib_test smarter_queue_lib_test smarter_list_lib_test new_clock_lib_test templated_stack_lib_test const_templated_stack_lib_test macro-vs-template template_cycle_lib_test template_rotate_lib_test template_vector_lib_test template_vector_lib_test_debug template_vector_main template_list_lib_test template_largest_lib_test template_integrate_lib_test reverse_list_lib_test student_inheritance_lib_test async_logger_orig async_logger_lib_test async_logger_improved one_index_vector_lib_test override_vs_overload_main multiple_inheritance_lib_test
+BINARY_LIST = calc_num_digits gcd gcd_lib_test reverse_char_stack reverse_char_stack_lib_test dyn_string_lib_test dyn_string notqsort notqsort_lib_test dbl_vector_lib_test dbl_vector_time slist_main slist_lib_test slist_lib2_test matrix_lib_test matrix_lib_test_debug term_lib_test polynomial_lib_test polynomial_lib_test_debug reference_count_string_test rational_lib_test complex_lib_test complex_vector_lib_test reference_count_string_timer reference_count_string_timer_debug smarter_stack_lib_test smarter_queue_lib_test smarter_list_lib_test new_clock_lib_test templated_stack_lib_test const_templated_stack_lib_test macro-vs-template template_cycle_lib_test template_rotate_lib_test template_vector_lib_test template_vector_lib_test_debug template_vector_main template_list_lib_test template_largest_lib_test template_integrate_lib_test reverse_list_lib_test student_inheritance_lib_test async_logger_orig async_logger_lib_test async_logger_improved one_index_vector_lib_test override_vs_overload_main multiple_inheritance_lib_test
 
 # Same list as above, but with main binaries and _debug targets removed.
 # async_logger_lib_test_improved: currently broken.
@@ -234,18 +234,16 @@ clean:
 	rm -rf *.o *~ $(BINARY_LIST) *.gcda *.gcov *.gcno *.info *_output *css *html a.out
 
 all:
+	make clean
 	make $(BINARY_LIST)
 
-#https://stackoverflow.com/questions/1305665/how-to-compile-different-c-files-with-different-cflags-using-makefile
+.SILENT: *.o
+
 # “–coverage” is a synonym for-fprofile-arcs, -ftest-coverage(compiling) and
 # -lgcov(linking).
-COVERAGE_EXTRA_FLAGS= --coverage -Werror
+COVERAGE_EXTRA_FLAGS = --coverage -Werror
 
-# Doesn't work.
-#COVERAGE_LIST: CPPFLAGS+=  $(COVERAGE_EXTRA_FLAGS)
-CXXFLAGS+=  $(COVERAGE_EXTRA_FLAGS)
-
-.SILENT: *.o
+$(NO_DEPS_LIST) $(COMPLEX_LIBS_DEPS_LIST) $(POLYNOMIAL_LIBS_DEPS_LIST) $(TERM_LIB_DEPS_LIST) $(MUST_RUN_LAST_LIST): CXXFLAGS += $(COVERAGE_EXTRA_FLAGS)
 
 # https://github.com/gcovr/gcovr/issues/314
 # 'A “stamp mismatch” error is shown when the compilation time stamp *within*
@@ -254,8 +252,27 @@ CXXFLAGS+=  $(COVERAGE_EXTRA_FLAGS)
 # not in association with another dependent test.
 coverage_all:
 	make clean
+	@echo "CXXFLAGS is $(CXXFLAGS)"
 	run_lcov_all.sh $(NO_DEPS_LIST)
 	run_lcov_all.sh $(COMPLEX_LIB_DEPS_LIST)
 	run_lcov_all.sh $(POLYNOMIAL_LIB_DEPS_LIST)
 	run_lcov_all.sh $(TERM_LIB_DEPS_LIST)
 	run_lcov_all.sh $(MUST_RUN_LAST_LIST)
+
+TEST_LIST = gcd_lib_test reverse_char_stack_lib_test dyn_string_lib_test notqsort_lib_test dbl_vector_lib_test slist_lib_test slist_lib2_test matrix_lib_test matrix_lib_test_debug term_lib_test polynomial_lib_test polynomial_lib_test_debug reference_count_string_test rational_lib_test complex_lib_test complex_vector_lib_test smarter_stack_lib_test smarter_queue_lib_test smarter_list_lib_test new_clock_lib_test templated_stack_lib_test const_templated_stack_lib_test template_cycle_lib_test template_rotate_lib_test template_vector_lib_test template_vector_lib_test_debug template_list_lib_test template_largest_lib_test template_integrate_lib_test reverse_list_lib_test student_inheritance_lib_test async_logger_lib_test one_index_vector_lib_test multiple_inheritance_lib_test
+
+TEST_EXTRA_FLAGS = -Werror -O2
+# None of these work work:
+# $(TEST_LIST): CXXFLAGS = -std=c++11 -pthread -ggdb -Wall -Wextra -g $(TEST_EXTRA_FLAGS) -fno-inline -fsanitize=address,undefined -I$(GTEST_HEADERS)
+#TEST_LIST: CXXFLAGS = -std=c++11 -pthread -ggdb -Wall -Wextra -g $(TEST_EXTRA_FLAGS) -fno-inline -fsanitize=address,undefined -I$(GTEST_HEADERS)
+TESTFLAGS = -std=c++11 -pthread -ggdb -Wall -Wextra -g $(TEST_EXTRA_FLAGS) -fno-inline -fsanitize=address,undefined -I$(GTEST_HEADERS)
+
+# Doesn't work.
+%.o: %.cc
+	override CXXFLAGS = $(TESTFLAGS)
+	$(CC) $(CXXFLAGS) $(LDFLAGS) $< -o $@
+
+test_all:
+	make clean
+	@echo "CXXFLAGS is $(CXXFLAGS)"
+	run_all_tests.sh $(TEST_LIST)
