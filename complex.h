@@ -47,13 +47,13 @@ public:
     imag_ = i;
   }
 
-  double DotProduct(const Complex &x) const;
-  friend double Dot(const Complex &x, const Complex &y);
-  double InnerAngle(Complex &x);
+  double real() const { return real_; }
+  double imaginary() const { return imag_; }
   friend Complex sqrt(const Complex &z);
-  // The name of the operator must be double(), as "modulus" is not an operator
-  // that can be overridden, and new operators cannot be created.
-  operator double() { return (::std::sqrt(real_ * real_ + imag_ * imag_)); }
+  // std::modulus already exists.
+  double ComplexModulus() const {
+    return (::std::sqrt(real_ * real_ + imag_ * imag_));
+  }
   // Reverse the vector.
   void operator-();
   Complex &operator=(const Complex &c);
@@ -100,6 +100,9 @@ constexpr Complex operator*(const Complex &x, const Complex &y) {
 // double operator=(double d, const Complex &x);
 bool operator==(const Complex &x, const Complex &y);
 bool operator!=(const Complex &x, const Complex &y);
+double InnerAngle(const Complex &x, const Complex &y);
+double DotProduct(const Complex &x, const Complex &y);
+double Dot(const Complex &x, const Complex &y);
 } // namespace complex
 
 #endif

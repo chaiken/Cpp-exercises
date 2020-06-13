@@ -15,9 +15,9 @@ TEST(ComplexLibTest, DoubleTest) {
   Complex first(3.0, 4.0);
   cout << first << endl;
   ;
-  EXPECT_EQ(sqrt(25.0), double(first));
+  EXPECT_EQ(sqrt(25.0), first.ComplexModulus());
   -first;
-  EXPECT_EQ(sqrt(25.0), double(first));
+  EXPECT_EQ(sqrt(25.0), first.ComplexModulus());
   // overloaded << operator.
   // It was not obvious that "<< endl" would still work, but type resolution
   // will choose the correct match.
@@ -27,16 +27,16 @@ TEST(ComplexLibTest, DoubleTest) {
 TEST(ComplexLibTest, DotProductTest) {
   Complex first(3.0, 4.0);
   Complex second(3.0, 4.0);
-  double amplitude = double(first) * double(first);
-  EXPECT_EQ(amplitude, first.DotProduct(second));
+  double amplitude = first.ComplexModulus() * first.ComplexModulus();
+  EXPECT_EQ(amplitude, DotProduct(first, second));
   -second;
-  EXPECT_EQ(-1 * amplitude, first.DotProduct(second));
+  EXPECT_EQ(-1 * amplitude, DotProduct(first, second));
 }
 
 TEST(ComplexLibTest, DotProductTest2) {
   Complex first(3.0, 4.0);
   Complex second(3.0, 4.0);
-  double amplitude = double(first) * double(first);
+  double amplitude = first.ComplexModulus() * first.ComplexModulus();
   EXPECT_EQ(amplitude, Dot(first, second));
   -second;
   EXPECT_EQ(-1 * amplitude, Dot(first, second));
@@ -45,11 +45,11 @@ TEST(ComplexLibTest, DotProductTest2) {
 TEST(ComplexLibTest, InnerAngleTest) {
   Complex first(3.0, 4.0);
   Complex second(3.0, 4.0);
-  EXPECT_EQ(0, first.InnerAngle(second));
+  EXPECT_EQ(0, InnerAngle(first, second));
   -second;
-  EXPECT_EQ(M_PI, first.InnerAngle(second));
+  EXPECT_EQ(M_PI, InnerAngle(first, second));
   Complex third(4.0, -3.0);
-  EXPECT_EQ(M_PI_2, first.InnerAngle(third));
+  EXPECT_EQ(M_PI_2, InnerAngle(first, third));
 }
 
 // Also tests overloaded == operator.
@@ -103,7 +103,7 @@ TEST(ComplexLibTest, AssignmentTest) {
   second = first;
   cout << second << endl;
   EXPECT_TRUE(second == first);
-  double d = first;
+  double d = first.ComplexModulus();
   EXPECT_FALSE(3.0 == d);
   EXPECT_TRUE(5.0 == d);
 }
@@ -116,11 +116,11 @@ TEST(ComplexLibTest, InequalityTest) {
 
 TEST(ComplexLibTest, SqrtTest) {
   EXPECT_EQ(0.0, sqrt(Complex(0.0, 0.0)));
-  double temp = 9.0 + sqrt(97.0);
-  double denom = sqrt(2.0 * temp);
+  double temp = 9.0 + std::sqrt(97.0);
+  double denom = std::sqrt(2.0 * temp);
   // ceil() is needed because comparing doubles is fundamentally stupid.
-  EXPECT_EQ((ceil(Complex(temp / denom, 4.0 / denom))),
-            ceil(sqrt(Complex(9.0, 4.0))));
+  EXPECT_EQ((ceil(Complex(temp / denom, 4.0 / denom).ComplexModulus())),
+            ceil(sqrt(Complex(9.0, 4.0)).ComplexModulus()));
 }
 
 TEST(ComplexLibTest, ComparisonTest) {

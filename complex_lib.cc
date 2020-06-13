@@ -20,7 +20,7 @@ bool operator<(const Complex &a, const Complex &b) {
   cout << "Complex comparison override" << endl;
 #endif
   // Avoid calling self!
-  return (sqrt(b) > sqrt(a));
+  return ((a.ComplexModulus() - b.ComplexModulus()) < 0);
 }
 
 bool operator<(Complex &a, Complex &b) {
@@ -28,7 +28,7 @@ bool operator<(Complex &a, Complex &b) {
   cout << "Complex comparison override" << endl;
 #endif
   // Avoid calling self!
-  return (sqrt(b) > sqrt(a));
+  return ((a.ComplexModulus() - b.ComplexModulus()) < 0);
 }
 
 ostream &operator<<(ostream &out, Complex x) {
@@ -36,12 +36,12 @@ ostream &operator<<(ostream &out, Complex x) {
   return out;
 }
 
-double Complex::DotProduct(const Complex &x) const {
-  return ((x.real_ * real_) + (x.imag_ * imag_));
+double DotProduct(const Complex &x, const Complex &y) {
+  return ((x.real() * y.real()) + (x.imaginary() * y.imaginary()));
 }
 
 double Dot(const Complex &x, const Complex &y) {
-  return ((x.real_ * y.real_) + (x.imag_ * y.imag_));
+  return ((x.real() * y.real()) + (x.imaginary() * y.imaginary()));
 }
 
 // "If the function had been written to return void, it would not have allowed
@@ -55,26 +55,15 @@ Complex &Complex::operator=(const Complex &x) {
   return *this;
 }
 
-// Can't be a const function:
-// error: invalid cast from type ‘const complex::Complex’ to type ‘double’
-//   double dp = DotProduct(x), mod = double(*this);
-double Complex::InnerAngle(Complex &x) {
-  const double dp = DotProduct(x), mod = double(*this);
-  const double xmod = double(x);
-  assert(0 != (mod * xmod));
+double InnerAngle(const Complex &x, const Complex &y) {
+  const double dp = DotProduct(x, y);
+  const double xmod = x.ComplexModulus(), ymod = y.ComplexModulus();
+  assert(0 != (xmod * ymod));
   // If x is outside the range  [-1, 1],  a  domain  error  occurs,  and  a  NaN
   // is returned.
-  const double cosine = dp / (mod * xmod);
-  double fractional = cosine;
-  if (cosine > 1) {
-    fractional = cosine - (static_cast<int>(cosine) % 1);
-  }
-  if (cosine < -1) {
-    fractional = cosine + (static_cast<int>(cosine) % 1);
-  }
-  assert((fractional >= -1) && (fractional <= 1));
-  const double ans = acos(fractional);
-  return ans;
+  const double cosine = dp / (xmod * ymod);
+  assert((cosine >= -1) && (cosine <= 1));
+  return acos(cosine);
 }
 
 // These next two binary operator rely on the Complex(double ri[2]) constructor
