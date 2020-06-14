@@ -29,26 +29,26 @@ DynString::DynString(const DynString &str) : len_(str.len_) {
   // cout << "Copy constructor this: " << this << " with s_ " << s_ << endl;
 }
 
-void DynString::assign(const DynString &str) {
-  if (&str == this) {
-    return;
+DynString &DynString::operator=(const DynString &str) {
+  if (&str != this) {
+    delete[] s_;
+    len_ = str.len_;
+    s_ = new char[len_ + 1];
+    assert(s_ != 0);
+    strcpy(s_, str.s_);
   }
-  delete[] s_;
-  len_ = str.len_;
-  s_ = new char[len_ + 1];
-  assert(s_ != 0);
-  strcpy(s_, str.s_);
+  return *this;
 }
 
 void DynString::concat(const DynString &a, const DynString &b) {
   // DynString default constructor creates a string containing NULL, of strlen
   // 0u.
   if (0u == b.len_) {
-    assign(a);
+    *this = a;
     return;
   }
   if (0u == a.len_) {
-    assign(b);
+    *this = b;
     return;
   }
   // New string needs only one trailing NULL.
@@ -121,21 +121,26 @@ void DynString::reverse() {
   assert(len_ == strlen(s_));
 }
 
-void DynString::print(size_t n) const {
-  size_t ctr = 0u;
-  while (ctr < n) {
-    cout << *(s_ + ctr);
-    ctr++;
-  }
-  //  cout << endl;
+/* void DynString::print(size_t n) const {
+size_t ctr = 0u;
+while (ctr < n) {
+  cout << *(s_ + ctr);
+  ctr++;
 }
+//  cout << endl;
+} */
 
 void DynString::swap(DynString &str) {
-  char temp[len_ + 1];
-  strcpy(temp, s_);
+  if (str == *this) {
+    return;
+  }
+  DynString a(str);
+  str = *this;
+  *this = a;
+}
 
-  assign(str);
-  str.assign(temp);
+bool operator==(const DynString &a, const DynString &b) {
+  return (0 == strcmp(a.s_, b.s_));
 }
 
 // Cannot be a member function, as it acts on a list of objects, and is
@@ -176,6 +181,24 @@ void dyn_string_sort(DynString *dynstr, size_t cursor, size_t len) {
     dyn_string_sort(dynstr + 1, cursor - 1, len);
   }
   return;
+}
+
+std::ostream &operator<<(std::ostream &out, const DynString &a) {
+  out << a.s_;
+  return out;
+}
+
+std::ostream &print_some(std::ostream &out, const DynString &a, size_t n = 0) {
+  if (!((0u == n) || a.empty())) {
+    size_t bound = (n <= a.len()) ? n : a.len();
+    size_t ctr = 0u;
+    while (ctr++ < bound) {
+      out << a.s_[ctr];
+    }
+    // Apparently std::ostringstream automagically adds the trailing null.
+    // out << '0';
+  }
+  return out;
 }
 
 } // namespace dyn_string

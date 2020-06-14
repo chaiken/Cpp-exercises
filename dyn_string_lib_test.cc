@@ -3,14 +3,17 @@
 #include "dyn_string.h"
 
 using namespace std;
-using namespace dyn_string;
+
+namespace dyn_string {
+namespace local_testing {
 
 const ::std::string kTestString = "Strings are cheap.";
 
 TEST(DynStringTest, AssignWorks) {
   DynString a(kTestString.c_str());
+  EXPECT_EQ(kTestString.length(), a.len());
   DynString b;
-  b.assign(a);
+  b = a;
   ASSERT_EQ(0, a.compare(b));
 }
 
@@ -19,6 +22,9 @@ TEST(DynStringTest, EmptyConcatHasNoEffect) {
   DynString b;
   DynString c;
   c.concat(a, b);
+  ASSERT_EQ(0, a.compare(c));
+  DynString d;
+  d.concat(b, a);
   ASSERT_EQ(0, a.compare(c));
 }
 
@@ -60,6 +66,11 @@ TEST(DynStringTest, SwapWorks) {
   DynString b("a");
   DynString c(kTestString.c_str());
   DynString d("a");
+  // Trivial case.
+  ASSERT_EQ(0, b.compare(d));
+  b.swap(d);
+  ASSERT_EQ(0, b.compare(d));
+
   ASSERT_EQ(-1, a.compare(d));
   ASSERT_EQ(1, b.compare(c));
   a.swap(b);
@@ -87,6 +98,13 @@ TEST(DynStringTest, SortWorks) {
   }
 }
 
+TEST(DynStringTest, EmptyReverseHasNoEffect) {
+  DynString a;
+  ASSERT_TRUE(a.empty());
+  a.reverse();
+  ASSERT_TRUE(a.empty());
+}
+
 TEST(DynStringTest, DoubleReverseIsIdempotent) {
   DynString a(kTestString.c_str());
   DynString b(kTestString.c_str());
@@ -95,3 +113,37 @@ TEST(DynStringTest, DoubleReverseIsIdempotent) {
   a.reverse();
   ASSERT_EQ(0, a.compare(b));
 }
+
+TEST(DynStringTest, ExtractionOperator) {
+  DynString a(kTestString.c_str());
+  ostringstream out;
+  out << a;
+  EXPECT_EQ(out.str(), kTestString);
+}
+
+TEST(DynStringTest, SubstringPrint) {
+  DynString a(kTestString.c_str());
+  ostringstream out;
+  {
+    /* compiler complains that print_some needs 3 parameters; not sure why
+       default parameter does not work. */
+    // print_some(out, a);
+    print_some(out, a, 0u);
+    EXPECT_TRUE(out.str().empty());
+  }
+  {
+    ostringstream out;
+    print_some(out, a, 1000u);
+    EXPECT_FALSE(out.str().empty());
+    EXPECT_EQ(out.str().length(), a.len());
+  }
+  {
+    ostringstream out;
+    print_some(out, a, 2u);
+    EXPECT_FALSE(out.str().empty());
+    EXPECT_EQ(2u, out.str().length());
+  }
+}
+
+} // namespace local_testing
+} // namespace dyn_string
