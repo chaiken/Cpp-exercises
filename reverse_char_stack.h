@@ -19,7 +19,7 @@ public:
   void Push(char c);
   void PushMultiple(unsigned m, const char s1[]);
   void Reverse();
-  void Print() const;
+  friend std::ostream &operator<<(std::ostream &out, const CharStack &st);
   char Pop();
   void PopMultiple(unsigned m, char s1[]);
   char top_of() const { return s_[top_]; }
@@ -31,6 +31,6 @@ private:
   int top_;
 };
 
-void reverse(const char s1[], char s2[]);
+std::ostream &operator<<(std::ostream &out, const CharStack &st);
 ::std::string pop_all(CharStack st);
 } // namespace charstack

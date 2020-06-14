@@ -1,5 +1,5 @@
 // The part of the reverse_char_stack that is tested.
-#include "reverse_char_stack_lib.h"
+#include "reverse_char_stack.h"
 
 using namespace std;
 
@@ -21,7 +21,7 @@ CharStack::CharStack(const CharStack &input) {
 void CharStack::Push(char c) {
   if (full()) {
     cerr << "Stack overflow." << endl;
-    exit(EXIT_FAILURE);
+    assert_perror(EOVERFLOW);
   }
   top_++;
   s_[top_] = c;
@@ -29,13 +29,14 @@ void CharStack::Push(char c) {
 
 void CharStack::PushMultiple(unsigned m, const char s1[]) {
   if (strlen(s1) < m) {
-    cerr << "PushMultiple: provided string " << s1 << " is too short." << endl;
-    exit(EXIT_FAILURE);
+    cerr << "PushMultiple: provided string '" << s1 << "' is too short."
+         << endl;
+    assert_perror(ENOMSG);
   }
   // No trailing NULL.
   if ((m + top_) > kFull) {
-    cerr << "PushMultiple: provided string " << s1 << " is too long." << endl;
-    exit(EXIT_FAILURE);
+    cerr << "PushMultiple: provided string '" << s1 << "' is too long." << endl;
+    assert_perror(EMSGSIZE);
   }
   unsigned i = 0;
   while (i < m) {
@@ -46,7 +47,7 @@ void CharStack::PushMultiple(unsigned m, const char s1[]) {
 char CharStack::Pop() {
   if (empty()) {
     cerr << "Stack underflow." << endl;
-    exit(EXIT_FAILURE);
+    assert_perror(ENODATA);
   }
   return s_[top_--];
 }
@@ -62,7 +63,7 @@ void CharStack::PopMultiple(const unsigned m, char s1[]) {
     cerr << "PopMultiple: not enough characters are stacked." << endl;
     // Put last char back.
     Push(c);
-    exit(EXIT_FAILURE);
+    assert_perror(ENOMSG);
   }
 
   // Return the next m.
@@ -95,12 +96,13 @@ void CharStack::Reverse() {
   s_[original_len + 1] = '\0';
 }
 
-void CharStack::Print() const {
+std::ostream &operator<<(std::ostream &out, const CharStack &st) {
   int j = 0;
-  while (j <= top_) {
-    cout << s_[j++];
+  while (j <= st.top_) {
+    out << st.s_[j++];
   }
-  cout << endl;
+  out << endl;
+  return out;
 }
 
 string pop_all(CharStack st) {
@@ -113,24 +115,6 @@ string pop_all(CharStack st) {
   }
   return output;
   output.push_back('\0');
-}
-
-void reverse(const char s1[], char s2[]) {
-  CharStack ch_stack;
-  ch_stack.reset();
-
-  int i = 0, j = 0;
-  while (s1[i] != '\0') {
-    ch_stack.Push(s1[i]);
-    i++;
-  }
-  while (i--) {
-    s2[j++] = ch_stack.Pop();
-  }
-  // Don't forget terminal NULL for second string.
-  s2[j] = '\0';
-  // Check that second string's termination is correct.
-  assert(strlen(s1) == strlen(s2));
 }
 
 } // namespace charstack
