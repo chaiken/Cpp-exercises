@@ -67,10 +67,10 @@ dyn_string_lib_test: dyn_string_lib.cc dyn_string.h dyn_string_lib_test.cc $(GTE
 dyn_string: dyn_string_lib.cc dyn_string.h
 	$(CC) $(CFLAGS) $(LDFLAGS) dyn_string_lib.cc dyn_string.cc -o $@
 
-notqsort: notqsort.cc notqsort_lib.cc notqsort_lib.h
+notqsort: notqsort.cc notqsort_lib.cc notqsort.h
 	$(CC) $(CFLAGS) $(LDFLAGS) notqsort_lib.cc notqsort.cc -o $@
 
-notqsort_lib_test: notqsort_lib.cc notqsort_lib_test.cc notqsort_lib.h  $(GTEST_HEADERS)
+notqsort_lib_test: notqsort_lib.cc notqsort_lib_test.cc notqsort.h  $(GTEST_HEADERS)
 	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) notqsort_lib_test.cc \
            notqsort_lib.cc -o $@
 

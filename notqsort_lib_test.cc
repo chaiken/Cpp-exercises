@@ -1,9 +1,11 @@
+#include "notqsort.h"
+
 #include "gtest/gtest.h"
 
-#include "notqsort_lib.h"
-
 using namespace std;
-using namespace not_qsort;
+
+namespace not_qsort {
+namespace local_testing {
 
 int values[] = {9, 4, 23, 43, 99, 4955, -1, 234};
 constexpr size_t kElements = sizeof(values) / sizeof(int);
@@ -27,3 +29,30 @@ TEST(NotQsortLibTest, RevCompareWorks) {
     i++;
   }
 }
+
+TEST(NotQsortLibTest, PrinterWorks) {
+  // https://stackoverflow.com/questions/4810516/c-redirecting-stdout
+  // clang-format off
+  // error: invalid initialization of non-const reference of type ‘std::streambuf&’ {aka ‘std::basic_streambuf<char>&’} from an rvalue of type ‘std::basic_streambuf<char>*
+  // clang-format on
+  // streambuf &save_std_out_buf = cout.rdbuf();
+  streambuf *save_std_out_buf = cout.rdbuf();
+  ostringstream str_cout;
+  cout.rdbuf(str_cout.rdbuf());
+  notqsort(values, kElements, kElements, compare);
+  print_values(values, 0, 1);
+  EXPECT_EQ(0, str_cout.str().compare("{ 4955 }\n"));
+
+  // Does not work.
+  // str_cout.str().clear();
+
+  ostringstream str_cout2;
+  cout.rdbuf(str_cout2.rdbuf());
+  notqsort(values, kElements, kElements, revcompare);
+  print_values(values, 0, 1);
+  EXPECT_EQ(0, str_cout2.str().compare("{ -1 }\n"));
+  cout.rdbuf(save_std_out_buf);
+}
+
+} // namespace local_testing
+} // namespace not_qsort

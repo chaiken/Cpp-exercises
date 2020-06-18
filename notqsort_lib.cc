@@ -1,6 +1,6 @@
 using namespace std;
 
-#include "notqsort_lib.h"
+#include "notqsort.h"
 
 namespace not_qsort {
 
@@ -10,7 +10,7 @@ void swaptwo(int *a, int *b) {
   *a = *b;
   *b = c;
 }
-}
+} // namespace
 
 // Sign matters, not value.
 int compare(const int *a, const int *b) { return (*a - *b); }

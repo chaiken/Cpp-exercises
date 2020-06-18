@@ -16,6 +16,6 @@ void notqsort(int *base, size_t num, size_t len,
 void print_values(int *base, unsigned start, unsigned len);
 int compare(const int *a, const int *b);
 int revcompare(const int *a, const int *b);
-}
+} // namespace not_qsort
 
 #endif
