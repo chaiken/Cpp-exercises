@@ -183,15 +183,6 @@ void PrintList(const std::list<std::shared_ptr<Person>> &pl) {
   }
 }
 
-void PrintListArray(const persons_array pa) {
-  int i = number_person_types - 1;
-  std::cout << std::endl;
-  for (auto x : pa) {
-    PrintList(pa[i]);
-    i--;
-  }
-}
-
 std::string GetDetail(const std::string item, const std::string detail) {
   const size_t cursor = item.find(detail);
   if (std::string::npos == cursor) {
@@ -314,13 +305,18 @@ void PopulateLists(const std::string &file_path, persons_array *pa) {
     if ((is & std::ifstream::failbit) != 0) {
       std::cerr << "Logical error on I/O operation for " << file_path << "."
                 << std::endl;
+      // Both EPERM and EEXIST set failbit.  Not sure yet when badbit and eofbit
+      // are set; perhaps files need to be open and then become unavailable.
+      assert_perror(EPERM);
     }
     if ((is & std::ifstream::badbit) != 0) {
       std::cerr << "Read/writing error on I/O operation for " << file_path
                 << "." << std::endl;
+      assert_perror(EPERM);
     }
     if ((is & std::ifstream::eofbit) != 0) {
       std::cerr << "EOF on I/O operation for " << file_path << "." << std::endl;
+      assert_perror(EEXIST);
     }
     return;
     //    assert_perror(EPERM);
