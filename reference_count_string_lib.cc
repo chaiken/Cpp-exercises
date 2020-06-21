@@ -34,22 +34,22 @@ void Swap(CountedString &str1, CountedString &str2) {
   str2 = tmp;
 }
 
-bool CountedString::operator==(const CountedString &str1) {
+bool CountedString::operator==(const CountedString &str1) const {
   return (0 == strcmp(str_->s_, str1.str_->s_));
 }
 
-bool CountedString::operator==(const char *str) {
+bool CountedString::operator==(const char *str) const {
   return (0 == strcmp(str_->s_, str));
 }
 
-char CountedString::operator[](const int i) {
-  if ((static_cast<size_t>(i) < str_->len_) && i >= 0) {
+char CountedString::operator[](const int i) const {
+  if ((static_cast<size_t>(i) > (str_->len_ - 1)) || i < 0) {
     return -1;
   }
   return (str_->s_[i]);
 }
 
-CountedString CountedString::operator()(int from, int to) {
+CountedString CountedString::operator()(int from, int to) const {
   if ((to <= from) || (from >= static_cast<int>(length())) || (from < 0)) {
     return "";
   }
@@ -66,9 +66,13 @@ CountedString CountedString::operator()(int from, int to) {
 }
 
 // Makes << operator work with CountedString objects.
-CountedString::operator char *() { return str_->s_; }
+CountedString::operator char *() const { return str_->s_; }
 
-bool CountedString::Search(char *str) {
+void operator<<(std::ostream &out, const CountedString &cs) {
+  out << cs.str_->s_ << ::std::endl;
+}
+
+bool CountedString::Search(const char *str) const {
   int slen = static_cast<int>(strlen(str)), len = static_cast<int>(length());
   // Empty string always found.
   if (!slen) {

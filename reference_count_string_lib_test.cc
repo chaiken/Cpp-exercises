@@ -9,13 +9,17 @@ namespace testing {
 
 TEST(ReferenceCountStringTest, ConstructorAndAssignmentTest) {
   CountedString ts1("abcde");
-  ts1.Print();
   CountedString ts2("12345");
-  ts2.Print();
   EXPECT_FALSE(ts1 == ts2);
   ts1 = ts2;
-  ts1.Print();
   EXPECT_TRUE(ts1 == ts2);
+  ts2 = ts2;
+  EXPECT_TRUE(ts1 == ts2);
+}
+
+TEST(ReferenceCountStringTest, CharStarEqualityTest) {
+  CountedString ts1("abcde");
+  EXPECT_TRUE(ts1 == "abcde");
 }
 
 TEST(ReferenceCountedStringTest, Concatenation) {
@@ -47,24 +51,25 @@ TEST(ReferenceCountedStringTest, Assignment) {
 }
 
 TEST(ReferenceCountedStringTest, Subscript) {
-  CountedString ts1("abcde");
-  CountedString ts2("edcba");
+  const CountedString ts1("abcde");
+  const CountedString ts2("edcba");
   char c;
   int i = 0, j;
   while ((c = ts1[i]) != -1) {
-    ::std::cout << "i: " << i << " c: " << c << ::std::endl;
     j = ts2.length() - (i + 1);
     EXPECT_EQ(c, ts2[j]);
     i++;
   }
+  const int k = 1;
+  EXPECT_EQ('d', ts2[k]);
 }
 
-TEST(ReferenceCountedStringTest, CharPtrConversionOperator) {
+TEST(ReferenceCountedStringTest, ExtractionOperator) {
   CountedString ts1("abcde");
   ostringstream ostr;
   // Note no trailing newline from endl.
   ostr << ts1;
-  EXPECT_EQ("abcde", ostr.str());
+  EXPECT_EQ("abcde\n", ostr.str());
 }
 
 TEST(ReferenceCountedStringTest, Swap) {
@@ -82,7 +87,6 @@ TEST(ReferenceCountedStringTest, Swap) {
 TEST(ReferenceCountedStringTest, NumberCtor) {
   CountedString ts(5);
   EXPECT_EQ(5u, ts.length());
-  ts.Print();
 }
 
 TEST(ReferenceCountedStringTest, OverloadedFunctionCallBadInterval) {
@@ -113,7 +117,6 @@ TEST(ReferenceCountedStringTest, OverloadedFunctionCallSubstringAtStart) {
   CountedString str2 = ts2(0, ts3.length());
   EXPECT_EQ(ts3.length(), str2.length());
   EXPECT_TRUE(ts3 == str2);
-  cout << str2 << endl;
 }
 
 TEST(ReferenceCountedStringTest, OverloadedFunctionCallSubstringAtEnd) {
@@ -122,7 +125,6 @@ TEST(ReferenceCountedStringTest, OverloadedFunctionCallSubstringAtEnd) {
   CountedString str3 = ts2(ts2.length() - ts1.length(), ts2.length());
   EXPECT_EQ(ts1.length(), str3.length());
   EXPECT_TRUE(ts1 == str3);
-  cout << str3 << endl;
 }
 
 TEST(ReferenceCountedStringTest, EmptyStringAlwaysFound) {
@@ -149,6 +151,7 @@ TEST(ReferenceCountedStringTest, SubstringFindingCorrect) {
   CountedString ts1("try me");
   CountedString ts2("do not try me");
   EXPECT_TRUE(ts2.Search(ts1));
+  EXPECT_FALSE(ts2.Search("try do not me"));
 }
 
 } // namespace testing

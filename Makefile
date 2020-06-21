@@ -104,8 +104,8 @@ polynomial_lib_test: polynomial_lib.cc polynomial_lib_test.cc polynomial.h polyn
 polynomial_lib_test_debug: polynomial_lib.cc polynomial_lib_test.cc polynomial.h polynomial_impl.h term_lib.cc term_vector_lib.cc term.h term_impl.h term_vector.h $(GTEST_HEADERS)
 	$(CC) $(CXXFLAGS) -DDEBUG $(LDFLAGS) $(GTESTLIBS) polynomial_lib.cc polynomial_lib_test.cc term_lib.cc term_vector_lib.cc -o $@
 
-reference_count_string_test: reference_count_string.h reference_count_string.cc reference_count_string_test.cc $(GTEST_HEADERS)
-	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) reference_count_string.cc reference_count_string_test.cc -o $@
+reference_count_string_lib_test: reference_count_string.h reference_count_string_lib.cc reference_count_string_lib_test.cc $(GTEST_HEADERS)
+	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) reference_count_string_lib.cc reference_count_string_lib_test.cc -o $@
 
 rational_lib_test: rational_lib.cc rational_lib_test.cc rational.h $(GTEST_HEADERS)
 	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) rational_lib.cc rational_lib_test.cc -o $@
@@ -117,12 +117,12 @@ complex_vector_lib_test: complex_vector_lib.cc complex_vector_lib_test.cc comple
 	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) complex_vector_lib.cc complex_vector_lib_test.cc complex_lib.cc -o $@
 
 
-reference_count_string_timer: reference_count_string_timer.cc reference_count_string.cc reference_count_string.h
-	$(CC) $(CXXFLAGS) $(LDFLAGS) reference_count_string_timer.cc reference_count_string.cc reference_count_string.h -o $@
+reference_count_string_timer: reference_count_string_timer.cc reference_count_string_lib.cc reference_count_string.h
+	$(CC) $(CXXFLAGS) $(LDFLAGS) reference_count_string_timer.cc reference_count_string_lib.cc reference_count_string.h -o $@
 
 # make DEBUG=DEBUG reference_count_string_timer for verbosity
-reference_count_string_timer_debug: reference_count_string_timer.cc reference_count_string.cc reference_count_string.h
-	$(CC) $(CXXFLAGS) $(LDFLAGS) -DDEBUG="DEBUG" reference_count_string_timer.cc reference_count_string.cc reference_count_string.h -o $@
+reference_count_string_timer_debug: reference_count_string_timer.cc reference_count_string_lib.cc reference_count_string.h
+	$(CC) $(CXXFLAGS) $(LDFLAGS) -DDEBUG="DEBUG" reference_count_string_timer.cc reference_count_string_lib.cc reference_count_string.h -o $@
 
 # Does not compile.
 #generic_stack_lib_test: generic_stack_lib.cc generic_stack.h generic_stack_lib_test.cc $(GTEST_HEADERS)
@@ -204,12 +204,12 @@ multiple_inheritance_lib_test: multiple_inheritance.h multiple_inheritance_lib.c
 	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) multiple_inheritance_lib.cc multiple_inheritance_lib_test.cc student_inheritance_lib.cc -o $@
 
 # async_logger_lib_test_improved: currently broken
-BINARY_LIST = calc_num_digits gcd gcd_lib_test reverse_char_stack_lib_test dyn_string_lib_test dyn_string notqsort notqsort_lib_test dbl_vector_lib_test dbl_vector_time slist_main slist_lib_test slist_lib2_test matrix_lib_test matrix_lib_test_debug term_lib_test polynomial_lib_test polynomial_lib_test_debug reference_count_string_test rational_lib_test complex_lib_test complex_vector_lib_test reference_count_string_timer reference_count_string_timer_debug smarter_stack_lib_test smarter_queue_lib_test smarter_list_lib_test new_clock_lib_test templated_stack_lib_test const_templated_stack_lib_test macro-vs-template template_cycle_lib_test template_rotate_lib_test template_vector_lib_test template_vector_lib_test_debug template_vector_main template_list_lib_test template_largest_lib_test template_integrate_lib_test reverse_list_lib_test student_inheritance_lib_test async_logger_orig async_logger_lib_test async_logger_improved one_index_vector_lib_test override_vs_overload_main multiple_inheritance_lib_test
+BINARY_LIST = calc_num_digits gcd gcd_lib_test reverse_char_stack_lib_test dyn_string_lib_test dyn_string notqsort notqsort_lib_test dbl_vector_lib_test dbl_vector_time slist_main slist_lib_test slist_lib2_test matrix_lib_test matrix_lib_test_debug term_lib_test polynomial_lib_test polynomial_lib_test_debug reference_count_string_lib_test rational_lib_test complex_lib_test complex_vector_lib_test reference_count_string_timer reference_count_string_timer_debug smarter_stack_lib_test smarter_queue_lib_test smarter_list_lib_test new_clock_lib_test templated_stack_lib_test const_templated_stack_lib_test macro-vs-template template_cycle_lib_test template_rotate_lib_test template_vector_lib_test template_vector_lib_test_debug template_vector_main template_list_lib_test template_largest_lib_test template_integrate_lib_test reverse_list_lib_test student_inheritance_lib_test async_logger_orig async_logger_lib_test async_logger_improved one_index_vector_lib_test override_vs_overload_main multiple_inheritance_lib_test
 
 # Same list as above, but with main binaries and _debug targets removed.
 # async_logger_lib_test_improved: currently broken.
 # Removed const_templated_stack_lib_test.
-NO_DEPS_LIST = gcd_lib_test reverse_char_stack_lib_test dyn_string_lib_test notqsort_lib_test slist_lib_test slist_lib2_test matrix_lib_test reference_count_string_test rational_lib_test smarter_stack_lib_test smarter_queue_lib_test smarter_list_lib_test new_clock_lib_test template_largest_lib_test template_integrate_lib_test reverse_list_lib_test one_index_vector_lib_test multiple_inheritance_lib_test
+NO_DEPS_LIST = gcd_lib_test reverse_char_stack_lib_test dyn_string_lib_test notqsort_lib_test slist_lib_test slist_lib2_test matrix_lib_test reference_count_string_lib_test rational_lib_test smarter_stack_lib_test smarter_queue_lib_test smarter_list_lib_test new_clock_lib_test template_largest_lib_test template_integrate_lib_test reverse_list_lib_test one_index_vector_lib_test multiple_inheritance_lib_test
 
 # complex_lib_test must run after all the tests listed below.
 COMPLEX_LIB_DEPS_LIST = templated_stack_lib_test template_rotate_lib_test template_vector_lib_test template_list_lib_test complex_vector_lib_test
@@ -254,7 +254,7 @@ coverage_all:
 	run_lcov_all.sh $(TERM_LIB_DEPS_LIST)
 	run_lcov_all.sh $(MUST_RUN_LAST_LIST)
 
-TEST_LIST = gcd_lib_test reverse_char_stack_lib_test dyn_string_lib_test notqsort_lib_test dbl_vector_lib_test slist_lib_test slist_lib2_test matrix_lib_test matrix_lib_test_debug term_lib_test polynomial_lib_test polynomial_lib_test_debug reference_count_string_test rational_lib_test complex_lib_test complex_vector_lib_test smarter_stack_lib_test smarter_queue_lib_test smarter_list_lib_test new_clock_lib_test templated_stack_lib_test const_templated_stack_lib_test template_cycle_lib_test template_rotate_lib_test template_vector_lib_test template_vector_lib_test_debug template_list_lib_test template_largest_lib_test template_integrate_lib_test reverse_list_lib_test student_inheritance_lib_test async_logger_lib_test one_index_vector_lib_test multiple_inheritance_lib_test
+TEST_LIST = gcd_lib_test reverse_char_stack_lib_test dyn_string_lib_test notqsort_lib_test dbl_vector_lib_test slist_lib_test slist_lib2_test matrix_lib_test matrix_lib_test_debug term_lib_test polynomial_lib_test polynomial_lib_test_debug reference_count_string_lib_test rational_lib_test complex_lib_test complex_vector_lib_test smarter_stack_lib_test smarter_queue_lib_test smarter_list_lib_test new_clock_lib_test templated_stack_lib_test const_templated_stack_lib_test template_cycle_lib_test template_rotate_lib_test template_vector_lib_test template_vector_lib_test_debug template_list_lib_test template_largest_lib_test template_integrate_lib_test reverse_list_lib_test student_inheritance_lib_test async_logger_lib_test one_index_vector_lib_test multiple_inheritance_lib_test
 
 TEST_EXTRA_FLAGS = -Werror -O2
 # None of these work work:

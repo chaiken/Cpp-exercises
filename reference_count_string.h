@@ -87,23 +87,24 @@ public:
       delete str_;
     }
   }
-  size_t length() { return str_->len_; }
+  size_t length() const { return str_->len_; }
   friend void Swap(CountedString &str1, CountedString &str2);
   friend CountedString operator+(const CountedString &str1,
                                  const CountedString &str2);
-  bool operator==(const CountedString &str1);
-  bool operator==(const char *str);
+  bool operator==(const CountedString &str1) const;
+  bool operator==(const char *str) const;
   void operator=(const CountedString &str);
-  char operator[](const int i);
-  CountedString operator()(int from, int to);
-  bool Search(char *str);
-  operator char *();
-  void Print() const { ::std::cout << str_->s_ << ::std::endl; }
+  char operator[](const int i) const;
+  CountedString operator()(int from, int to) const;
+  bool Search(const char *str) const;
+  operator char *() const;
+  friend void operator<<(std::ostream &out, const CountedString &cs);
 
 private:
   StringObject *str_;
 };
 
+void operator<<(std::ostream &out, const CountedString &cs);
 CountedString operator+(const CountedString &str1, const CountedString &str2);
 void Swap(CountedString &str1, CountedString &str2);
 } // namespace reference_counted_string
