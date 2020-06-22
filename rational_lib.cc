@@ -33,13 +33,12 @@ int GCD(int i, int j) {
 Rational::Rational(int i, int j) {
   int gcd = GCD(i, j);
 
-  if (0 != gcd) {
-    a_ = i / gcd;
-    q_ = j / gcd;
-  } else {
-    a_ = i;
-    q_ = j;
+  // Don't see how this could happen.
+  if (0 == gcd) {
+    assert_perror(EINVAL);
   }
+  a_ = i / gcd;
+  q_ = j / gcd;
 }
 
 bool Rational::operator<(const Rational &r) const {

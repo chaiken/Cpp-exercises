@@ -119,4 +119,3 @@ fi
 if [[ ("$test_name" != "student_inheritance_lib_test") ]]; then
   remove_conflicting_artifacts student_inheritance_lib_test
 fi
-

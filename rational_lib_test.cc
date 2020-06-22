@@ -15,6 +15,8 @@ TEST(RationalLibTest, GCDWithZero) { EXPECT_EQ(0, GCD(0, 540)); }
 
 TEST(RationalLibTest, GCDWithEquals) { EXPECT_EQ(12, GCD(12, 12)); }
 
+TEST(RationalLibTest, NoGCD) { EXPECT_EQ(0, GCD(0, 0)); }
+
 TEST(RationalLibTest, IntsConstructorTest) {
   Rational r(3, 5), s(21, 35);
   r.Print();
