@@ -3,12 +3,25 @@
 #include "gtest/gtest.h"
 
 using namespace std;
-using namespace slist;
+namespace slist {
+namespace local_testing {
 
 TEST(SingleLinkListTest, StringConstructorWorks) {
   SingleLinkList sll("abc");
-  sll.Print();
   ASSERT_EQ('a', sll.first()->data);
+}
+
+TEST(SingleLinkListDeathTest, EmptyString) {
+  EXPECT_EXIT(SingleLinkList(""), testing::KilledBySignal(SIGABRT),
+              "Provide at least one character to create a list.");
+}
+
+// Make sure that deleting an empty list has no effect rather than triggering an
+// error.
+TEST(SingleLinkListTest, DeleteEmptyList) {
+  SingleLinkList sll("a");
+  sll.Pop();
+  sll.Delete();
 }
 
 TEST(SingleLinkListTest, PrependWorks) {
@@ -62,10 +75,20 @@ TEST(SingleLinkListTest, AppendWorks) {
   SingleLinkList sll1("abc");
   SingleLinkList sll2("def");
   unsigned sum = sll1.Length() + sll2.Length();
-  sll1.Append(sll2);
+  sll1.Append(move(sll2));
   ASSERT_EQ(sum, sll1.Length());
   ASSERT_EQ('f', sll1.Tail()->data);
   ASSERT_EQ('a', sll1.first()->data);
+}
+
+TEST(SingleLinkListDeathTest, AppendEmpty) {
+  SingleLinkList sll("def");
+  SingleLinkList sll1("def");
+  while (!sll.empty()) {
+    sll.Pop();
+  }
+  EXPECT_EXIT(sll1.Append(move(sll)), testing::KilledBySignal(SIGABRT),
+              "Will not append zero-length string.\n");
 }
 
 TEST(SingleLinkListTest, PopWorks) {
@@ -74,3 +97,26 @@ TEST(SingleLinkListTest, PopWorks) {
   ASSERT_EQ('a', sll.Pop());
   ASSERT_EQ(2u, sll.Length());
 }
+
+TEST(SingleLinkListTest, ExtractionOperator) {
+  SingleLinkList sll("abc");
+  ostringstream out;
+  out << sll;
+  EXPECT_EQ("a -> b -> c -> 0\n", out.str());
+}
+
+TEST(SingleLinkListTest, RecursivePrint) {
+  ostringstream strCout;
+  // Save stdout's default buffer pointer.
+  streambuf *sbuf = cout.rdbuf();
+  sbuf = cout.rdbuf();
+  cout.rdbuf(strCout.rdbuf());
+  SingleLinkList sll("abc");
+  sll.Print(sll.first());
+  // Restore stdout's default buffer.
+  cout.rdbuf(sbuf);
+  EXPECT_EQ("a -> b -> c -> 0\n", strCout.str());
+}
+
+} // namespace local_testing
+} // namespace slist

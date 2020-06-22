@@ -1,4 +1,5 @@
 #include <iostream>
+#include <sstream>
 
 namespace slist {
 
@@ -11,20 +12,17 @@ class SingleLinkList {
 public:
   SingleLinkList() : h_(0) {}
   SingleLinkList(const char *s);
-  ~SingleLinkList() {
-    ::std::cout << "Destructor." << ::std::endl;
-    Release();
-  }
+  ~SingleLinkList() { Release(); }
   size_t Length() const;
   void Prepend(char c);
   void Delete();
   slistelem *first() const { return h_; }
-  void Print() const;
+  friend std::ostream &operator<<(std::ostream &out, const SingleLinkList &sll);
   void Print(slistelem *cursor) const;
   void Release();
   unsigned Count(char c) const;
   slistelem *Tail() const;
-  void Append(SingleLinkList &sll);
+  void Append(SingleLinkList &&sll);
   // Stack interface
   void reset() { Release(); }
   void push(char c) { Prepend(c); }
@@ -35,5 +33,7 @@ public:
 private:
   slistelem *h_;
 };
+
+std::ostream &operator<<(std::ostream &out, const SingleLinkList &sll);
 
 } // namespace slist

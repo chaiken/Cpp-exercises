@@ -12,7 +12,10 @@ namespace slist {
 SingleLinkList::SingleLinkList(const char *s) {
   h_ = 0;
   size_t len = strlen(s);
-  assert(len > 0u);
+  if (0u == len) {
+    cerr << "Provide at least one character to create a list." << endl;
+    assert_perror(EINVAL);
+  }
   int i = static_cast<int>(len);
   while (i > 0) {
     slistelem *elem = new slistelem;
@@ -62,11 +65,10 @@ slistelem *SingleLinkList::Tail() const {
   return save;
 }
 
-// The list passed is not const, as we will free it.
-// No need to check if sll is NULL, as it is a reference.
-void SingleLinkList::Append(SingleLinkList &sll) {
+void SingleLinkList::Append(SingleLinkList &&sll) {
   if (0u == sll.Length()) {
-    return;
+    cerr << "Will not append zero-length string." << endl;
+    assert_perror(EINVAL);
   }
   slistelem *tail = Tail();
   while (0 != sll.first()) {
@@ -93,16 +95,19 @@ void SingleLinkList::Delete() {
   delete temp;
 }
 
-void SingleLinkList::Print() const {
-  slistelem *temp = h_;
+ostream &operator<<(ostream &out, const SingleLinkList &sll) {
+  slistelem *temp = sll.first();
   while (temp != 0) {
-    cout << temp->data << " -> ";
+    out << temp->data << " -> ";
     temp = temp->next;
   }
-  cout << "0\n###" << endl;
+  out << "0" << endl;
+  return out;
 }
 
 // Tail-recursive version not obviously simpler than the while-loop version.
+// Not possible to make this function an extraction operator since it does not
+// need an object parameter and cannot return an ostream reference.
 void SingleLinkList::Print(slistelem *cursor) const {
   if (0 == cursor) {
     cout << "0" << endl;
