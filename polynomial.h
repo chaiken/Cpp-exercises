@@ -28,6 +28,7 @@ public:
     if (0 != h_)
       Release();
   }
+  const term::Term* head() const { return h_; }
   void Reverse();
   Polynomial &operator=(Polynomial &&p);
   Polynomial &operator=(const Polynomial &p);
