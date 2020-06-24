@@ -45,7 +45,9 @@ namespace termvector {
 template <long unsigned int N>
 TermVector::TermVector(::std::array<double, N> coeff,
                        ::std::array<int, N> expon) {
+#ifdef DEBUG
   ::std::cout << "TermVector arrays constructor" << ::std::endl;
+#endif
   term::SyncSortTwoArrays(&expon, &coeff, 0);
   size_ = N;
   termvec_ = new term::Term[size_];

@@ -8,7 +8,9 @@ namespace termvector {
 
 // ToDo: sort these terms by exponent, as with the array constructor.
 TermVector::TermVector(vector<double> coeff, vector<int> expon) {
+#ifdef DEBUG
   cout << "TermVector vector constructor" << endl;
+#endif
   assert(coeff.size() == expon.size());
   size_ = coeff.size();
   termvec_ = new term::Term[size_];

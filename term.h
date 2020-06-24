@@ -25,7 +25,9 @@ public:
   // Implicitly called by operator+().
   Term(const struct termprops tp)
       : exponent(tp.exp), coefficient(tp.coeff), next(tp.next) {
+#ifdef DEBUG
     ::std::cout << "term struct constructor" << ::std::endl;
+#endif
   }
   // clang-format off
   //Term(Term &&t) : exponent(t.exponent), coefficient(t.coefficient), next(t.next) {
@@ -35,7 +37,9 @@ public:
   // Initialize the object empty, then move() contents in.
   // Copied from code by Brian Silverman.
   Term(Term &&t) : Term() {
+#ifdef DEBUG
     ::std::cout << "term move constructor" << ::std::endl;
+#endif
     *this = ::std::move(t);
   }
 
@@ -43,6 +47,7 @@ public:
   // https://eli.thegreenplace.net/2011/12/15/understanding-lvalues-and-rvalues-in-c-and-c/
   Term &operator=(Term &&t);
   Term &operator=(const Term &t);
+  bool empty() { return 0.0 == coefficient; }
   // Must be a friend, non-member function because operator<<() takes only one
   // parameter, so we cannot override with a function that takes two.
   friend ::std::ostream &operator<<(::std::ostream &out, const Term &t);

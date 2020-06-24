@@ -35,7 +35,9 @@ ostream &operator<<(::std::ostream &out, const Term &t) {
 // going to assume that the default copy members are likely to do the wrong
 // thing."
 Term &Term::operator=(Term &&t) {
+#ifdef DEBUG
   cout << "term move assignment operator\n" << endl;
+#endif
   swap(coefficient, t.coefficient);
   swap(exponent, t.exponent);
   // return this;
@@ -59,7 +61,9 @@ Term &Term::operator=(const Term &t) {
 // That's odd since const lvalue references rather than rvalue references are
 // passed as function parameters.
 Term operator+(const Term &a, const Term &b) {
+#ifdef DEBUG
   cout << "term operator+()" << endl;
+#endif
   assert(a.exponent == b.exponent);
   struct termprops tp;
   tp.exp = a.exponent;

@@ -3,6 +3,8 @@
 
 #include <cassert>
 
+#include <memory>
+
 using namespace std;
 using namespace term;
 using namespace termvector;
@@ -79,6 +81,43 @@ Polynomial &Polynomial::operator=(const Polynomial &p) {
   return *this;
 }
 
+// Remove any terms whose coefficient is zero.
+// The resulting polynomial will be shorter or even empty.
+void Polynomial::RemoveEmptyTerms() {
+  if (empty()) {
+    return;
+  }
+  std::unique_ptr<Term> cursor(h_);
+  Term *previous = cursor.get();
+  // Go past all empty terms at head().
+  while (h_ && h_->empty()) {
+    cursor.reset(previous->next);
+    h_ = cursor.get();
+    previous = h_;
+  }
+  // If all terms are empty, then set the polynomial empty.
+  if (!h_ || !h_->next) {
+    h_ = nullptr;
+    return;
+  }
+
+  while (nullptr != cursor) {
+    if (cursor->empty()) {
+      // empty() means coefficient==0.0, not that exponent==0.0 or
+      // next==nullptr.
+      previous->next = cursor.get()->next;
+      // Destroys the object currently managed by the unique_ptr (if any) and
+      // takes ownership of parameter.
+      cursor.reset(previous->next);
+      previous = cursor.get();
+    } else {
+      // Simply advance forward.
+      previous = cursor.release();
+      cursor.reset(previous->next);
+    }
+  }
+}
+
 // A binary operator for an object must itself return by value a different kind
 // of object that is constructible into the object that the operator returns.
 // https://eli.thegreenplace.net/2011/12/15/understanding-lvalues-and-rvalues-in-c-and-c/
@@ -93,7 +132,6 @@ Polynomial operator+(const Polynomial &a, const Polynomial &b) {
   vector<double> coeffs;
   vector<int> expon;
 
-  cout << "Entering operator+() loop" << endl;
   while ((0 != cursorA) && (0 != cursorB)) {
     if (cursorA->exponent > cursorB->exponent) {
       Term *A_next = cursorA->next;
@@ -129,14 +167,43 @@ Polynomial operator+(const Polynomial &a, const Polynomial &b) {
   }
   // Implicitly call TermVector constructor.
   TermVector tv(coeffs, expon);
+  Polynomial temp(tv);
+  temp.RemoveEmptyTerms();
+  return (temp);
+}
+
+Polynomial operator*(const int factor, const Polynomial &a) {
+  std::vector<int> exps;
+  std::vector<double> coeffs;
+
+  Term *cursor = a.h_;
+  if (0 == factor) {
+    return Term(0, 0.0);
+  }
+  while (nullptr != cursor) {
+    coeffs.push_back(factor * cursor->coefficient);
+    exps.push_back(cursor->exponent);
+    cursor = cursor->next;
+  }
+  TermVector tv(coeffs, exps);
   return tv;
+}
+
+// Order of operands matters.  Without this, (-1 * b) compiles but (b * -1) does
+// not.
+Polynomial operator*(const Polynomial &a, const int factor) {
+  return (factor * a);
+}
+
+Polynomial operator-(const Polynomial &a, const Polynomial &b) {
+  Polynomial temp(a + (-1 * b));
+  temp.RemoveEmptyTerms();
+  return (temp);
 }
 
 void Polynomial::Release() {
   Term *cursor, *t = h_;
-  if (!h_) {
-    return;
-  }
+  // A test for (nullptr==h_) appears unreachable.
   while (t->next != 0) {
     cursor = t->next;
     delete t;
@@ -149,16 +216,22 @@ void Polynomial::Release() {
 }
 
 bool operator==(const Polynomial &a, const Polynomial &b) {
+  // No proper XOR in C++.
+  if (a.empty() && b.empty()) {
+    return true;
+  }
+  if (a.empty() || b.empty()) {
+    return false;
+  }
+#ifdef DEBUG
   cout << "Polynomial equality operator" << endl;
+#endif
   // Need to work around the fact that head() returns const.
   if (*a.head() == *b.head()) {
     Term *ap = a.head()->next;
     Term *bp = b.head()->next;
     if ((!ap) && (!bp)) {
       return true;
-    }
-    if ((!ap) && (!bp)) {
-      return false;
     }
     while (*ap == *bp) {
       ap = ap->next;
@@ -176,7 +249,9 @@ bool operator==(const Polynomial &a, const Polynomial &b) {
 }
 
 bool operator!=(const Polynomial &a, const Polynomial &b) {
+#ifdef DEBUG
   cout << "Polynomial inequality operator." << endl;
+#endif
   return !(a == b);
 }
 

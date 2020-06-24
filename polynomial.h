@@ -21,19 +21,30 @@ public:
   Polynomial(const termvector::TermVector &tv);
   // Move constructor.
   Polynomial(Polynomial &&p) : Polynomial() {
+#ifdef DEBUG
     ::std::cout << "term polynomial move constructor" << ::std::endl;
+#endif
     *this = ::std::move(p);
   }
   ~Polynomial() {
     if (0 != h_)
       Release();
   }
-  const term::Term* head() const { return h_; }
+  const term::Term *head() const { return h_; }
+  // If the head has a next pointer but a zero coefficient, it should be deleted
+  // and replaced.
+  bool empty() const {
+    return ((nullptr == h_) || ((h_->empty()) && (nullptr == h_->next)));
+  }
+  void RemoveEmptyTerms();
   void Reverse();
   Polynomial &operator=(Polynomial &&p);
   Polynomial &operator=(const Polynomial &p);
   friend ::std::ostream &operator<<(::std::ostream &out, const Polynomial &pn);
   friend Polynomial operator+(const Polynomial &a, const Polynomial &b);
+  friend Polynomial operator-(const Polynomial &a, const Polynomial &b);
+  friend Polynomial operator*(const int factor, const Polynomial &a);
+  friend Polynomial operator*(const Polynomial &a, const int factor);
   friend bool operator!=(const Polynomial &a, const Polynomial &b);
   friend bool operator==(const Polynomial &a, const Polynomial &b);
 
@@ -54,6 +65,10 @@ private:
   }
 };
 
+Polynomial operator+(const Polynomial &a, const Polynomial &b);
+Polynomial operator-(const Polynomial &a, const Polynomial &b);
+Polynomial operator*(const Polynomial &a, const int factor);
+Polynomial operator*(const int factor, const Polynomial &a);
 ::std::ostream &operator<<(::std::ostream &out, const Polynomial &pn);
 bool operator!=(const Polynomial &a, const Polynomial &b);
 bool operator==(const Polynomial &a, const Polynomial &b);
