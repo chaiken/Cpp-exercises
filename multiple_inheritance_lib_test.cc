@@ -498,11 +498,22 @@ TEST(FileIOTest, EmptyFile) {
   unlink(fname.c_str());
 }
 
+TEST(FileIODeathTest, EmptyFilePath) {
+  ClearLists();
+  EXPECT_EXIT(PopulateLists("", &pa), testing::KilledBySignal(SIGABRT),
+              "Please provide an input filename.");
+}
+
+TEST(FileIODeathTest, IsADirectory) {
+  ClearLists();
+  EXPECT_EXIT(PopulateLists("/etc", &pa), testing::KilledBySignal(SIGABRT),
+              "Is a directory.");
+}
+
 TEST(FileIODeathTest, PermissionDenied) {
   ClearLists();
   EXPECT_EXIT(PopulateLists("/etc/shadow", &pa),
-              testing::KilledBySignal(SIGABRT),
-              "Logical error on I/O operation for /etc/shadow.");
+              testing::KilledBySignal(SIGABRT), "Permission denied.");
 }
 
 TEST(FileIODeathTest, NoSuchFile) {
@@ -510,6 +521,14 @@ TEST(FileIODeathTest, NoSuchFile) {
   EXPECT_EXIT(PopulateLists("/tmp/superunlikely", &pa),
               testing::KilledBySignal(SIGABRT),
               "Logical error on I/O operation for /tmp/superunlikely.");
+}
+
+TEST_F(PersonPrintTest, EmptyFile) {
+  ClearLists();
+  PopulateLists("/home/alison/gitsrc/Cpp-Exercises/empty.txt", &pa);
+  strCout->str().clear();
+  PrintList(pa[GetPersonIndex(PersonType::Person)]);
+  EXPECT_TRUE(strCout->str().empty());
 }
 
 TEST_F(PersonPrintTest, ListPrinting) {

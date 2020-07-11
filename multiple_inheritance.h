@@ -161,7 +161,9 @@ public:
 protected:
   // Without "virtual", all is_type() tests for derived classes will fail.
   virtual std::string type_name() const {
+#ifdef DEBUG
     std::cout << std::endl << typeid(*this).name() << std::endl;
+#endif
     return (typeid(*this).name());
   }
 

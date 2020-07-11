@@ -68,7 +68,10 @@ GradStudent &GradStudent::operator=(GradStudent &&gs) {
 ::std::ostream &operator<<(::std::ostream &out, const Student &st) {
   ::std::cout << "Student printer" << ::std::endl;
   if (typeid(Student) != typeid(st)) {
+#ifdef DEBUG
+    // Detects if the Student reference contains a StudentWorker derived type.
     ::std::cout << typeid(st).name() << ::std::endl;
+#endif
   }
   ::std::cout << "GPA is " << st.gpa() << ::std::endl;
   out << "Name: " << st.name_ << ", " << st.student_id_ << ", " << st.year()

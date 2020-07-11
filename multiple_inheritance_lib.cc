@@ -43,6 +43,30 @@ double convert_double_detail(const std::string detail) {
   }
   return -1.0;
 }
+
+void handle_file_errors(const std::ifstream &ifile, const std::string &path,
+                        const int err) {
+  // http://www.cplusplus.com/reference/string/string/getline/
+  // "Notice that some eofbit cases will also set failbit.  Operations that
+  // attempt to read at the End-of-File fail, and thus both the eofbit and the
+  // failbit end up set."
+  if (ifile.eof()) {
+    if (!err) {
+      return;
+    }
+  }
+  if (ifile.fail()) {
+    std::cerr << "Logical error on I/O operation for " << path << "."
+              << std::endl;
+    assert_perror(err);
+  }
+  if (ifile.bad()) {
+    std::cerr << "Read/writing error on I/O operation for " << path << "."
+              << std::endl;
+    assert_perror(err);
+  }
+}
+
 } // namespace
 
 // non-member functions
@@ -175,6 +199,12 @@ std::string FormatDate(const unsigned int day, const Month month,
 }
 
 void PrintList(const std::list<std::shared_ptr<Person>> &pl) {
+  // Without this check, typeid() throws an exception on an empty list.
+  if (pl.empty()) {
+    return;
+  }
+  // tn cannot be empty after this cal, as on errors typeid() will throw an
+  // exception.
   std::string tn = typeid(*(pl.front().get())).name();
   std::cout << std::endl << "List of " << tn << std::endl;
   for (auto x : pl) {
@@ -285,13 +315,32 @@ void ProcessPerson(const std::string &item, persons_array *pa) {
 }
 
 void PopulateLists(const std::string &file_path, persons_array *pa) {
-  assert(!file_path.empty());
+  if (file_path.empty()) {
+    std::cerr << "Please provide an input filename.";
+    assert_perror(EEXIST);
+  }
   // Calls open() implicitly.
   std::ifstream in_file(file_path);
   if (in_file.is_open()) {
-    while (in_file.good()) {
-      std::string item;
-      std::getline(in_file, item);
+    // Works because operator!() is defined for std::ios.   Checks failbit and
+    // badbit; see
+    // https://gehrcke.de/2011/06/reading-files-in-c-using-ifstream-dealing-correctly-with-badbit-failbit-eofbit-and-perror/
+    errno = 0;
+    std::string item;
+    // "getline() actually returns the stream object which is evaluated in a
+    // bool expression in the loop header."
+    // http://www.cplusplus.com/reference/string/string/getline/
+    // The call below is the string class version of getline(), not the
+    // getline() function which is a member of the istream class, which has
+    // signature
+    // clang-format off
+      // istream's version: istream& getline (char* s, streamsize n, char delim );
+      // string's version: istream& getline (istream&  is, string& str, char delim);
+    // http://www.cplusplus.com/reference/ios/ios/eof/
+    // "Operations that attempt to read at the End-of-File fail, and thus both
+    // "the eofbit and the failbit end up set."
+    // clang-format on
+    while ((!in_file.eof()) && (std::getline(in_file, item))) {
       if (!item.empty()) {
         if (std::string::npos == item.find("LastName: ")) {
           std::cerr << "Warning: unparsable record: " << item << std::endl;
@@ -300,28 +349,10 @@ void PopulateLists(const std::string &file_path, persons_array *pa) {
         }
       }
     }
+    handle_file_errors(in_file, file_path, errno);
   } else {
-    std::ios::iostate is = in_file.rdstate();
-    if ((is & std::ifstream::failbit) != 0) {
-      std::cerr << "Logical error on I/O operation for " << file_path << "."
-                << std::endl;
-      // Both EPERM and EEXIST set failbit.  Not sure yet when badbit and eofbit
-      // are set; perhaps files need to be open and then become unavailable.
-      assert_perror(EPERM);
-    }
-    if ((is & std::ifstream::badbit) != 0) {
-      std::cerr << "Read/writing error on I/O operation for " << file_path
-                << "." << std::endl;
-      assert_perror(EPERM);
-    }
-    if ((is & std::ifstream::eofbit) != 0) {
-      std::cerr << "EOF on I/O operation for " << file_path << "." << std::endl;
-      assert_perror(EEXIST);
-    }
-    return;
-    //    assert_perror(EPERM);
+    handle_file_errors(in_file, file_path, errno);
   }
-
   in_file.close();
 }
 

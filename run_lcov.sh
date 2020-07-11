@@ -115,7 +115,8 @@ if [[ ("$test_name" != "term_lib_test") ]];
 then
   remove_conflicting_artifacts term_lib_test
 fi
-# multiple_inheritance_lib depends on student_inheritance_lib
-if [[ ("$test_name" != "student_inheritance_lib_test") ]]; then
+# multiple_inheritance_lib depends on student_inheritance_lib.
+# There is no student_inheritance_lib_test.
+if [[ ("$test_name" != "multiple_inheritance_lib_test") ]]; then
   remove_conflicting_artifacts student_inheritance_lib_test
 fi
