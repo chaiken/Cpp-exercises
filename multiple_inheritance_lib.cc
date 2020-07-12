@@ -334,8 +334,8 @@ void PopulateLists(const std::string &file_path, persons_array *pa) {
     // getline() function which is a member of the istream class, which has
     // signature
     // clang-format off
-      // istream's version: istream& getline (char* s, streamsize n, char delim );
-      // string's version: istream& getline (istream&  is, string& str, char delim);
+    // istream's version: istream& getline (char* s, streamsize n, char delim );
+    // string's version: istream& getline (istream&  is, string& str, char delim);
     // http://www.cplusplus.com/reference/ios/ios/eof/
     // "Operations that attempt to read at the End-of-File fail, and thus both
     // "the eofbit and the failbit end up set."

@@ -10,6 +10,8 @@ using namespace std;
 namespace people_roles {
 namespace local_testing {
 
+constexpr char TESTDIR[] = "/home/alison/gitsrc/Cpp-Exercises/test_files/";
+
 const struct person_details ad(1948, 5, 28, "Jane", "Alsop", "Leadville CO",
                                "F");
 const struct student_details bd(StudyYear::kJunior, 123, 4.2);
@@ -470,9 +472,7 @@ TEST(ListPopulationTest, BadStudentWorkerTest) {
 
 TEST(FileIOTest, BasicTest) {
   ClearLists();
-  PopulateLists(
-      "/home/alison/gitsrc/Cpp-Exercises/multiple_inheritance_test_data.txt",
-      &pa);
+  PopulateLists(string(TESTDIR) + "multiple_inheritance_test_data.txt", &pa);
   EXPECT_FALSE(pa[GetPersonIndex(PersonType::Person)].empty());
   EXPECT_FALSE(pa[GetPersonIndex(PersonType::Student)].empty());
   EXPECT_FALSE(pa[GetPersonIndex(PersonType::Worker)].empty());
@@ -523,19 +523,19 @@ TEST(FileIODeathTest, NoSuchFile) {
               "Logical error on I/O operation for /tmp/superunlikely.");
 }
 
-TEST_F(PersonPrintTest, EmptyFile) {
+// https://gehrcke.de/2011/06/reading-files-in-c-using-ifstream-dealing-correctly-with-badbit-failbit-eofbit-and-perror/
+// First line ends with a newline, so getline will succeed.  2nd line with no
+// newline will not yet trigger EOF but cannot succeed in creating a string.
+TEST(FileIODeathTest, NoNewline) {
   ClearLists();
-  PopulateLists("/home/alison/gitsrc/Cpp-Exercises/empty.txt", &pa);
-  strCout->str().clear();
-  PrintList(pa[GetPersonIndex(PersonType::Person)]);
-  EXPECT_TRUE(strCout->str().empty());
+  EXPECT_EXIT(PopulateLists(string(TESTDIR) + "unterminated.txt", &pa),
+              testing::KilledBySignal(SIGABRT),
+              "Logical error on I/O operation.");
 }
 
 TEST_F(PersonPrintTest, ListPrinting) {
   ClearLists();
-  PopulateLists(
-      "/home/alison/gitsrc/Cpp-Exercises/multiple_inheritance_test_data.txt",
-      &pa);
+  PopulateLists(string(TESTDIR) + "multiple_inheritance_test_data.txt", &pa);
   strCout->str().clear();
   PrintList(pa[GetPersonIndex(PersonType::Person)]);
   EXPECT_NE(
@@ -590,9 +590,7 @@ TEST_F(PersonPrintTest, ListPrinting) {
 
 TEST(SortingTest, PersonTest) {
   ClearLists();
-  PopulateLists(
-      "/home/alison/gitsrc/Cpp-Exercises/multiple_inheritance_test_data.txt",
-      &pa);
+  PopulateLists(string(TESTDIR) + "multiple_inheritance_test_data.txt", &pa);
   EXPECT_EQ(10u, pa[GetPersonIndex(PersonType::Person)].size());
   EXPECT_EQ("Johannson",
             pa[GetPersonIndex(PersonType::Person)].front().get()->last_name());
