@@ -25,6 +25,40 @@ public:
   const GradStudent *angela;
 };
 
+// Why do the move ctor and assignment operators fail to move() objects created
+// via the test fixture, but succeed with objects created on the stack inside
+// the test?
+// clang-format off
+// error: use of deleted function ‘student_inheritance::Student::Student(const student_inheritance::Student&)’
+// Student a(*marvin);
+// error: use of deleted function ‘student_inheritance::Student& student_inheritance::Student::operator=(const student_inheritance::Student&)’
+// a = *marvin;
+// error: use of deleted function ‘student_inheritance::GradStudent::GradStudent(const student_inheritance::GradStudent&)’
+// GradStudent b(std::move(*angela));
+// clang-format on
+
+TEST_F(StudentInheritanceTest, MoveCtor) {
+  Student a(marvin_details);
+  Student b(std::move(a));
+  EXPECT_EQ(b.gpa(), marvin->gpa());
+  EXPECT_EQ(b.year(), marvin->year());
+  EXPECT_EQ(b.name(), marvin->name());
+}
+
+TEST_F(StudentInheritanceTest, MoveAssignment) {
+  grad_student_extra another(Support::kTA, "Math",
+                             "Convex Eigenfunctions of a Reflected Closure");
+  GradStudent a(angela_details, another);
+  GradStudent b = std::move(a);
+  EXPECT_EQ(b.gpa(), angela->gpa());
+  EXPECT_EQ(b.year(), angela->year());
+  EXPECT_EQ(b.name(), angela->name());
+  EXPECT_EQ(b.dept(), another.dept);
+  EXPECT_EQ(b.support(), another.support);
+  EXPECT_NE(b.support(), Support::kRA);
+  EXPECT_EQ(b.thesis(), another.thesis);
+}
+
 TEST_F(StudentInheritanceTest, StudentPrinting) {
   ::std::ostringstream oss;
   oss << *marvin;
@@ -37,6 +71,22 @@ TEST_F(StudentInheritanceTest, GradStudentPrinting) {
   EXPECT_EQ(oss.str(), "Name: Angela, 124, Grad, 2.4\n, Physics, Support: "
                        "Research assistant, Thesis: Anistropic "
                        "Superconductivity in Graphite Intercalation Compounds");
+}
+
+TEST_F(StudentInheritanceTest, StudentPrintFunction) {
+  ::std::ostringstream oss;
+  marvin->print(oss);
+  EXPECT_EQ(oss.str(), "Name: Marvin, 123, Junior, 4.2\n");
+}
+
+TEST_F(StudentInheritanceTest, GradStudentPrintFunction) {
+  ::std::ostringstream oss;
+  angela->print(oss);
+  EXPECT_EQ(oss.str(),
+            "Student::gpa_ is not protected inside this member-function "
+            "wrapper: 2.4\nName: Angela, 124, Grad, 2.4\n, Physics, Support: "
+            "Research assistant, Thesis: Anistropic Superconductivity in "
+            "Graphite Intercalation Compounds");
 }
 
 TEST_F(StudentInheritanceTest, CrossMembership) {

@@ -4,6 +4,17 @@
 
 namespace student_inheritance {
 
+bool operator==(const std::string &support_description, const Support support) {
+  if (support_description == SupportDescription.find(support)->second) {
+    return true;
+  }
+  return false;
+}
+
+bool operator!=(const std::string &support_description, const Support support) {
+  return (!operator==(support_description, support));
+}
+
 Student::Student(struct student_details sd)
     : name_(sd.name), student_id_(sd.id), gpa_(sd.GPA), y_(sd.y) {
   ::std::map<Year, ::std::string>::const_iterator idx =
@@ -27,8 +38,8 @@ Student &Student::operator=(Student &&st) {
 
 GradStudent::GradStudent(struct student_details sd,
                          struct grad_student_extra gse)
-    : Student::Student(sd), support_(gse.support), dept_(gse.Dept),
-      thesis_(gse.Thesis) {
+    : Student::Student(sd), support_(gse.support), dept_(gse.dept),
+      thesis_(gse.thesis) {
   {
     ::std::map<Year, ::std::string>::const_iterator idx =
         YearDescription.find(y_);
@@ -85,7 +96,9 @@ GradStudent &GradStudent::operator=(GradStudent &&gs) {
                                  const GradStudent &gs) {
   ::std::cout << "GradStudent printer" << ::std::endl;
   if (typeid(GradStudent) != typeid(gs)) {
+#ifdef DEBUG
     ::std::cout << typeid(gs).name() << ::std::endl;
+#endif
   }
   // The GPA of GradStudent is uninitialized except for the tested case that
   // Student::gpa_ is a member of GradStudent.
@@ -111,15 +124,13 @@ GradStudent &GradStudent::operator=(GradStudent &&gs) {
   return out;
 }
 
-void Student::print() { ::std::cout << *this; }
+void Student::print(std::ostream &oss) const { oss << *this; }
 
-void GradStudent::print() {
-  ::std::cout
-      << "Student::gpa_ is not protected inside this member-function wrapper: "
+void GradStudent::print(std::ostringstream &oss) const {
+  oss << "Student::gpa_ is not protected inside this member-function wrapper: "
       << Student::gpa_ << ::std::endl;
-  ::std::ostringstream oss;
-  oss << *this;
-  ::std::cout << oss.str();
+  // Calls the Student operator<<(), not the GradStudent one.
+  operator<<(oss, *this);
 }
 
 } // namespace student_inheritance

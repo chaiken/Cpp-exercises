@@ -112,25 +112,29 @@ int main() {
   operator<<(oss, *ps);
   cout << oss.str() << endl;
 
+  ostringstream oss0;
   cout << endl << endl << "With print()." << endl;
   cout << "Without casting:" << endl;
   ps = &marvin;
   // base printer
   // Name: Marvin, 123, Junior, 4.2
   cout << "Printing from Student pointer: " << endl;
-  ps->print();
-  cout << endl;
+  ps->print(oss0);
+  cout << oss0.str() << endl;
 
+  ostringstream oss1;
   cout << "Printing from GradStudent pointer: " << endl;
   pgs = &angela;
-  pgs->print();
-  cout << endl;
+  pgs->print(oss1);
+  cout << oss1.str() << endl;
 
   cout << endl
        << endl
        << "Print GradStudent from Student pointer without 'virtual':" << endl;
+  ostringstream oss2;
   ps = &angela;
-  ps->print();
+  ps->print(oss2);
+  cout << oss2.str() << endl;
 
   /*
   clang-format off
@@ -143,13 +147,17 @@ int main() {
 
   cout << endl << "Dynamically cast a GradStudent to a Student:" << endl;
   pgs = &angela;
-  dynamic_cast<Student *>(pgs)->print();
+  ostringstream oss3;
+  dynamic_cast<Student *>(pgs)->print(oss3);
+  cout << oss3.str() << endl;
 
   cout << endl
        << "Try to force Student printing of GradStudent by direct invocation:"
        << endl;
+  ostringstream oss4;
   pgs = &angela;
-  pgs->Student::print();
+  pgs->Student::print(oss4);
+  cout << oss4.str() << endl;
 
   /*
   clang-format off

@@ -39,10 +39,10 @@ struct student_details {
 
 struct grad_student_extra {
   grad_student_extra(Support a, ::std::string b, ::std::string c)
-      : support(a), Dept(b.c_str()), Thesis(c.c_str()) {}
+      : support(a), dept(b.c_str()), thesis(c.c_str()) {}
   Support support;
-  const ::std::string Dept;
-  const ::std::string Thesis;
+  const ::std::string dept;
+  const ::std::string thesis;
 };
 
 class Student {
@@ -50,10 +50,11 @@ public:
   Student(struct student_details sd);
   Student(Student &&st);
   Student &operator=(Student &&st);
-  ::std::string year() const { return YearDescription.find(y_)->second; }
+  std::string year() const { return YearDescription.find(y_)->second; }
+  std::string name() const { return name_; }
   friend ::std::ostream &operator<<(::std::ostream &out, const Student &st);
   // Needed by Exercise 2 of Chapter 8.
-  void print();
+  void print(std::ostream &out) const;
   double gpa() const { return gpa_; }
 
 protected:
@@ -70,15 +71,16 @@ public:
   GradStudent(struct student_details sd, struct grad_student_extra gse);
   GradStudent(GradStudent &&gs);
   GradStudent &operator=(GradStudent &&gs);
-  ::std::string support() const {
+  std::string support() const {
     return SupportDescription.find(support_)->second;
   }
+  ::std::string dept() const { return dept_; }
+  ::std::string thesis() const { return thesis_; }
   // Setting the value of a variable that is a member of the parent class has no
   // effect on the value inside that class except in the case, tested below,
   // where the parent class' member Student::gpa_ is also explicitly a member of
   // the derived class.
   void setGPA(double newgpa) { gpa_ = newgpa; }
-  double gpa() const { return gpa_; }
 
   // Friend functions cannot be virtual or override.  Fails here since
   // GradStudent is a type of Student, so the anticipated function
@@ -95,7 +97,7 @@ public:
   friend ::std::ostringstream &operator<<(::std::ostringstream &out,
                                           const GradStudent &gs);
   // Needed by Exercise 2 of Chapter 8.
-  void print();
+  void print(std::ostringstream &out) const;
 
 protected:
   // clang-format off
@@ -123,6 +125,9 @@ protected:
 
 ::std::ostringstream &operator<<(::std::ostringstream &out,
                                  const GradStudent &gs);
+bool operator==(const std::string &support_description, const Support support);
+bool operator!=(const std::string &support_description, const Support support);
+
 } // namespace student_inheritance
 
 #endif
