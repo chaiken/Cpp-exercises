@@ -23,10 +23,12 @@ public:
   // square sub-matrix constructor
   Matrix(const Matrix &a, ::std::vector<int> rows, ::std::vector<int> cols);
   ~Matrix();
+  int numrows() const { return size1_; }
+  int numcols() const { return size2_; }
   // Public accessors handle the offset. Private functions continue with
   // zero-based arrays.
-  int ub1() const { return (start_ + (size1_ - 1)); }
-  int ub2() const { return (start_ + (size2_ - 1)); }
+  int ub1() const { return (start_ + (numrows() - 1)); }
+  int ub2() const { return (start_ + (numcols() - 1)); }
   int lb() const { return start_; }
   double &Element(int i, int j) const;
   friend class MatrixIterator;

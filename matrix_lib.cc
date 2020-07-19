@@ -1,10 +1,7 @@
 #include "matrix.h"
 
 #include "dbl_vector.h"
-
-#ifdef DEBUG
 #include <cassert>
-#endif
 #include <cmath>
 #include <cstdlib>
 
@@ -70,8 +67,7 @@ double &MatrixIterator::item() { return elem_[RowIndex()][ColIndex()]; }
 double Max(Matrix &m) {
   MatrixIterator iter(m);
   double val, max = m.Element(m.lb(), m.lb());
-  int end = (((m.ub1() - m.lb()) + 1) * ((m.ub2() - m.lb()) + 1));
-  for (int i = 1; i < end; i++) {
+  for (int i = 1; i < (m.numrows() * m.numcols()); i++) {
     val = iter.Iterate();
     if (val > max) {
       max = val;
@@ -151,7 +147,7 @@ Matrix::Matrix(const Matrix &a, transform t) {
         break;
       default:
         cerr << "Illegal constructor parameter." << endl;
-        exit(EXIT_FAILURE);
+        assert_perror(EINVAL);
       }
     }
   }
@@ -255,7 +251,7 @@ double Trace(const Matrix &a) {
 vector<int> ExcludeDesignatedElement(int elemnum, int to_exclude) {
   // Initialize vector to all ones.
   vector<int> vec;
-  for (int k = 0; k <= elemnum; k++) {
+  for (int k = 0; k < elemnum; k++) {
     vec.push_back(1);
   }
   // We need to remove one element for each submatrix.
@@ -291,42 +287,69 @@ array<complex<double>, 2> GetQuadraticRoots(const vector<double> coeffs) {
   return result;
 }
 
+// For an nxn matrix, the cofficient of the term of the characteristic
+// polynomial that multiplies x^k is the sum of the determinants of submatrices
+// that are formed by removing k rows and k columns from the matrix. Submatrices
+// formed by removing rows and columns are in general called minors of the
+// matrix.   When the set of indices of removed columns equals the set of
+// indices of removed rows, then the submatrices are principal minors.  As
+// Wikipedia says,
+//
+// "The characteristic polynomial of A, denoted by pA(t), is the polynomial
+// defined by
+//    p A ( t ) = det ( t I − A )
+// where I denotes the n-by-n identity matrix.
+// Some authors define the characteristic polynomial to be det(A - t I). That
+// polynomial differs from the one defined here by a sign (−1)n, so it makes
+// no difference for properties like having as roots the eigenvalues of A."
+//
+// From https://en.wikipedia.org/wiki/Characteristic_polynomial#Properties,
+// "one may compactly express the characteristic polynomial of an n×n matrix A
+// as the sum of terms where the coefficient of the kth term, with exponent
+// (rank - k), is -1^^k * the sum of all principal minors of A of size k."
+//  From
+//  https://en.wikipedia.org/wiki/Minor_(linear_algebra)#Other_applications,
+// "if A is an m × n matrix, I is a subset of {1,...,m} with k elements, and J
+// is a subset of {1,...,n} with k elements, then we write [A]I,J for the
+// k × k minor of A that corresponds to the rows with index in I and the
+// columns with index in J." In other words, a kxk principal minor of A is a
+// submatrix where the set of indices of the included columns is the same as
+// the set of included rows.  Thus a submatrix B which excludes only column x
+// and row x is a principal minor.
+//
+// For an nxn matrix,
+//     the coefficient of leading term x^n term is always (-1)^n;
+//     the coefficient of the next term is x^(n-1) is always (-1)^(n-1) * the
+//     trace of the matrix; the coefficient of the constant, final term is
+//     always the determinant of the full matrix;
+// Note that these values preserve consistency of units in each term.
 vector<double> GetCharacteristicPolynomialCoefficients(const Matrix &a) {
 #ifdef DEBUG
   assert(a.ub1() == a.ub2());
 #endif
   vector<double> coeffs;
-  // Coefficient of leading term is always (-)1.
-  coeffs.push_back(pow(-1.0, (a.ub1() - a.lb()) + 1));
   // A 2x2 matrix with elements (a,b) in first row and (c,d) in second has
-  // characteristic polynomial (x^2 - (a+d)x + (ab-cd)).
-  if (1 == (a.ub1() - a.lb())) {
-    coeffs.push_back(-1.0 * Trace(a));
-    coeffs.push_back(Determinant(a, 0.0));
+  // characteristic polynomial (x^2 - (a+d)x + (ad-bc)).
+  coeffs.push_back(pow(-1.0, a.numrows()));
+  coeffs.push_back(pow(-1.0, a.numrows() - 1) * Trace(a));
+  coeffs.push_back(Determinant(a, 0.0));
 #ifdef DEBUG
-    cout << "Coefficients are " << coeffs.at(0) << '\t' << coeffs.at(1) << '\t'
-         << coeffs.at(2) << endl;
+  cout << "Coefficients are " << coeffs.at(0) << '\t' << coeffs.at(1) << '\t'
+       << coeffs.at(2) << endl;
 #endif
-    return coeffs;
-  }
-  for (int i = a.lb(); i <= a.ub1(); i++) {
-    vector<int> excluded = ExcludeDesignatedElement(a.ub1() - a.lb(), i);
-    // Create the submatrix from which the coefficient will be calculated.
-    Matrix sub(a, excluded, excluded);
-    coeffs.push_back(Determinant(sub, 0.0));
-  }
   return coeffs;
 }
 
 double Determinant(const Matrix &a, double sum) {
   if (a.ub1() != a.ub2()) {
     cerr << "Only square matrices have determinants." << endl;
-    exit(EXIT_FAILURE);
+    assert_perror(EINVAL);
   }
-  if ((a.ub1() - a.lb()) < 1) {
-    return 0;
+  if ((a.numrows()) < 1) {
+    cerr << "Empty matrices have no determinant." << endl;
+    assert_perror(EINVAL);
   }
-  if (1 == (a.ub1() - a.lb())) {
+  if (2 == a.numrows()) {
     int val = ((a.Element(a.lb(), a.lb()) * a.Element(a.lb() + 1, a.lb() + 1)) -
                (a.Element(a.lb(), a.lb() + 1) * a.Element(a.lb() + 1, a.lb())));
 #ifdef DEBUG
@@ -340,13 +363,12 @@ double Determinant(const Matrix &a, double sum) {
     for (int i = a.lb(); i <= a.ub1(); i++) {
       // Initialize row-selection vector to all ones, then remove one row for
       // each submatrix.
-      vector<int> rows = ExcludeDesignatedElement(a.ub1() - a.lb(), i - a.lb());
+      vector<int> rows = ExcludeDesignatedElement(a.numrows(), i - a.lb());
 
       for (int j = a.lb(); j <= a.ub2(); j++) {
         // Initialize column-selection vector to all ones, then remove one
         // column for each submatrix.
-        vector<int> cols =
-            ExcludeDesignatedElement(a.ub2() - a.lb(), j - a.lb());
+        vector<int> cols = ExcludeDesignatedElement(a.numcols(), j - a.lb());
         Matrix submatrix(a, rows, cols);
         sum +=
             pow(-1, j - a.lb()) * a.Element(i, j) * Determinant(submatrix, sum);
@@ -364,14 +386,16 @@ double Determinant(const Matrix &a, double sum) {
 }
 
 ostream &operator<<(ostream &out, const Matrix &a) {
-  out << endl
-      << "Matrix of size " << ((a.ub1() - a.lb()) + 1) << "x"
-      << ((a.ub2() - a.lb()) + 1) << endl;
+  out << endl << "Matrix of size " << a.numrows() << "x" << a.numcols() << endl;
   for (int i = a.lb(); i <= a.ub1(); i++) {
     for (int j = a.lb(); j <= a.ub2(); j++) {
-      cout << a.Element(i, j) << "\t";
+      out << a.Element(i, j);
+      if (j < a.ub2()) {
+        out << '\t';
+      } else {
+        out << endl;
+      }
     }
-    out << endl;
   }
   return out;
 }

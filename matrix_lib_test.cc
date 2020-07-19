@@ -9,7 +9,7 @@
 using namespace std;
 
 namespace matrix {
-namespace testing {
+namespace local_testing {
 
 constexpr int32_t kLimit1 = 5;
 constexpr int32_t kLimit2 = 6;
@@ -50,7 +50,7 @@ public:
     delete testvec2;
   }
 
-  vector<double> *testvec1, *testvec2;
+  vector<double> *testvec1, *testvec2, *testvec3;
 };
 
 TEST(MatrixLibSimpleTest, DefaultConstructor) {
@@ -199,6 +199,17 @@ TEST_F(MatrixLibTest, TransformConstructorUpperTestOffset) {
   ASSERT_EQ(tensor2.Element(tensor2.lb(), tensor2.lb()), tensor3.Element(0, 0));
 }
 
+/*
+ There appears to be no way to fabricate an illegal enum value for testing.
+ clang-format off
+ using MatrixLibDeathTest = MatrixLibTest;
+ error: invalid cast from type ‘int’ to type ‘matrix::transform’
+ TEST_F(MatrixLibDeathTest, TransformConstructorIllegalChoice) {
+ Matrix tensor2(kLimit1, kLimit2, *testvec2);
+  EXPECT_EXIT(Matrix(tensor2, reinterpret_cast<transform>(transform::upper +3)),
+testing::KilledBySignal(SIGABRT), "Invalid parameter"); clang-format on
+} */
+
 TEST_F(MatrixLibTest, SubmatrixConstructionCopiesWithEmptyVectors) {
   vector<double> testvec;
   vector<int> rows, cols;
@@ -337,6 +348,38 @@ TEST_F(MatrixLibTest, SubmatrixConstructorSkipRowsOffset) {
             tensor2.Element(tensor2.lb() + 2, tensor2.lb()));
 }
 
+TEST_F(MatrixLibTest, SubmatrixConstructorSkipBoth) {
+  vector<double> testvec3;
+  for (int i = 0; i < 9; i++) {
+    if (is_even(i)) {
+      testvec3.push_back(i);
+    } else {
+      testvec3.push_back(2 * i);
+    }
+  }
+  Matrix tensor(3, 3, testvec3);
+  vector<int> skip{1, 0, 1};
+  Matrix sub(tensor, skip, skip);
+  EXPECT_EQ(1, sub.ub1());
+  EXPECT_EQ(1, sub.ub2());
+  MatrixIterator iter(tensor);
+  vector<int> vals;
+  // This is idiotic, but there is no other element-access operator.
+  for (int i = 0; i < ((tensor.numrows() * tensor.numcols()) - 1); i++) {
+    if ((0 == i) || (2 == i) || (6 == i)) {
+      vals.push_back(iter.item());
+    }
+    iter.Iterate();
+  }
+  vals.push_back(iter.item());
+  MatrixIterator subiter(sub);
+  for (int i = 1; i < (sub.numrows() * sub.numcols()); i++) {
+    EXPECT_EQ(vals.at(i - 1), subiter.item());
+    subiter.Iterate();
+  }
+  EXPECT_EQ(vals.at(vals.size() - 1), subiter.item());
+}
+
 TEST_F(MatrixLibTest, TraceTest) {
   Matrix tensor2(kLimit1, kLimit1, *testvec2);
   double sum = 0.0;
@@ -432,6 +475,16 @@ TEST(MatrixLibSimpleTest, NonZeroDeterminantTestOffset) {
 }
 
 // https://en.wikipedia.org/wiki/Eigenvalues_and_eigenvectors#Two-dimensional_matrix_example
+//
+// It's always true that the determinant is equal to the pure numeric term of
+// the polynomial when the characteristic polynomial is defined as det|M -
+// eigenvalue*I|, where I is the identity matrix.  In this case, the leading
+// term of the polynomial is always 1, and the trace is preserved.
+//
+// If the polynomial is defined as det|eigenvalue*I - M|, then it is not true,
+// and the leading coefficient of the polynomial is -1^^n, where n is the
+// polynomial rank.  In this second case, the terms on the diagonal are negated,
+// so the trace of the polynomial is negated.
 TEST(MatrixLibSimpleTest, TrivialCharacteristicPolynomialTest) {
   vector<double> testvec3 = {2, 1, 1, 2};
   Matrix tensor2(2, 2, testvec3);
@@ -456,6 +509,10 @@ TEST(MatrixLibSimpleTest, TrivialCharacteristicPolynomialTestOffset) {
   ASSERT_EQ(3, coeffs.at(2));
 }
 
+// A 2x2 matrix with elements (a,b) in first row and (c,d) in second has
+// characteristic polynomial with coefficients (1, -(a+d), ad-bc)
+// Roots therefore are (a+d)/2 +- 1/2*sqrt((a+d)^2 - 4(ad-bc)).
+// = 1 +- 1/2*sqrt(16 - 4*3) = 1 +- 2
 TEST(MatrixLibSimpleTest, TrivialQuadraticRootsTest) {
   vector<double> testvec3 = {2, 1, 1, 2};
   Matrix tensor2(2, 2, testvec3);
@@ -463,9 +520,14 @@ TEST(MatrixLibSimpleTest, TrivialQuadraticRootsTest) {
   cout << tensor2;
 #endif
   vector<double> coeffs = GetCharacteristicPolynomialCoefficients(tensor2);
+  EXPECT_EQ(1.0, coeffs.at(0));
+  EXPECT_EQ(-4.0, coeffs.at(1));
+  EXPECT_EQ(3.0, coeffs.at(2));
   array<complex<double>, 2> roots = GetQuadraticRoots(coeffs);
   ASSERT_EQ(3, roots[0].real());
   ASSERT_EQ(1, roots[1].real());
+  EXPECT_EQ(0, roots[0].imag());
+  EXPECT_EQ(0, roots[1].imag());
 }
 
 TEST(MatrixLibSimpleTest, TrivialQuadraticRootsTestOffset) {
@@ -475,10 +537,57 @@ TEST(MatrixLibSimpleTest, TrivialQuadraticRootsTestOffset) {
   cout << tensor2;
 #endif
   vector<double> coeffs = GetCharacteristicPolynomialCoefficients(tensor2);
+  EXPECT_EQ(3u, coeffs.size());
+  EXPECT_EQ(1.0, coeffs.at(0));
+  EXPECT_EQ(-4.0, coeffs.at(1));
+  EXPECT_EQ(3.0, coeffs.at(2));
   array<complex<double>, 2> roots = GetQuadraticRoots(coeffs);
   ASSERT_EQ(3, roots[0].real());
   ASSERT_EQ(1, roots[1].real());
+  EXPECT_EQ(0, roots[0].imag());
+  EXPECT_EQ(0, roots[1].imag());
 }
+
+// Characteristic polynomial has coefficients (1, -2, 64)
+// Roots are 1 +- 1/2*sqrt(4 - 4*64) = 1 +- sqrt(-252)
+TEST(MatrixLibSimpleTest, NonTrivialQuadraticRootsTest) {
+  vector<double> testvec3 = {1, -63, 1, 1};
+  Matrix tensor2(2, 2, testvec3, 1);
+  vector<double> coeffs = GetCharacteristicPolynomialCoefficients(tensor2);
+  EXPECT_EQ(1.0, coeffs.at(0));
+  EXPECT_EQ(-2.0, coeffs.at(1));
+  EXPECT_EQ(64.0, coeffs.at(2));
+  array<complex<double>, 2> roots = GetQuadraticRoots(coeffs);
+  EXPECT_EQ(1.0, roots[0].real());
+  EXPECT_EQ(1.0, roots[1].real());
+  // Yup, this is the only way I could find to get the test to pass.
+  EXPECT_EQ(to_string(15.874508), to_string(roots[0].imag()));
+  EXPECT_EQ(to_string(-15.874508), to_string(roots[1].imag()));
+}
+
+/* So much work that I decided to skip it.
+TEST(MatrixLibSimpleTest, LargerPolynomial) {
+  vector<double> testvec3;
+  for (int i = 0; i < 9; i++) {
+    if (is_even(i)) {
+      testvec3.push_back(i);
+    } else {
+      testvec3.push_back(2 * i);
+    }
+  }
+  Matrix tensor(3, 3, testvec3);
+  cout << tensor << endl;
+  vector<double> coeffs = GetCharacteristicPolynomialCoefficients(tensor);
+  // A polynomial of size nxn has a characteristic polynomial of degree n, which
+  // means n+1 coefficients.
+  EXPECT_EQ(4u, coeffs.size());
+  EXPECT_EQ(-1.0, coeffs.at(0));
+  EXPECT_EQ(12.0, coeffs.at(1));
+  EXPECT_EQ(132.0, coeffs.at(2));
+  EXPECT_EQ(144.0, coeffs.at(3));
+  EXPECT_EQ(Determinant(tensor, 0.0), coeffs.at(3));
+}
+*/
 
 TEST(MatrixLibSimpleTest, SquareMultiplyTest) {
   double twofer_in[] = {1.0, 2.0};
@@ -648,5 +757,25 @@ TEST_F(MatrixLibTest, MaxTestOffset) {
   ASSERT_EQ(6.0, Max(tensor));
 }
 
-} // namespace testing
+TEST_F(MatrixLibTest, ExtractionOperator) {
+  ostringstream oss;
+  operator<<(oss, Matrix(2, 2, *testvec1));
+  EXPECT_EQ("\nMatrix of size 2x2\n1\t2\n3\t4\n", oss.str());
+}
+
+using MatrixLibDeathTest = MatrixLibTest;
+
+TEST_F(MatrixLibDeathTest, NonSquareDeterminant) {
+  Matrix tensor(2, 3, *testvec1);
+  EXPECT_EXIT(Determinant(tensor, 0.0), testing::KilledBySignal(SIGABRT),
+              "Only square matrices have determinants.");
+}
+
+TEST_F(MatrixLibDeathTest, DeterminantEmptyMatrix) {
+  Matrix tensor(0, 0, 0);
+  EXPECT_EXIT(Determinant(tensor, 0.0), testing::KilledBySignal(SIGABRT),
+              "Empty matrices have no determinant.");
+}
+
+} // namespace local_testing
 } // namespace matrix
