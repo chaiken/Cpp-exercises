@@ -65,6 +65,9 @@ void MatrixIterator::reset() { position_ = 0; }
 double &MatrixIterator::item() { return elem_[RowIndex()][ColIndex()]; }
 
 double Max(Matrix &m) {
+  if (0 == m.numrows()) {
+    return 0.0;
+  }
   MatrixIterator iter(m);
   double val, max = m.Element(m.lb(), m.lb());
   for (int i = 1; i < (m.numrows() * m.numcols()); i++) {
@@ -78,6 +81,10 @@ double Max(Matrix &m) {
 
 Matrix::Matrix(int d1, int d2, int offset)
     : size1_(d1), size2_(d2), start_(offset) {
+  // http://www.cplusplus.com/reference/new/operator%20new/
+  // If this argument is zero, the function still returns a distinct non-null
+  // pointer on success (although dereferencing this pointer leads to undefined
+  // behavior).
   p_ = new double *[size1_];
 #ifdef DEBUG
   assert(d1 > 0 && d2 > 0);

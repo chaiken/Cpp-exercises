@@ -387,6 +387,9 @@ TEST_F(MatrixLibTest, TraceTest) {
     sum += tensor2.Element(i, i);
   }
   ASSERT_EQ(sum, Trace(tensor2));
+
+  Matrix tensor(0, 0, 1);
+  EXPECT_EQ(0.0, Trace(tensor));
 }
 
 TEST_F(MatrixLibTest, TraceTestOffset) {
@@ -750,6 +753,9 @@ TEST_F(MatrixLibTest, IteratorFeaturesTestOffset) {
 TEST_F(MatrixLibTest, MaxTest) {
   Matrix tensor(2, 3, *testvec1);
   ASSERT_EQ(6.0, Max(tensor));
+
+  Matrix tensor(0, 0, 1);
+  EXPECT_EQ(0.0, Max(tensor));
 }
 
 TEST_F(MatrixLibTest, MaxTestOffset) {
