@@ -257,6 +257,7 @@ TEST(PolynomialSimpleTest, RemoveEmptyTermsHasNoEffectWithoutEmpty) {
   const array<int, 3> expon = {{3, 2, 1}};
   const array<double, 3> coeffs = {{3.0, 2.0, 1.0}};
   const TermVector tv(coeffs, expon);
+  EXPECT_EQ(3, tv.size());
   Polynomial testpoly(tv);
   Polynomial testpolyprime(tv);
 #ifdef DEBUG
