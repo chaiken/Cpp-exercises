@@ -754,8 +754,8 @@ TEST_F(MatrixLibTest, MaxTest) {
   Matrix tensor(2, 3, *testvec1);
   ASSERT_EQ(6.0, Max(tensor));
 
-  Matrix tensor(0, 0, 1);
-  EXPECT_EQ(0.0, Max(tensor));
+  Matrix tensor2(0, 0, 1);
+  EXPECT_EQ(0.0, Max(tensor2));
 }
 
 TEST_F(MatrixLibTest, MaxTestOffset) {
