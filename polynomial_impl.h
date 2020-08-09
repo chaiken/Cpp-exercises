@@ -18,6 +18,11 @@ template <long unsigned int N>
 Polynomial::Polynomial(::std::array<double, N> coef,
                        ::std::array<int, N> expon) {
   log("Polynomial arrays constructor");
+  if (coef.empty() || expon.empty()) {
+    std::cerr
+        << "Cannot create a polynomial from empty coefficients or exponent.";
+    assert_perror(EINVAL);
+  }
   term::SyncSortTwoArrays(&expon, &coef, 0);
   // Head of list.
   term::Term *temp = new term::Term(expon[0], coef[0]);

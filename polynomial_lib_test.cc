@@ -11,7 +11,7 @@ using namespace term;
 using namespace termvector;
 
 namespace polynomial {
-namespace testing {
+namespace local_testing {
 
 TEST(TermVectorTest, ArrayConstructorTest) {
   array<int, 3> expon = {{1, 2, 3}};
@@ -74,11 +74,14 @@ public:
   ::array<double, 3> coeffs = {{1.0, 2.0, 3.0}};
 };
 
+TEST_F(PolynomialTest, EmptyFalseTest) { EXPECT_FALSE(testpoly->empty()); }
+
 // Does not rely on Reverse().
 TEST_F(PolynomialTest, ArraysConstructor) {
   ostringstream out;
   out << *testpoly;
   ASSERT_EQ("3.000000x^3 + 2.000000x^2 + x ", out.str());
+  ASSERT_NE(nullptr, testpoly->head());
   ASSERT_EQ(3, testpoly->head()->exponent);
   ASSERT_EQ(3.0, testpoly->head()->coefficient);
 }
@@ -541,5 +544,22 @@ TEST_F(PolynomialTest, AddTwoDifferentPolynomials) {
   EXPECT_EQ(aterm, *(testpoly3.head()));
 }
 
-} // namespace testing
+TEST_F(PolynomialTest, EmptyTrueTest) {
+  Polynomial sum = *testpoly - *testpoly;
+  cout << sum << endl;
+  EXPECT_TRUE(sum.empty());
+  EXPECT_EQ(nullptr, sum.head());
+}
+
+using PolynomialDeathTest = PolynomialTest;
+
+TEST_F(PolynomialDeathTest, EmptyInputs) {
+  array<int, 0> expon2;
+  array<double, 0> coeffs2;
+  EXPECT_EXIT(
+      Polynomial(coeffs2, expon2), testing::KilledBySignal(SIGABRT),
+      "Cannot create a polynomial from empty coefficients or exponent.");
+}
+
+} // namespace local_testing
 } // namespace polynomial

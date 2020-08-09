@@ -53,7 +53,7 @@ Polynomial &Polynomial::operator=(Polynomial &&p) {
 // assignment.
 Polynomial &Polynomial::operator=(const Polynomial &p) {
   log("Polynomial copy assignment operator");
-  if (h_) {
+  if ((h_) && (!h_->empty())) {
     // Delete everything but head.
     Term *tp = h_->next;
     while (tp != nullptr) {
