@@ -65,6 +65,16 @@ TEST_F(SmarterStackTest, Equality) {
   vector<double> data1 = {0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0};
   SmarterStack st4(data1);
   EXPECT_EQ(*st1, st4);
+  EXPECT_FALSE(*st1 == *st3);
+  EXPECT_FALSE(*st1 == *st2);
+  const SmarterStack st5(*st1);
+  const SmarterStack st6(*st2);
+  const SmarterStack st7(*st3);
+  EXPECT_FALSE(st5 == st6);
+  EXPECT_FALSE(st5 == st7);
+  st2->Reverse();
+  SmarterStack st8(*st2);
+  EXPECT_TRUE(*st1 == st8);
 }
 
 TEST_F(SmarterStackTest, CopyCtor) {
