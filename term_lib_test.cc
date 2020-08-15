@@ -13,6 +13,9 @@ TEST(TermTest, TermConstructor) {
   Term testTerm(3, 2);
   ASSERT_EQ(3, testTerm.exponent);
   ASSERT_EQ(2, testTerm.coefficient);
+  Term testTerm2;
+  EXPECT_TRUE(testTerm2.empty());
+  EXPECT_FALSE(testTerm.empty());
 }
 
 // Order a list of exponents, and apply the same ordering to the list of
