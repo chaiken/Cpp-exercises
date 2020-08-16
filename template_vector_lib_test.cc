@@ -197,6 +197,16 @@ TEST(TemplateVectorTest, AssignmentWorks) {
   }
 }
 
+TEST(TemplateVectorTest, ShortCircuits) {
+  vector<int> intvec{{83, 84, 85, 86, 87}};
+  TemplateVector<int> ivec(intvec), ivec2(intvec);
+  EXPECT_TRUE(ivec == ivec2);
+  tvassign(ivec, ivec2);
+  EXPECT_TRUE(ivec == ivec2);
+  tvswap(ivec, ivec2);
+  EXPECT_TRUE(ivec == ivec2);
+}
+
 TEST(TemplateVectorTest, SwapConversionTest) {
   vector<char> charvec{{'a', 'b', 'c', 'd', 'e'}};
   vector<int> intvec{{83, 84, 85, 86, 87}};

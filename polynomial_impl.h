@@ -31,7 +31,7 @@ Polynomial::Polynomial(::std::array<double, N> coef,
   Prepend(temp);
 
   // Other nodes.
-  for (unsigned i = 1; i < static_cast<unsigned>(N); i++) {
+  for (int i = 1; i < static_cast<int>(N); i++) {
     assert(expon[i - 1] < expon[i]);
     term::Term *temp = new term::Term(expon[i], coef[i]);
     assert(temp != 0);
