@@ -198,5 +198,52 @@ TEST(SmarterStackExceptionTest, EmptyCtor) {
   }
 }
 
+// Trivial class that exists only to throw bad_alloc().
+struct SmarterStackBadAlloc : public SmarterStack {
+  SmarterStackBadAlloc(int size) : SmarterStack(size) {}
+  SmarterStackBadAlloc(int size, const double *data)
+      : SmarterStack(size, data) {}
+  SmarterStackBadAlloc(const vector<double> data) : SmarterStack(data) {}
+  SmarterStackBadAlloc(const SmarterStack &st) : SmarterStack(st) {}
+
+  // https://en.cppreference.com/w/cpp/memory/new/operator_new#Class-specific_overloads
+  // clang-format off
+  // error: ‘static void* smarter_stack::testing::SmarterStackBadAlloc::operator new(size_t)’ marked ‘override’, but does not override
+  //static void *operator new(size_t sz) override {
+  // clang-format on
+  static void *operator new(size_t sz) {
+    cerr << "Throwing bad_alloc()" << endl;
+    throw bad_alloc();
+    return ::operator new(sz);
+  }
+  /* This version doesn't cause a bad alloc, as SmarterStack itself does not
+  call SmarterStackBadAlloc's operator:new. static void *operator new(size_t sz)
+  throw() { cerr << "Throwing bad_alloc() instead of using " << sz << endl;
+    //    throw bad_alloc();
+    //    return ::operator new(sz);
+    return nullptr;
+    } */
+};
+
+TEST(SmarterStackNoMemDeathTest, CtorSizeAlloc) {
+  ASSERT_THROW(new SmarterStackBadAlloc(100), bad_alloc);
+}
+
+TEST(SmarterStackNoMemDeathTest, CtorArrayAlloc) {
+  const double data{0.0};
+  ASSERT_THROW(new SmarterStackBadAlloc(1, &data), bad_alloc);
+}
+
+TEST(SmarterStackNoMemDeathTest, CtorVectorAlloc) {
+  vector<double> vec(5.0);
+  ASSERT_THROW(new SmarterStackBadAlloc(vec), bad_alloc);
+}
+
+TEST(SmarterStackNoMemDeathTest, CtorCopyAlloc) {
+  vector<double> vec(5.0);
+  SmarterStack st(vec);
+  ASSERT_THROW(new SmarterStackBadAlloc(st), bad_alloc);
+}
+
 } // namespace testing
 } // namespace smarter_stack

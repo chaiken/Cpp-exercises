@@ -28,6 +28,50 @@ class SmarterStack {
 public:
   SmarterStack() : size_(0), top_(-1){};
 
+  // https://en.cppreference.com/w/cpp/memory/new/operator_new#Class-specific_overloads
+  // The example code shows the replacement new called only from
+  // non-class-member main() functions.  I tried putting
+  // clang-format off
+  // SmarterStack *st = new(true) SmarterStack(int);
+  // clang-format on
+  // but doing so does not call the SmarterStack constructor and therefore
+  // does not improve test coverage.
+  /*  static void *operator new(size_t sz, bool b = false) throw() {
+    if (b) {
+      std::cerr << "Returning nullptr instead of " << sz << " allocation."
+                << std::endl;
+      return nullptr;
+    } else {
+      // The following line compiles with C++17 only.
+      return ::operator new(sz);
+      // return std::malloc(sz);
+    }
+    }
+
+  SmarterStack(int size) : size_(size), top_(-1) {
+  //
+  https://en.cppreference.com/w/cpp/memory/new/operator_new#Class-specific_overloads
+  //  SmarterStack(int size, bool fail = false) : size_(size), top_(-1) {
+    std::cerr << "Size ctor" << std::endl;
+    if (size <= 0) {
+      const std::length_error le(
+          "SmarterStack depth must be greater than zero.");
+      throw SmarterStackException(le);
+    }
+    // even with C++17:
+    // clang-format off
+    // error: no matching function for call to ‘operator new [](sizetype,
+  bool&)’
+    // data_ = new(fail) double[size];
+    // data_ = new(double[size], fail);
+    // error: expected type-specifier before ‘)’ token
+    //    data_ = static_cast<double *>(new (size * sizeof(double), fail));
+    // clang-format on
+    if (nullptr == data_) {
+      throw std::bad_alloc();
+    }
+    } */
+
   // An empty stack of a given size.
   SmarterStack(int size) : size_(size), top_(-1) {
     if (size <= 0) {
