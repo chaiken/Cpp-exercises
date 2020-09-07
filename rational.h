@@ -9,10 +9,12 @@ int GCD(int i, int j);
 
 class Rational {
 public:
-  Rational(int n = 0) : a_(n), q_(1) {}
+  Rational(int n = 0) : numerator_(n), denominator_(1) {}
   Rational(int i, int j);
-  Rational(double r) : a_(r * kMult), q_(kMult) {}
-  void Print() const { ::std::cout << a_ << "/" << q_ << ::std::endl; }
+  Rational(double r) : numerator_(r * kMult), denominator_(kMult) {}
+  void Print() const {
+    ::std::cout << numerator_ << "/" << denominator_ << ::std::endl;
+  }
   // double() rather than Double(), as otherwise there is no overload.
   // clang-format off
   /* An error without const:
@@ -29,19 +31,20 @@ public:
   // clang-format on
   // static_cast<double>() shown in text is not needed.
   operator double() const {
-    ::std::cout << "Calling double() with " << a_ << "," << q_ << ::std::endl;
-    return a_ / q_;
+    ::std::cout << "Calling double() with " << numerator_ << "," << denominator_
+                << ::std::endl;
+    return numerator_ / denominator_;
   }
   // Since double() is a conversion, it doesn't need an explicit return type. It
   // seems odd that == does.
   bool operator==(const Rational &r) const {
-    return ((r.a_ == a_) && (r.q_ == q_));
+    return ((r.numerator_ == numerator_) && (r.denominator_ == denominator_));
   }
   bool operator>(const Rational &r) const;
   bool operator<(const Rational &r) const;
 
 private:
-  long a_, q_;
+  long numerator_, denominator_;
 };
 
 inline int Greater(int i, int j) { return (i > j ? i : j); }

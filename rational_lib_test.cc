@@ -5,7 +5,7 @@
 using namespace std;
 
 namespace rational {
-namespace testing {
+namespace local_testing {
 
 TEST(RationalLibTest, GCDSimple) { EXPECT_EQ(4, GCD(540, 8)); }
 
@@ -15,6 +15,10 @@ TEST(RationalLibTest, GCDWithZero) { EXPECT_EQ(0, GCD(0, 540)); }
 
 TEST(RationalLibTest, GCDWithEquals) { EXPECT_EQ(12, GCD(12, 12)); }
 
+TEST(RationalLibTest, GCDWithNegatives) { EXPECT_EQ(3, GCD(-12, -9)); }
+
+TEST(RationalLibTest, GCDMixedNegativePositive) { EXPECT_EQ(3, GCD(12, -9)); }
+
 TEST(RationalLibTest, NoGCD) { EXPECT_EQ(0, GCD(0, 0)); }
 
 TEST(RationalLibTest, IntsConstructorTest) {
@@ -22,6 +26,11 @@ TEST(RationalLibTest, IntsConstructorTest) {
   r.Print();
   s.Print();
   EXPECT_TRUE(r == s);
+}
+
+TEST(RationalDeathTest, ZeroDenominator) {
+  EXPECT_EXIT(Rational(1, 0), testing::KilledBySignal(SIGABRT),
+              "0 is an illegal denominator value");
 }
 
 TEST(RationalLibTest, IntGreater) {
@@ -63,5 +72,5 @@ TEST(RationalLibTest, RationalsLess) {
   EXPECT_TRUE(b < a);
 }
 
-} // namespace testing
+} // namespace local_testing
 } // namespace rational

@@ -7,9 +7,17 @@ using namespace std;
 namespace rational {
 
 namespace {
-int max(int i, int j) { return (i >= j ? i : j); }
+int max_absv(int i, int j) {
+  int a = abs(i);
+  int b = abs(j);
+  return (a >= b ? a : b);
+}
 
-int min(int i, int j) { return (i >= j ? j : i); }
+int min_absv(int i, int j) {
+  int a = abs(i);
+  int b = abs(j);
+  return (a >= b ? b : a);
+}
 
 } // namespace
 
@@ -20,7 +28,7 @@ int GCD(int i, int j) {
   if (i == j) {
     return i;
   }
-  int divided = max(i, j), divisor = min(i, j);
+  int divided = max_absv(i, j), divisor = min_absv(i, j);
   int ratio = divided / divisor;
   int remainder = divided - (ratio * divisor);
   if (0 == remainder) {
@@ -31,26 +39,25 @@ int GCD(int i, int j) {
 }
 
 Rational::Rational(int i, int j) {
-  int gcd = GCD(i, j);
-
-  // Don't see how this could happen.
-  if (0 == gcd) {
+  if (0 == j) {
+    std::cerr << "0 is an illegal denominator value." << std::endl;
     assert_perror(EINVAL);
   }
-  a_ = i / gcd;
-  q_ = j / gcd;
+  int gcd = GCD(i, j);
+  numerator_ = i / gcd;
+  denominator_ = j / gcd;
 }
 
 bool Rational::operator<(const Rational &r) const {
-  assert(r.q_ != 0);
-  assert(q_ != 0);
-  return ((a_ / q_) < (r.a_ / r.q_));
+  assert(r.denominator_ != 0);
+  assert(denominator_ != 0);
+  return ((numerator_ / denominator_) < (r.numerator_ / r.denominator_));
 }
 
 bool Rational::operator>(const Rational &r) const {
-  assert(r.q_ != 0);
-  assert(q_ != 0);
-  return ((a_ / q_) > (r.a_ / r.q_));
+  assert(r.denominator_ != 0);
+  assert(denominator_ != 0);
+  return ((numerator_ / denominator_) > (r.numerator_ / r.denominator_));
 }
 
 } // namespace rational
