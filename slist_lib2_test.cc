@@ -41,6 +41,10 @@ TEST(SingleLinkListTest, DeleteWorks) {
   sll.Delete();
   ASSERT_EQ(2u, sll.Length());
   ASSERT_EQ('b', sll.Pop());
+  SingleLinkList sll2;
+  EXPECT_TRUE(sll2.empty());
+  sll2.Delete();
+  EXPECT_TRUE(sll2.empty());
 }
 
 TEST(SingleLinkListTest, EmptyStringHasZeroLength) {
