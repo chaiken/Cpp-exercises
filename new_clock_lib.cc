@@ -10,20 +10,20 @@ namespace new_clock {
 
 namespace {
 
-long GetClockPeriod() {
+long GetClockPeriod(unsigned short clockid) {
   struct timespec res;
-  if (-1 == clock_getres(CLOCK_REALTIME, &res)) {
-    assert_perror(EINVAL);
+  if (-1 == clock_getres(clockid, &res)) {
+    assert_perror(errno);
   }
   return res.tv_nsec * 1e9;
 }
 
 } // namespace
 
-long int NewClock::GetSeconds() const {
+long int NewClock::GetSeconds(unsigned short clockid) const {
   assert(nullptr != time_);
   system_clock::duration epoch_offset = time_->time_since_epoch();
-  return epoch_offset.count() / GetClockPeriod();
+  return epoch_offset.count() / GetClockPeriod(clockid);
 }
 
 void NewClock::operator++(int seconds) {

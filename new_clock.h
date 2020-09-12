@@ -21,7 +21,7 @@ public:
   void operator++(int seconds);
   void operator--(int seconds);
   friend ::std::ostream &operator<<(::std::ostream &out, const NewClock &nc);
-  long int GetSeconds() const;
+  long int GetSeconds(unsigned short clockid) const;
 
 private:
   time_point<system_clock, duration<int>> *time_;
