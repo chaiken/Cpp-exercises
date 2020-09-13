@@ -157,7 +157,7 @@ DoubleVector &DoubleVector::operator=(const DoubleVector &v) {
   return *this;
 }
 
-bool DoubleVector::operator==(DoubleVector &v) {
+bool DoubleVector::operator==(const DoubleVector &v) const {
   if (ub() != v.ub()) {
     return false;
   }
@@ -167,6 +167,10 @@ bool DoubleVector::operator==(DoubleVector &v) {
     }
   }
   return true;
+}
+
+bool DoubleVector::operator!=(const DoubleVector &v) const {
+  return (!operator==(v));
 }
 
 // Below is the text's function signature, but it must be wrong.

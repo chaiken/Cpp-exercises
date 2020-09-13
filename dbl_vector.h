@@ -69,7 +69,8 @@ public:
   // Array: The function returns arr+N.
   double *end() const { return &p_[ub() + 1]; }
   DoubleVector &operator=(const DoubleVector &v);
-  bool operator==(DoubleVector &v);
+  bool operator==(const DoubleVector &v) const;
+  bool operator!=(const DoubleVector &v) const;
   // Not an overload but a friend, since the function signature doesn't match.
   friend ::std::ostream &operator<<(::std::ostream &out, DoubleVector &dv);
   friend DoubleVector operator+(DoubleVector &a, DoubleVector &b);

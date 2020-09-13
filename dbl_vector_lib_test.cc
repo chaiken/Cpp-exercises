@@ -4,7 +4,7 @@
 
 using namespace std;
 namespace dbl_vect {
-namespace testing {
+namespace local_testing {
 
 class DoubleVectorTest : public ::testing::Test {
 public:
@@ -173,7 +173,13 @@ TEST(DoubleVectorSimpleTest, SumVectorsWorks) {
   ASSERT_EQ(0, c.SumElements());
 }
 
-} // namespace testing
+TEST(DoubleVectorSimpleTest, EqualityOperatorWorks) {
+  DoubleVector a(5), b(4);
+  ASSERT_FALSE(a == b);
+  ASSERT_TRUE(a != b);
+}
+
+} // namespace local_testing
 } // namespace dbl_vect
 
 // /home/alison/src/exercises/Pohl/dbl_vector_lib_test.cc:57: multiple
