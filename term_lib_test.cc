@@ -7,7 +7,7 @@
 using namespace std;
 
 namespace term {
-namespace testing {
+namespace local_testing {
 
 TEST(TermTest, TermConstructor) {
   Term testTerm(3, 2);
@@ -125,5 +125,20 @@ TEST(TermTest, CopyAssignment) {
   ASSERT_EQ(t1, t2);
 }
 
-} // namespace testing
+TEST(TermTest, PrintingTest) {
+  Term t1(0, 0.0);
+  ostringstream out;
+  out << t1;
+  EXPECT_TRUE(out.str().empty());
+  Term t2(0, 1.0);
+  out.str().clear();
+  out << t2;
+  EXPECT_TRUE(out.str().find("1;"));
+  out.str().clear();
+  Term t3(1, 3.0);
+  out << t3;
+  EXPECT_TRUE(out.str().find("3x ;"));
+}
+
+} // namespace local_testing
 } // namespace term
