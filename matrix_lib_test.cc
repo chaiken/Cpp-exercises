@@ -199,17 +199,6 @@ TEST_F(MatrixLibTest, TransformConstructorUpperTestOffset) {
   ASSERT_EQ(tensor2.Element(tensor2.lb(), tensor2.lb()), tensor3.Element(0, 0));
 }
 
-/*
- There appears to be no way to fabricate an illegal enum value for testing.
- clang-format off
- using MatrixLibDeathTest = MatrixLibTest;
- error: invalid cast from type ‘int’ to type ‘matrix::transform’
- TEST_F(MatrixLibDeathTest, TransformConstructorIllegalChoice) {
- Matrix tensor2(kLimit1, kLimit2, *testvec2);
-  EXPECT_EXIT(Matrix(tensor2, reinterpret_cast<transform>(transform::upper +3)),
-testing::KilledBySignal(SIGABRT), "Invalid parameter"); clang-format on
-} */
-
 TEST_F(MatrixLibTest, SubmatrixConstructionCopiesWithEmptyVectors) {
   vector<double> testvec;
   vector<int> rows, cols;
@@ -781,6 +770,22 @@ TEST_F(MatrixLibDeathTest, DeterminantEmptyMatrix) {
   Matrix tensor(0, 0, 0);
   EXPECT_EXIT(Determinant(tensor, 0.0), testing::KilledBySignal(SIGABRT),
               "Empty matrices have no determinant.");
+}
+
+/*
+ clang-format off
+ error: invalid cast from type ‘int’ to type ‘matrix::transform’
+ TEST_F(MatrixLibDeathTest, TransformConstructorIllegalChoice) {
+ Matrix tensor2(kLimit1, kLimit2, *testvec2);
+  EXPECT_EXIT(Matrix(tensor2, reinterpret_cast<transform>(transform::upper +3)),
+testing::KilledBySignal(SIGABRT), "Invalid parameter"); clang-format on
+} */
+
+TEST_F(MatrixLibDeathTest, TransformConstructorIllegalChoice) {
+  Matrix tensor2(kLimit1, kLimit2, *testvec2);
+  EXPECT_EXIT(Matrix(tensor2, static_cast<transform>(11)),
+              testing::KilledBySignal(SIGABRT),
+              "Illegal constructor parameter");
 }
 
 } // namespace local_testing
