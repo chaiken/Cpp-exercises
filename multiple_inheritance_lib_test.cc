@@ -645,5 +645,11 @@ TEST(PersonDeathTest, IllegalType) {
               testing::KilledBySignal(SIGABRT), "Bad PersonType");
 }
 
+TEST(PersonDeathTest, IllegalStudentYear) {
+  const struct student_details bad(static_cast<StudyYear>(11), 123, 2.4);
+  EXPECT_EXIT(Student(ad, bad), testing::KilledBySignal(SIGABRT),
+              "Illegal year for student.");
+}
+
 } // namespace local_testing
 } // namespace people_roles
