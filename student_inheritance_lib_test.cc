@@ -120,7 +120,15 @@ TEST_F(StudentInheritanceDeathTest, IllegalGradYear) {
   // namespace, which is poorly named.  Use either ::testing::KilledBySignal()
   // or rename this namespace.
   EXPECT_EXIT(GradStudent badangela(bad_details, angela_extra),
-              testing::KilledBySignal(SIGABRT), "Invalid argument");
+              testing::KilledBySignal(SIGABRT),
+              "Illegal year for graduate student");
+}
+
+TEST_F(StudentInheritanceDeathTest, IllegalStudentYear) {
+  const struct student_details bad_details(static_cast<Year>(14), 124, 2.4,
+                                           "Angela");
+  EXPECT_EXIT(Student badangela(bad_details), testing::KilledBySignal(SIGABRT),
+              "Illegal year for student");
 }
 
 TEST_F(StudentInheritanceDeathTest, IllegalSupport) {
@@ -128,7 +136,7 @@ TEST_F(StudentInheritanceDeathTest, IllegalSupport) {
       static_cast<Support>(-1), "Physics",
       "Anistropic Superconductivity in Graphite Intercalation Compounds");
   EXPECT_EXIT(GradStudent badangela(angela_details, bad_extra),
-              testing::KilledBySignal(SIGABRT), "Invalid argument");
+              testing::KilledBySignal(SIGABRT), "Illegal support");
 }
 
 } // namespace local_testing
