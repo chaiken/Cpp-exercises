@@ -21,7 +21,7 @@ template <typename T> const T &TemplateVector<T>::operator[](int i) const {
 template <typename T> TemplateVector<T>::TemplateVector(int n) : size_(n) {
   ::std::cout << "Default ctor" << ::std::endl;
   if (n <= 0) {
-    throw std::length_error{"TemplateVector constructor: illegal size"};
+    throw std::length_error{"TemplateVector default constructor: illegal size"};
   }
   p_ = new T[n];
   if (nullptr == p_) {
@@ -29,20 +29,40 @@ template <typename T> TemplateVector<T>::TemplateVector(int n) : size_(n) {
   }
 }
 
+// First size_t is size of array paramter arr; second is size of the copy,
+// https://stackoverflow.com/questions/13081837/reference-to-an-array-in-c++
 template <typename T>
-TemplateVector<T>::TemplateVector(const T *v, int sz) : size_(sz) {
+TemplateVector<T>::TemplateVector(const T (&arr)[], size_t sz1, size_t sz2)
+    : size_(sz2) {
 #ifdef DEBUG
   ::std::cout << "Array ctor" << ::std::endl;
 #endif
-  if (size_ <= 0) {
-    throw std::length_error{"TemplateVector constructor: illegal size"};
+  std::cerr << "sz1 is: " << sz1 << std::endl;
+  // clang-format off
+  // https://en.cppreference.com/w/c/language/sizeof
+  //
+  // The following works only when the array is copied onto the stack.
+  // "Number of elements in any array a including VLA (since C99) may be
+  // determined with the expression sizeof a / sizeof a[0]. Note that if a has
+  // pointer type (such as after array-to-pointer conversion of function
+  // parameter type adjustment), this expression would simply divide the number
+  // of bytes in a pointer type by the number of bytes in the pointed type."
+  //
+  // The compiler does not know the size of the array, so it cannot instantiate
+  // the template:
+  // template_vector_impl.h:46:33: error: invalid application of ‘sizeof’ to incomplete type ‘const complex::Complex []’
+  //  if ((size_ <= 0) || (size_ > (sizeof(v)/sizeof(v[0])))) {
+  // clang-format on
+  // sz1 can be anything, as the compiler has no way of checking it.
+  if ((size_ <= 0) || (size_ > sz1)) {
+    throw std::length_error{"TemplateVector array constructor: illegal size"};
   }
   p_ = new T[size_];
   if (nullptr == p_) {
     throw std::bad_alloc{};
   }
-  for (int i = 0; i < size_; i++) {
-    p_[i] = v[i];
+  for (size_t i = 0u; i < sz2; i++) {
+    p_[i] = arr[i];
   }
 }
 
@@ -51,7 +71,7 @@ TemplateVector<T>::TemplateVector(const ::std::vector<T> vec)
     : size_(vec.size()) {
   ::std::cout << "::std::vector ctor" << ::std::endl;
   if (size_ <= 0) {
-    throw std::length_error{"TemplateVector constructor: illegal size"};
+    throw std::length_error{"TemplateVector vector constructor: illegal size"};
   }
   p_ = new T[size_];
   if (nullptr == p_) {
@@ -73,7 +93,7 @@ template <typename T>
 TemplateVector<T>::TemplateVector(TemplateVector &&vec) : size_(vec.size_) {
   ::std::cout << "Move ctor" << ::std::endl;
   if (size_ <= 0) {
-    throw std::length_error{"TemplateVector constructor: illegal size"};
+    throw std::length_error{"TemplateVector move constructor: illegal size"};
   }
   // This move() is not needed, as vec is already an R-value reference.
   //  p_ = ::std::move(vec.p_);

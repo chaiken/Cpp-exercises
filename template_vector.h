@@ -10,7 +10,11 @@ namespace template_vect {
 template <typename T> class TemplateVector {
 public:
   explicit TemplateVector(int n = 100);
-  TemplateVector(const T *v, int sz);
+  // First size_t is size of array paramter arr; second is size of the copy,
+  // which can be smaller.  The first could be a template parameter, but then
+  // the class definition and all ctors would require it.  Two parameters also
+  //  would complicate assignment operators.
+  TemplateVector(const T (&arr)[], size_t sz1, size_t sz2);
   TemplateVector(const ::std::vector<T> v);
   TemplateVector(TemplateVector &&v);
   ~TemplateVector() { delete[] p_; }
@@ -47,7 +51,7 @@ public:
 
 private:
   T *p_;
-  int size_;
+  size_t size_;
   int cursor_ = 0;
 };
 

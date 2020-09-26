@@ -29,7 +29,7 @@ TEST(TemplateVectorDeathTest, ZeroLengthVector) {
     // Apparently what() contains non-printing characters, maybe whitespace?
     // ASSERT_EQ("TemplateVector constructor: illegal size", le.what());
     ASSERT_TRUE(string::npos !=
-                str.find("TemplateVector constructor: illegal size"));
+                str.find("TemplateVector default constructor: illegal size"));
   }
 }
 
@@ -44,12 +44,21 @@ TEST(TemplateVectorTest, DefaultCtor) {
 TEST(TemplateVectorTest, ArrayCtor) {
   Complex carr[]{Complex(0.0, 0.0), Complex(1.0, 1.0), Complex(2.0, 2.0),
                  Complex(3.0, 3.0), Complex(4.0, 4.0)};
-  TemplateVector<Complex> tv(carr, 5);
+  // TemplateVector has the same number of elements as the array.
+  TemplateVector<Complex> tv1(carr, 5, 5);
   int i = 0;
-  for (TemplateVector<Complex>::iterator tvit = tv.begin(); tvit != tv.end();
+  for (TemplateVector<Complex>::iterator tvit = tv1.begin(); tvit != tv1.end();
        tvit++, i++) {
     EXPECT_EQ(carr[i], *tvit);
   }
+  ASSERT_EQ(5, i);
+  TemplateVector<Complex> tv2(carr, 5, 3);
+  i = 0;
+  for (TemplateVector<Complex>::iterator tvit = tv2.begin(); tvit != tv2.end();
+       tvit++, i++) {
+    EXPECT_EQ(carr[i], *tvit);
+  }
+  ASSERT_EQ(3, i);
 }
 
 TEST(TemplateVectorTest, VectorCtor) {
@@ -65,7 +74,7 @@ TEST(TemplateVectorTest, VectorCtor) {
 TEST(TemplateVectorTest, MoveCtor) {
   Complex carr[]{Complex(0.0, 0.0), Complex(1.0, 1.0), Complex(2.0, 2.0),
                  Complex(3.0, 3.0), Complex(4.0, 4.0)};
-  TemplateVector<Complex> tv(carr, 5);
+  TemplateVector<Complex> tv(carr, 5, 5);
   TemplateVector<Complex> tv2(move(tv));
   int i = 0;
   for (TemplateVector<Complex>::iterator tvit = tv2.begin(); tvit != tv2.end();
@@ -119,7 +128,7 @@ TEST(TemplateVectorTest, AssignmentSizeMismatch) {
 TEST(TemplateVectorTest, PrinterTest) {
   Complex carr[]{Complex(0.0, 0.0), Complex(1.0, 1.0), Complex(2.0, 2.0),
                  Complex(3.0, 3.0), Complex(4.0, 4.0)};
-  TemplateVector<Complex> tv(carr, 5);
+  TemplateVector<Complex> tv(carr, 5, 5);
   ostringstream out, out2;
   out << tv;
   out2 << "0 + 0i, 1 + 1i, 2 + 2i, 3 + 3i, 4 + 4i, ";
@@ -251,7 +260,7 @@ TEST(TemplateVectorTest, SortTest) {
                  Complex(3.0, 3.0), Complex(2.0, 2.0), Complex(0.0, 0.0),
                  Complex(4.0, 4.0), Complex(1.0, 1.0), Complex(3.0, 3.0),
                  Complex(2.0, 2.0), Complex(0.0, 0.0), Complex(4.0, 4.0)};
-  TemplateVector<Complex> tv(carr, 25), tv2(carr, 25);
+  TemplateVector<Complex> tv(carr, 25, 25), tv2(carr, 25, 25);
   cout << "Start: " << tv << endl;
 
   system_clock::time_point start = system_clock::now();
@@ -268,7 +277,7 @@ TEST(TemplateVectorTest, SortTest) {
                   Complex(3.0, 3.0), Complex(3.0, 3.0), Complex(4.0, 4.0),
                   Complex(4.0, 4.0), Complex(4.0, 4.0), Complex(4.0, 4.0),
                   Complex(4.0, 4.0)};
-  TemplateVector<Complex> tv3(carr2, 25);
+  TemplateVector<Complex> tv3(carr2, 25, 25);
   cout << endl << "Test: " << tv3 << endl;
   EXPECT_TRUE(tv == tv3);
   cout << "Bisecting sort duration: "
@@ -296,8 +305,8 @@ TEST(TemplateVectorTest, SortTest) {
   Polynomial parr[]{Polynomial(coeffs, expon), Polynomial(coeffs1, expon1),
                     Polynomial(coeffs2, expon2), Polynomial(coeffs3, expon3),
                     Polynomial(coeffs4, expon4)};
-  TemplateVector<Polynomial> tv4(parr, 5);
-  TemplateVector<Polynomial> tv5(parr, 5);
+  TemplateVector<Polynomial> tv4(parr, 5, 5);
+  TemplateVector<Polynomial> tv5(parr, 5, 5);
   EXPECT_TRUE(tv4 == tv5);
   // template_vector_lib_test.cc:234:42: required from here
   // /usr/include/c++/9/bits/predefined_ops.h:43:23: error: no match for
@@ -305,6 +314,19 @@ TEST(TemplateVectorTest, SortTest) {
   // ‘polynomial::Polynomial’)
   //  sort(move(tv4).begin(), move(tv4).end());
   //  EXPECT_FALSE(tv4 == tv5);
+}
+
+TEST(TemplateVectorDeathTest, OutOfRangeElement) {
+  vector<char> charvec{{'a', 'b', 'c', 'd', 'e'}};
+  TemplateVector<char> cvec(charvec);
+  ASSERT_THROW(cvec[100], out_of_range);
+}
+
+TEST(TemplateVectorDeathTest, IllegalSubset) {
+  const int anarray[] = {1, 2, 3};
+  ASSERT_THROW(TemplateVector<int>(anarray, 3, 0), length_error);
+  ASSERT_THROW(TemplateVector<int>(anarray, 3, -1), length_error);
+  ASSERT_THROW(TemplateVector<int>(anarray, 3, 142), length_error);
 }
 
 } // namespace testing
