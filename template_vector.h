@@ -15,7 +15,7 @@ public:
   // the class definition and all ctors would require it.  Two parameters also
   //  would complicate assignment operators.
   TemplateVector(const T (&arr)[], size_t sz1, size_t sz2);
-  TemplateVector(const ::std::vector<T> v);
+  TemplateVector(const ::std::vector<T> &v);
   TemplateVector(TemplateVector &&v);
   ~TemplateVector() { delete[] p_; }
   int ub() const { return (size_ - 1); }

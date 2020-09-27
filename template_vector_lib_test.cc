@@ -3,6 +3,8 @@
 #include "complex.h"
 #include "polynomial.h"
 
+#include <limits.h>
+
 #include <chrono>
 #include <iostream>
 #include <vector>
@@ -69,6 +71,9 @@ TEST(TemplateVectorTest, VectorCtor) {
     EXPECT_EQ(x, tv[i]);
     i++;
   }
+  vector<double> dv2;
+  TemplateVector<double> tv2(dv2);
+  EXPECT_EQ(-1, tv2.ub());
 }
 
 TEST(TemplateVectorTest, MoveCtor) {
@@ -81,6 +86,12 @@ TEST(TemplateVectorTest, MoveCtor) {
        tvit++, i++) {
     EXPECT_EQ(carr[i], *tvit);
   }
+  EXPECT_EQ(-1, tv.ub());
+  vector<double> dv;
+  TemplateVector<double> tv3(dv);
+  TemplateVector<double> tv4(move(tv3));
+  EXPECT_EQ(-1, tv3.ub());
+  EXPECT_EQ(-1, tv4.ub());
 }
 
 TEST(TemplateVectorTest, MoveAssignment) {
@@ -319,6 +330,7 @@ TEST(TemplateVectorTest, SortTest) {
 TEST(TemplateVectorDeathTest, OutOfRangeElement) {
   vector<char> charvec{{'a', 'b', 'c', 'd', 'e'}};
   TemplateVector<char> cvec(charvec);
+  ASSERT_THROW(cvec[-4], out_of_range);
   ASSERT_THROW(cvec[100], out_of_range);
 }
 
@@ -328,6 +340,12 @@ TEST(TemplateVectorDeathTest, IllegalSubset) {
   ASSERT_THROW(TemplateVector<int>(anarray, 3, -1), length_error);
   ASSERT_THROW(TemplateVector<int>(anarray, 3, 142), length_error);
 }
+
+/* Does not throw!  Nor do allocations of UINT_MAX, which actually turns out to
+be negative. TEST(TemplateVectorDeathTest, BadAlloc) { TemplateVector<int>
+tv(UINT_MAX/2); ASSERT_THROW(TemplateVector<int> tv2(UINT_MAX/2), bad_alloc);
+}
+*/
 
 } // namespace testing
 } // namespace template_vect

@@ -67,12 +67,9 @@ TemplateVector<T>::TemplateVector(const T (&arr)[], size_t sz1, size_t sz2)
 }
 
 template <typename T>
-TemplateVector<T>::TemplateVector(const ::std::vector<T> vec)
+TemplateVector<T>::TemplateVector(const ::std::vector<T> &vec)
     : size_(vec.size()) {
   ::std::cout << "::std::vector ctor" << ::std::endl;
-  if (size_ <= 0) {
-    throw std::length_error{"TemplateVector vector constructor: illegal size"};
-  }
   p_ = new T[size_];
   if (nullptr == p_) {
     throw std::bad_alloc{};
@@ -92,13 +89,13 @@ TemplateVector<T>::TemplateVector(const ::std::vector<T> vec)
 template <typename T>
 TemplateVector<T>::TemplateVector(TemplateVector &&vec) : size_(vec.size_) {
   ::std::cout << "Move ctor" << ::std::endl;
-  if (size_ <= 0) {
-    throw std::length_error{"TemplateVector move constructor: illegal size"};
-  }
   // This move() is not needed, as vec is already an R-value reference.
   //  p_ = ::std::move(vec.p_);
   p_ = vec.p_;
   vec.p_ = nullptr;
+  // With this setting, the public functions cannot detect that the
+  // TemplateVector is empty.
+  vec.size_ = 0u;
 }
 
 template <typename T>
