@@ -37,6 +37,13 @@ TEST(NumericalIntegrationTest, CubeTest) {
   cout << "Fine-interval error is " << fine_error << endl;
 
   ASSERT_GT(coarse_error, fine_error);
+
+  vector<double> negative_interval(fine);
+  CubeIt<double> negative_fn(*(negative_interval.begin()), -1.0/fine);
+  generate(negative_interval.begin(), negative_interval.end(), negative_fn);
+  double negative_result = do_integrate(negative_interval);
+  // x^3 has odd parity.
+  ASSERT_EQ(fine_result, -1.0*negative_result);
 }
 
 TEST(NumericalIntegrationTest, PassInFunctionTest) {
