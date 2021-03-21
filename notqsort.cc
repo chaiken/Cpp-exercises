@@ -2,7 +2,7 @@
 #include <cstdlib>
 #include <iostream>
 
-#include "notqsort_lib.h"
+#include "notqsort.h"
 
 using namespace std;
 using namespace not_qsort;
