@@ -5,6 +5,7 @@
 
 #include <limits.h>
 
+#include <algorithm>
 #include <chrono>
 #include <iostream>
 #include <vector>
@@ -296,7 +297,7 @@ TEST(TemplateVectorTest, SortTest) {
        << endl;
 
   start = system_clock::now();
-  sort(tv2.begin(), tv2.end());
+  std::sort(tv2.begin(), tv2.end());
   stop = system_clock::now();
   EXPECT_TRUE(tv2 == tv3);
   cout << "::std::sort duration: "
