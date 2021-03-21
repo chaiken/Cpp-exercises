@@ -53,16 +53,16 @@ gcd: gcd.cc gcd_lib.cc gcd_lib.h
 	$(CC) $(CXXFLAGS) $(LDFLAGS) gcd.cc gcd_lib.cc -o $@
 
 gcd_lib_test: gcd_lib_test.cc gcd_lib.cc gcd_lib.h $(GTEST_HEADERS)
-	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) gcd_lib_test.cc gcd_lib.cc -o $@
+	$(CC) $(CXXFLAGS) $(LDFLAGS) gcd_lib_test.cc gcd_lib.cc $(GTESTLIBS) -o $@
 
 reverse_char_stack_lib_test: reverse_char_stack_lib_test.cc \
     reverse_char_stack_lib.cc reverse_char_stack.h $(GTEST_HEADERS)
-	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) reverse_char_stack_lib_test.cc \
-           reverse_char_stack_lib.cc -o $@
+	$(CC) $(CXXFLAGS) $(LDFLAGS) reverse_char_stack_lib_test.cc \
+           reverse_char_stack_lib.cc $(GTESTLIBS)  -o $@
 
 dyn_string_lib_test: dyn_string_lib.cc dyn_string.h dyn_string_lib_test.cc $(GTEST_HEADERS)
-	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) dyn_string_lib.cc \
-           dyn_string_lib_test.cc -o $@
+	$(CC) $(CXXFLAGS) $(LDFLAGS) dyn_string_lib.cc \
+           dyn_string_lib_test.cc $(GTESTLIBS) -o $@
 
 dyn_string: dyn_string_lib.cc dyn_string.h
 	$(CC) $(CFLAGS) $(LDFLAGS) dyn_string_lib.cc dyn_string.cc -o $@
@@ -71,11 +71,11 @@ notqsort: notqsort.cc notqsort_lib.cc notqsort.h
 	$(CC) $(CFLAGS) $(LDFLAGS) notqsort_lib.cc notqsort.cc -o $@
 
 notqsort_lib_test: notqsort_lib.cc notqsort_lib_test.cc notqsort.h  $(GTEST_HEADERS)
-	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) notqsort_lib_test.cc \
-           notqsort_lib.cc -o $@
+	$(CC) $(CXXFLAGS) $(LDFLAGS) notqsort_lib_test.cc \
+           notqsort_lib.cc $(GTESTLIBS) -o $@
 
 dbl_vector_lib_test: dbl_vector_lib.cc dbl_vector_lib_test.cc dbl_vector.h  $(GTEST_HEADERS)
-	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) dbl_vector_lib.cc dbl_vector_lib_test.cc -o $@
+	$(CC) $(CXXFLAGS) $(LDFLAGS) dbl_vector_lib.cc dbl_vector_lib_test.cc $(GTESTLIBS) -o $@
 
 dbl_vector_time: dbl_vector_lib.cc dbl_vector_time.cc dbl_vector.h
 	$(CC) $(CXXFLAGS) $(LDFLAGS) dbl_vector_lib.cc dbl_vector_time.cc -o $@
@@ -84,37 +84,37 @@ slist_main: slist_main.cc slist_lib.cc slist.h
 	$(CC) $(CXXFLAGS) $(LDFLAGS) slist_main.cc slist_lib.cc -o $@
 
 slist_lib_test: slist_lib.cc slist_lib_test.cc slist.h  $(GTEST_HEADERS)
-	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) slist_lib.cc slist_lib_test.cc -o $@
+	$(CC) $(CXXFLAGS) $(LDFLAGS) slist_lib.cc slist_lib_test.cc $(GTESTLIBS) -o $@
 
 slist_lib2_test: slist_lib2.cc slist_lib2_test.cc slist2.h  $(GTEST_HEADERS)
-	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) slist_lib2.cc slist_lib2_test.cc -o $@
+	$(CC) $(CXXFLAGS) $(LDFLAGS) slist_lib2.cc slist_lib2_test.cc $(GTESTLIBS) -o $@
 
 matrix_lib_test: matrix_lib.cc matrix_lib_test.cc matrix.h dbl_vector.h dbl_vector_lib.cc $(GTEST_HEADERS)
-	$(CC) $(CXXFLAGS) $(LDFLAGS) -lm $(GTESTLIBS) matrix_lib.cc matrix_lib_test.cc dbl_vector_lib.cc -o $@
+	$(CC) $(CXXFLAGS) $(LDFLAGS) -lm matrix_lib.cc matrix_lib_test.cc dbl_vector_lib.cc $(GTESTLIBS) -o $@
 
 matrix_lib_test_debug: matrix_lib.cc matrix_lib_test.cc matrix.h dbl_vector.h dbl_vector_lib.cc $(GTEST_HEADERS)
-	$(CC) $(CXXFLAGS) -DDEBUG $(LDFLAGS) -lm $(GTESTLIBS) matrix_lib.cc matrix_lib_test.cc dbl_vector_lib.cc -o $@
+	$(CC) $(CXXFLAGS) -DDEBUG $(LDFLAGS) -lm matrix_lib.cc matrix_lib_test.cc dbl_vector_lib.cc  $(GTESTLIBS) -o $@
 
 term_lib_test: term_lib.cc term_lib_test.cc term.h term_impl.h $(GTEST_HEADERS)
-	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) term_lib.cc term_lib_test.cc -o $@
+	$(CC) $(CXXFLAGS) $(LDFLAGS) term_lib.cc term_lib_test.cc $(GTESTLIBS) -o $@
 
 polynomial_lib_test: polynomial_lib.cc polynomial_lib_test.cc polynomial.h polynomial_impl.h term_lib.cc term_vector_lib.cc term.h term_impl.h term_vector.h $(GTEST_HEADERS)
-	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) polynomial_lib.cc polynomial_lib_test.cc term_lib.cc term_vector_lib.cc -o $@
+	$(CC) $(CXXFLAGS) $(LDFLAGS) polynomial_lib.cc polynomial_lib_test.cc term_lib.cc term_vector_lib.cc $(GTESTLIBS) -o $@
 
 polynomial_lib_test_debug: polynomial_lib.cc polynomial_lib_test.cc polynomial.h polynomial_impl.h term_lib.cc term_vector_lib.cc term.h term_impl.h term_vector.h $(GTEST_HEADERS)
-	$(CC) $(CXXFLAGS) -DDEBUG $(LDFLAGS) $(GTESTLIBS) polynomial_lib.cc polynomial_lib_test.cc term_lib.cc term_vector_lib.cc -o $@
+	$(CC) $(CXXFLAGS) -DDEBUG $(LDFLAGS) polynomial_lib.cc polynomial_lib_test.cc term_lib.cc term_vector_lib.cc  $(GTESTLIBS) -o $@
 
 reference_count_string_lib_test: reference_count_string.h reference_count_string_lib.cc reference_count_string_lib_test.cc $(GTEST_HEADERS)
-	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) reference_count_string_lib.cc reference_count_string_lib_test.cc -o $@
+	$(CC) $(CXXFLAGS) $(LDFLAGS) reference_count_string_lib.cc reference_count_string_lib_test.cc $(GTESTLIBS) -o $@
 
 rational_lib_test: rational_lib.cc rational_lib_test.cc rational.h $(GTEST_HEADERS)
-	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) rational_lib.cc rational_lib_test.cc -o $@
+	$(CC) $(CXXFLAGS) $(LDFLAGS) rational_lib.cc rational_lib_test.cc $(GTESTLIBS) -o $@
 
 complex_lib_test: complex_lib.cc complex_lib_test.cc complex.h $(GTEST_HEADERS)
-	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) complex_lib.cc complex_lib_test.cc -o $@
+	$(CC) $(CXXFLAGS) $(LDFLAGS) complex_lib.cc complex_lib_test.cc $(GTESTLIBS) -o $@
 
 complex_vector_lib_test: complex_vector_lib.cc complex_vector_lib_test.cc complex_vector.h complex.h $(GTEST_HEADERS)
-	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) complex_vector_lib.cc complex_vector_lib_test.cc complex_lib.cc -o $@
+	$(CC) $(CXXFLAGS) $(LDFLAGS) complex_vector_lib.cc complex_vector_lib_test.cc complex_lib.cc  $(GTESTLIBS) -o $@
 
 
 reference_count_string_timer: reference_count_string_timer.cc reference_count_string_lib.cc reference_count_string.h
@@ -126,70 +126,70 @@ reference_count_string_timer_debug: reference_count_string_timer.cc reference_co
 
 # Does not compile.
 #generic_stack_lib_test: generic_stack_lib.cc generic_stack.h generic_stack_lib_test.cc $(GTEST_HEADERS)
-#      $(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) generic_stack_lib.cc generic_stack_lib_test.cc -o $@
+#      $(CC) $(CXXFLAGS) $(LDFLAGS) generic_stack_lib.cc generic_stack_lib_test.cc  $(GTESTLIBS) -o $@
 
 smarter_stack_lib_test: smarter_stack_lib.cc smarter_stack_lib_test.cc smarter_stack.h $(GTEST_HEADERS)
-	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) smarter_stack_lib.cc smarter_stack_lib_test.cc -o $@
+	$(CC) $(CXXFLAGS) $(LDFLAGS) smarter_stack_lib.cc smarter_stack_lib_test.cc $(GTESTLIBS) -o $@
 
 smarter_queue_lib_test: smarter_queue_lib.cc smarter_queue_lib_test.cc smarter_queue.h $(GTEST_HEADERS)
-	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) smarter_queue_lib.cc smarter_queue_lib_test.cc -o $@
+	$(CC) $(CXXFLAGS) $(LDFLAGS) smarter_queue_lib.cc smarter_queue_lib_test.cc $(GTESTLIBS) -o $@
 
 smarter_list_lib_test: smarter_list_lib.cc smarter_list_lib_test.cc smarter_list.h $(GTEST_HEADERS)
-	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) smarter_list_lib.cc smarter_list_lib_test.cc -o $@
+	$(CC) $(CXXFLAGS) $(LDFLAGS) smarter_list_lib.cc smarter_list_lib_test.cc $(GTESTLIBS) -o $@
 
 new_clock_lib_test: new_clock_lib.cc new_clock_lib_test.cc new_clock.h $(GTEST_HEADERS)
-	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) new_clock_lib.cc new_clock_lib_test.cc -o $@
+	$(CC) $(CXXFLAGS) $(LDFLAGS) new_clock_lib.cc new_clock_lib_test.cc $(GTESTLIBS) -o $@
 
 templated_stack_lib_test: templated_stack_lib_test.cc templated_stack.h templated_stack_impl.h complex.h complex_lib.cc $(GTEST_HEADERS)
-	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) templated_stack_lib_test.cc complex_lib.cc -o $@
+	$(CC) $(CXXFLAGS) $(LDFLAGS) templated_stack_lib_test.cc complex_lib.cc $(GTESTLIBS) -o $@
 
 const_templated_stack_lib_test: const_templated_stack_lib_test.cc templated_stack.h templated_stack_impl.h complex.h $(GTEST_HEADERS)
-	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) const_templated_stack_lib_test.cc -DCONSTSIZE=20 -o $@
+	$(CC) $(CXXFLAGS) $(LDFLAGS) const_templated_stack_lib_test.cc -DCONSTSIZE=20 $(GTESTLIBS) -o $@
 
 macro-vs-template: macro-vs-template.cc macro-vs-template.h complex_lib.cc complex.h
 	$(CC) $(CXXFLAGS-NOTEST) $(LDFLAGS-NOTEST) macro-vs-template.cc complex_lib.cc -o $@
 
 template_cycle_lib_test: template_cycle_lib_test.cc template_cycle.h template_cycle_impl.h polynomial_lib.cc polynomial.h polynomial_impl.h term_lib.cc term.h term_impl.h term_vector_lib.cc term_vector.h $(GTEST_HEADERS)
-	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) template_cycle_lib_test.cc polynomial_lib.cc term_lib.cc term_vector_lib.cc -o $@
+	$(CC) $(CXXFLAGS) $(LDFLAGS) template_cycle_lib_test.cc polynomial_lib.cc term_lib.cc term_vector_lib.cc $(GTESTLIBS) -o $@
 
 template_rotate_lib_test: template_rotate_lib_test.cc template_rotate.h template_rotate_impl.h complex.h complex_lib.cc $(GTEST_HEADERS)
-	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) template_rotate_lib_test.cc complex_lib.cc -o $@
+	$(CC) $(CXXFLAGS) $(LDFLAGS) template_rotate_lib_test.cc complex_lib.cc $(GTESTLIBS) -o $@
 
 template_vector_lib_test: template_vector.h template_vector_impl.h template_vector_lib_test.cc complex.h complex_lib.cc polynomial.h polynomial_impl.h polynomial_lib.cc term.h term_impl.h term_vector.h term_lib.cc term_vector_lib.cc $(GTEST_HEADERS)
-	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) template_vector_lib_test.cc complex_lib.cc polynomial_lib.cc term_lib.cc term_vector_lib.cc -o $@
+	$(CC) $(CXXFLAGS) $(LDFLAGS) template_vector_lib_test.cc complex_lib.cc polynomial_lib.cc term_lib.cc term_vector_lib.cc $(GTESTLIBS) -o $@
 
 template_vector_lib_test_debug: template_vector.h template_vector_impl.h template_vector_lib_test.cc complex.h complex_lib.cc polynomial.h polynomial_impl.h polynomial_lib.cc term.h term_impl.h term_vector.h term_lib.cc term_vector_lib.cc  $(GTEST_HEADERS)
-	$(CC) $(CXXFLAGS) -DDEBUG="DEBUG" $(LDFLAGS) $(GTESTLIBS) template_vector_lib_test.cc complex_lib.cc polynomial_lib.cc term_lib.cc term_vector_lib.cc -o $@
+	$(CC) $(CXXFLAGS) -DDEBUG="DEBUG" $(LDFLAGS) template_vector_lib_test.cc complex_lib.cc polynomial_lib.cc term_lib.cc term_vector_lib.cc $(GTESTLIBS) -o $@
 
 template_vector_main: template_vector.h template_vector_impl.h term.h term_impl.h term_vector.h term_lib.cc term_vector_lib.cc template_vector_main.cc
 	$(CC) $(CXXFLAGS) $(LDFLAGS) template_vector_main.cc term_lib.cc term_vector_lib.cc -o $@
 
 template_list_lib_test: template_list.h template_list_impl.h template_list_lib.cc template_list_lib_test.cc complex.h complex_lib.cc
-	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) complex_lib.cc template_list_lib.cc template_list_lib_test.cc -o $@
+	$(CC) $(CXXFLAGS) $(LDFLAGS) complex_lib.cc template_list_lib.cc template_list_lib_test.cc $(GTESTLIBS) -o $@
 
 template_largest_lib_test: template_largest.h template_largest_impl.h template_largest_lib_test.cc
-	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) template_largest_lib_test.cc -o $@
+	$(CC) $(CXXFLAGS) $(LDFLAGS) template_largest_lib_test.cc $(GTESTLIBS) -o $@
 
 template_integrate_lib_test: template_integrate.h template_integrate_impl.h template_integrate_lib_test.cc
-	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) template_integrate_lib_test.cc -o $@
+	$(CC) $(CXXFLAGS) $(LDFLAGS) template_integrate_lib_test.cc $(GTESTLIBS) -o $@
 
 reverse_list_lib_test: reverse_list.h reverse_list_impl.h reverse_list_lib_test.cc
-	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) reverse_list_lib_test.cc -o $@
+	$(CC) $(CXXFLAGS) $(LDFLAGS) reverse_list_lib_test.cc $(GTESTLIBS) -o $@
 
 student_inheritance_lib_test: student_inheritance.h student_inheritance_lib.cc student_inheritance_lib_test.cc
-	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) student_inheritance_lib.cc student_inheritance_lib_test.cc -o $@
+	$(CC) $(CXXFLAGS) $(LDFLAGS) student_inheritance_lib.cc student_inheritance_lib_test.cc $(GTESTLIBS) -o $@
 
 inheritance_casting_main: student_inheritance.h student_inheritance_lib.cc inheritance_casting_main.cc
 	$(CC) $(CXXFLAGS) $(LDFLAGS) student_inheritance_lib.cc inheritance_casting_main.cc -o $@
 
 one_index_vector_lib_test: one_index_vector.h one_index_vector_impl.h one_index_vector_lib_test.cc
-	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) one_index_vector_lib_test.cc -o $@
+	$(CC) $(CXXFLAGS) $(LDFLAGS) one_index_vector_lib_test.cc $(GTESTLIBS) -o $@
 
 override_vs_overload_main: override_vs_overload.h override_vs_overload_main.cc
 	$(CC) $(CXXFLAGS) $(LDFLAGS) override_vs_overload_main.cc -o $@
 
 multiple_inheritance_lib_test: multiple_inheritance.h multiple_inheritance_lib.cc multiple_inheritance_lib_test.cc student_inheritance.h student_inheritance_lib.cc
-	$(CC) $(CXXFLAGS) $(LDFLAGS) $(GTESTLIBS) multiple_inheritance_lib.cc multiple_inheritance_lib_test.cc student_inheritance_lib.cc -o $@
+	$(CC) $(CXXFLAGS) $(LDFLAGS) multiple_inheritance_lib.cc multiple_inheritance_lib_test.cc student_inheritance_lib.cc $(GTESTLIBS) -o $@
 
 BINARY_LIST = calc_num_digits gcd gcd_lib_test reverse_char_stack_lib_test dyn_string_lib_test dyn_string notqsort notqsort_lib_test dbl_vector_lib_test dbl_vector_time slist_main slist_lib_test slist_lib2_test matrix_lib_test matrix_lib_test_debug term_lib_test polynomial_lib_test polynomial_lib_test_debug reference_count_string_lib_test rational_lib_test complex_lib_test complex_vector_lib_test reference_count_string_timer reference_count_string_timer_debug smarter_stack_lib_test smarter_queue_lib_test smarter_list_lib_test new_clock_lib_test templated_stack_lib_test const_templated_stack_lib_test macro-vs-template template_cycle_lib_test template_rotate_lib_test template_vector_lib_test template_vector_lib_test_debug template_vector_main template_list_lib_test template_largest_lib_test template_integrate_lib_test reverse_list_lib_test student_inheritance_lib_test one_index_vector_lib_test override_vs_overload_main multiple_inheritance_lib_test
 
