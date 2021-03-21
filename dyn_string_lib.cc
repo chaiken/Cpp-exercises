@@ -192,8 +192,9 @@ std::ostream &print_some(std::ostream &out, const DynString &a, size_t n = 0) {
   if (!((0u == n) || a.empty())) {
     size_t bound = (n <= a.len()) ? n : a.len();
     size_t ctr = 0u;
-    while (ctr++ < bound) {
+    while (ctr < bound) {
       out << a.s_[ctr];
+      ctr++;
     }
     // Apparently std::ostringstream automagically adds the trailing null.
     // out << '0';

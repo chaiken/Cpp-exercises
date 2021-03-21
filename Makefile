@@ -64,7 +64,7 @@ dyn_string_lib_test: dyn_string_lib.cc dyn_string.h dyn_string_lib_test.cc $(GTE
 	$(CC) $(CXXFLAGS) $(LDFLAGS) dyn_string_lib.cc \
            dyn_string_lib_test.cc $(GTESTLIBS) -o $@
 
-dyn_string: dyn_string_lib.cc dyn_string.h
+dyn_string: dyn_string_lib.cc dyn_string.h dyn_string.cc
 	$(CC) $(CFLAGS) $(LDFLAGS) dyn_string_lib.cc dyn_string.cc -o $@
 
 notqsort: notqsort.cc notqsort_lib.cc notqsort.h
