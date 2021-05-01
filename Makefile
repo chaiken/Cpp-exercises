@@ -22,6 +22,10 @@ USDT_LIBS=$(USDT_LIB_PATH)/libbcc.a $(USDT_LIB_PATH)/libbcc_bpf.a
 # http://www.valgrind.org/docs/manual/quick-start.html#quick-start.prepare
 # Compile your program with -g . . . Using -O0 is also a good idea, 
 # cc1plus: error: ‘-fsanitize=address’ and ‘-fsanitize=kernel-address’ are incompatible with ‘-fsanitize=thread’
+# https://gcc.gnu.org/onlinedocs/gcc/C_002b_002b-Dialect-Options.html#C_002b_002b-Dialect-Options
+# Weffc++: Warn about violations of the style guidelines from Scott Meyers’ Effective C++ series of books
+# Turning Weffc++ on results in errors only from googletest.
+#CXXFLAGS= -std=c++11 -pthread -ggdb -Wall -Wextra -Weffc++ -g -O0 -fno-inline -fsanitize=address,undefined -I$(GTEST_HEADERS)
 CXXFLAGS= -std=c++11 -pthread -ggdb -Wall -Wextra -g -O0 -fno-inline -fsanitize=address,undefined -I$(GTEST_HEADERS)
 CXXFLAG-NOTEST= -std=c++11 -ggdb -Wall -Wextra -g -O0 -fno-inline -fsanitize=address,undefined
 CXXFLAGS-NOSANITIZE= -std=c++11 -ggdb -Wall -Wextra -g -O0 -fno-inline -I$(GTEST_HEADERS)
