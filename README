@@ -8,4 +8,4 @@ GTEST_DIR = $(HOME)/gitsrc/googletest/googletest
 
 googletest is available at git@github.com:google/googletest.git
 
-As a compiler, as of 11/18/18, I'm using g++ (Debian 8.2.0-9) 8.2.0.  Note that the Makefile incorporates -fsanitize=address for the default CXXFLAGS.  As of 5/25/20, the first pass at all the exercises in the text is complete.   I'll add more tests based on coverage analysis by gcov.
+As a compiler, as of 11/18/18, I'm using g++ (Debian 8.2.0-9) 8.2.0.  Note that the Makefile incorporates -fsanitize=address for the default CXXFLAGS.  As of 5/25/20, the first pass at all the exercises in the text is complete.   As of 10/10/2020, unit tests cover over 95% of the code with the notable exception of bad allocations.   I tried specifying alternate allocators as template parameters and overloading "new" but could not figure out how to make the test code get nullptr allocations while the libraries did not.   gcov shows artificially low coverage numbers because it does not understand googletest DEATH tests.
