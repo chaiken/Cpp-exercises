@@ -53,8 +53,9 @@ int main() {
     // 11th bit.  0x41 is 100 0000 0001 and 0x61 is 110 0000 0001, so
     // the only function of the mask is to remove the bit in which they differ.
     uint64_t i = b[--d] // --d since the highest array value is d-1.
-    // Simply 0xDF in checkByte would be less obscure, but so would boost::to_lower.
-    & 0x5F5F5F5F5F5F5F5FLL;
+                        // Simply changing 0xFF in checkByte() to 0xDF would be
+                        // less obscure, but so would boost::to_lower.
+                 & 0x5F5F5F5F5F5F5F5FLL;
     c += checkByte<0>(i) + checkByte<1>(i) + checkByte<2>(i) + checkByte<3>(i) +
          checkByte<4>(i) + checkByte<5>(i) + checkByte<6>(i) + checkByte<7>(i);
   } while (d);
