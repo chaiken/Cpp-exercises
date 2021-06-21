@@ -6,6 +6,7 @@
    initialize the function's parameters."
  */
 
+#include <array>
 #include <cassert>
 
 #include <utility>
@@ -22,8 +23,18 @@ public:
   const Widget *me;
 };
 
+const Widget *wheres_this(const Widget& w) {
+  return w.me;
+}
+
 int main(void) {
   Widget awidget;
   Widget another(std::move(awidget));
   assert(awidget.me == another.me);
+
+  std::array<Widget, 3> yetmore{
+      {std::move(awidget), std::move(awidget), std::move(awidget)}};
+  for (auto &&w : yetmore) {
+    assert(wheres_this(awidget) == wheres_this(w));
+  }
 }
