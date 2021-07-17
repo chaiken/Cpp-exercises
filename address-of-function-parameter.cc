@@ -3,7 +3,8 @@
    __Effective Modern C++_.  "By similar reasoning, all [function] parameters
    are lvalues" (p.3) where (p. 4) "In a function call, the expressions passed
    at the call site are the function's arguments.  The arguments are used to
-   initialize the function's parameters."
+   initialize the function's parameters."  Also, p. 158, "a parameter is always
+   an lvalue, even though its type is rvalue-reference-to-Widget."
  */
 
 #include <array>
@@ -20,21 +21,20 @@ public:
   // is to ask if you can take its address."
   Widget(Widget &&rhs) : me(&rhs) {}
 
+  const Widget *wheres_this() const { return me; }
+
+private:
   const Widget *me;
 };
-
-const Widget *wheres_this(const Widget& w) {
-  return w.me;
-}
 
 int main(void) {
   Widget awidget;
   Widget another(std::move(awidget));
-  assert(awidget.me == another.me);
+  assert(awidget.wheres_this() == another.wheres_this());
 
   std::array<Widget, 3> yetmore{
       {std::move(awidget), std::move(awidget), std::move(awidget)}};
   for (auto &&w : yetmore) {
-    assert(wheres_this(awidget) == wheres_this(w));
+    assert(awidget.wheres_this() == w.wheres_this());
   }
 }
