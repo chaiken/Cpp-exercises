@@ -5,6 +5,7 @@
 
 #include <chrono>
 #include <iostream>
+#include <memory>
 
 using namespace ::std::chrono;
 
@@ -14,17 +15,19 @@ class NewClock {
 public:
   NewClock(int start = 0) {
     const duration<int> dur(start);
-    time_ = new time_point<system_clock, duration<int>>(dur);
-    assert(nullptr != time_);
+    time_point<system_clock, duration<int>> *tp =
+        new time_point<system_clock, duration<int>>(dur);
+    assert(nullptr != tp);
+    time_.reset(tp);
   }
-  ~NewClock() { delete time_; }
+  //  ~NewClock() { delete time_; }
   void operator++(int seconds);
   void operator--(int seconds);
   friend ::std::ostream &operator<<(::std::ostream &out, const NewClock &nc);
   long int GetSeconds(unsigned short clockid) const;
 
 private:
-  time_point<system_clock, duration<int>> *time_;
+  std::unique_ptr<time_point<system_clock, duration<int>>> time_;
 };
 
 ::std::ostream &operator<<(::std::ostream &out, const NewClock &nc);
