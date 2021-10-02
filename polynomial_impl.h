@@ -5,6 +5,7 @@
 #ifndef POLYNOMIAL_IMPL_H
 #define POLYNOMIAL_IMPL_H
 
+#include "polynomial.h"
 #include "term.h"
 #include "term_impl.h"
 #include "term_vector.h"
