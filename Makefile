@@ -47,6 +47,9 @@ CC=/usr/bin/g++
 #CC=/usr/bin/clang
 LIBWR=-Llibwr -lwr
 
+%_test:  %.o %_test.o  $(GTESTHEADERS)
+	$(CC) $(CXXFLAGS)  $(LDFLAGS) $^ $(GTESTLIBS) -o $@
+
 calc_num_digits: calc_num_digits.cc
 	$(CC) $(CXXFLAGS) $(LDFLAGS) calc_num_digits.cc -lm -o $@
 
@@ -56,30 +59,11 @@ libcalcfuncs: num_digits.o num_digits.h
 gcd: gcd.cc gcd_lib.cc gcd_lib.h
 	$(CC) $(CXXFLAGS) $(LDFLAGS) gcd.cc gcd_lib.cc -o $@
 
-gcd_lib_test: gcd_lib_test.cc gcd_lib.cc gcd_lib.h $(GTEST_HEADERS)
-	$(CC) $(CXXFLAGS) $(LDFLAGS) gcd_lib_test.cc gcd_lib.cc $(GTESTLIBS) -o $@
-
-reverse_char_stack_lib_test: reverse_char_stack_lib_test.cc \
-    reverse_char_stack_lib.cc reverse_char_stack.h $(GTEST_HEADERS)
-	$(CC) $(CXXFLAGS) $(LDFLAGS) reverse_char_stack_lib_test.cc \
-           reverse_char_stack_lib.cc $(GTESTLIBS)  -o $@
-
-dyn_string_lib_test: dyn_string_lib.cc dyn_string.h dyn_string_lib_test.cc $(GTEST_HEADERS)
-	$(CC) $(CXXFLAGS) $(LDFLAGS) dyn_string_lib.cc \
-           dyn_string_lib_test.cc $(GTESTLIBS) -o $@
-
 dyn_string: dyn_string_lib.cc dyn_string.h dyn_string.cc
 	$(CC) $(CFLAGS) $(LDFLAGS) dyn_string_lib.cc dyn_string.cc -o $@
 
 notqsort: notqsort.cc notqsort_lib.cc notqsort.h
 	$(CC) $(CFLAGS) $(LDFLAGS) notqsort_lib.cc notqsort.cc -o $@
-
-notqsort_lib_test: notqsort_lib.cc notqsort_lib_test.cc notqsort.h  $(GTEST_HEADERS)
-	$(CC) $(CXXFLAGS) $(LDFLAGS) notqsort_lib_test.cc \
-           notqsort_lib.cc $(GTESTLIBS) -o $@
-
-dbl_vector_lib_test: dbl_vector_lib.cc dbl_vector_lib_test.cc dbl_vector.h  $(GTEST_HEADERS)
-	$(CC) $(CXXFLAGS) $(LDFLAGS) dbl_vector_lib.cc dbl_vector_lib_test.cc $(GTESTLIBS) -o $@
 
 dbl_vector_time: dbl_vector_lib.cc dbl_vector_time.cc dbl_vector.h
 	$(CC) $(CXXFLAGS) $(LDFLAGS) dbl_vector_lib.cc dbl_vector_time.cc -o $@
@@ -87,42 +71,21 @@ dbl_vector_time: dbl_vector_lib.cc dbl_vector_time.cc dbl_vector.h
 slist_main: slist_main.cc slist_lib.cc slist.h
 	$(CC) $(CXXFLAGS) $(LDFLAGS) slist_main.cc slist_lib.cc -o $@
 
-slist_lib_test: slist_lib.cc slist_lib_test.cc slist.h  $(GTEST_HEADERS)
-	$(CC) $(CXXFLAGS) $(LDFLAGS) slist_lib.cc slist_lib_test.cc $(GTESTLIBS) -o $@
-
-slist_lib2_test: slist_lib2.cc slist_lib2_test.cc slist2.h  $(GTEST_HEADERS)
-	$(CC) $(CXXFLAGS) $(LDFLAGS) slist_lib2.cc slist_lib2_test.cc $(GTESTLIBS) -o $@
-
-matrix_lib_test: matrix_lib.cc matrix_lib_test.cc matrix.h dbl_vector.h dbl_vector_lib.cc $(GTEST_HEADERS)
-	$(CC) $(CXXFLAGS) $(LDFLAGS) -lm matrix_lib.cc matrix_lib_test.cc dbl_vector_lib.cc $(GTESTLIBS) -o $@
+# Including matrix_lib.cc and matrix_lib_test.cc rather than the corresponding .o files
+# causes both .cc's and .o's to be included in the link list, triggering ODR failures.
+matrix_lib_test: matrix_lib.o matrix_lib_test.o matrix.h dbl_vector.h dbl_vector_lib.cc
 
 matrix_lib_test_debug: matrix_lib.cc matrix_lib_test.cc matrix.h dbl_vector.h dbl_vector_lib.cc $(GTEST_HEADERS)
 	$(CC) $(CXXFLAGS) -DDEBUG $(LDFLAGS) -lm matrix_lib.cc matrix_lib_test.cc dbl_vector_lib.cc  $(GTESTLIBS) -o $@
 
-term_lib_test: term_lib.cc term_lib_test.cc term.h term_impl.h $(GTEST_HEADERS)
-	$(CC) $(CXXFLAGS) $(LDFLAGS) term_lib.cc term_lib_test.cc $(GTESTLIBS) -o $@
-
-polynomial_lib_test: polynomial_lib.cc polynomial_lib_test.cc polynomial.h polynomial_impl.h term_lib.cc term_vector_lib.cc term.h term_impl.h term_vector.h $(GTEST_HEADERS)
-	$(CC) $(CXXFLAGS) $(LDFLAGS) polynomial_lib.cc polynomial_lib_test.cc term_lib.cc term_vector_lib.cc $(GTESTLIBS) -o $@
+polynomial_lib_test: polynomial_lib.o polynomial_lib_test.o polynomial.h polynomial_impl.h term_lib.cc term_vector_lib.cc term.h term_impl.h term_vector.h
 
 polynomial_lib_test_debug: polynomial_lib.cc polynomial_lib_test.cc polynomial.h polynomial_impl.h term_lib.cc term_vector_lib.cc term.h term_impl.h term_vector.h $(GTEST_HEADERS)
 	$(CC) $(CXXFLAGS) -DDEBUG $(LDFLAGS) polynomial_lib.cc polynomial_lib_test.cc term_lib.cc term_vector_lib.cc  $(GTESTLIBS) -o $@
 
-reference_count_string_lib_test: reference_count_string.h reference_count_string_lib.cc reference_count_string_lib_test.cc $(GTEST_HEADERS)
-	$(CC) $(CXXFLAGS) $(LDFLAGS) reference_count_string_lib.cc reference_count_string_lib_test.cc $(GTESTLIBS) -o $@
+complex_vector_lib_test: complex_vector_lib.o complex_vector_lib_test.o complex_lib.o complex_vector.h complex.h
 
-rational_lib_test: rational_lib.cc rational_lib_test.cc rational.h $(GTEST_HEADERS)
-	$(CC) $(CXXFLAGS) $(LDFLAGS) rational_lib.cc rational_lib_test.cc $(GTESTLIBS) -o $@
-
-complex_lib_test: complex_lib.cc complex_lib_test.cc complex.h $(GTEST_HEADERS)
-	$(CC) $(CXXFLAGS) $(LDFLAGS) complex_lib.cc complex_lib_test.cc $(GTESTLIBS) -o $@
-
-complex_vector_lib_test: complex_vector_lib.cc complex_vector_lib_test.cc complex_vector.h complex.h $(GTEST_HEADERS)
-	$(CC) $(CXXFLAGS) $(LDFLAGS) complex_vector_lib.cc complex_vector_lib_test.cc complex_lib.cc  $(GTESTLIBS) -o $@
-
-
-reference_count_string_timer: reference_count_string_timer.cc reference_count_string_lib.cc reference_count_string.h
-	$(CC) $(CXXFLAGS) $(LDFLAGS) reference_count_string_timer.cc reference_count_string_lib.cc reference_count_string.h -o $@
+reference_count_string_timer: reference_count_string_timer.cc reference_count_string_lib.cc reference_count_string.h $(GTESTLIBS)
 
 # make DEBUG=DEBUG reference_count_string_timer for verbosity
 reference_count_string_timer_debug: reference_count_string_timer.cc reference_count_string_lib.cc reference_count_string.h
@@ -168,9 +131,6 @@ template_integrate_lib_test: template_integrate.h template_integrate_impl.h temp
 reverse_list_lib_test: reverse_list.h reverse_list_impl.h reverse_list_lib_test.cc
 	$(CC) $(CXXFLAGS) $(LDFLAGS) reverse_list_lib_test.cc $(GTESTLIBS) -o $@
 
-student_inheritance_lib_test: student_inheritance.h student_inheritance_lib.cc student_inheritance_lib_test.cc
-	$(CC) $(CXXFLAGS) $(LDFLAGS) student_inheritance_lib.cc student_inheritance_lib_test.cc $(GTESTLIBS) -o $@
-
 inheritance_casting_main: student_inheritance.h student_inheritance_lib.cc inheritance_casting_main.cc
 	$(CC) $(CXXFLAGS) $(LDFLAGS) student_inheritance_lib.cc inheritance_casting_main.cc -o $@
 
@@ -180,8 +140,7 @@ one_index_vector_lib_test: one_index_vector.h one_index_vector_impl.h one_index_
 override_vs_overload_main: override_vs_overload.h override_vs_overload_main.cc
 	$(CC) $(CXXFLAGS) $(LDFLAGS) override_vs_overload_main.cc -o $@
 
-multiple_inheritance_lib_test: multiple_inheritance.h multiple_inheritance_lib.cc multiple_inheritance_lib_test.cc student_inheritance.h student_inheritance_lib.cc
-	$(CC) $(CXXFLAGS) $(LDFLAGS) multiple_inheritance_lib.cc multiple_inheritance_lib_test.cc student_inheritance_lib.cc $(GTESTLIBS) -o $@
+multiple_inheritance_lib_test: student_inheritance.h student_inheritance_lib.cc
 
 array_size_deduction_test: array_size_deduction_test.cc array_size_deduction_impl.h
 	$(CC) $(CXXFLAGS) $(LDFLAGS)  array_size_deduction_test.cc $(GTESTLIBS) -o $@
@@ -244,9 +203,9 @@ TEST_EXTRA_FLAGS = -Werror -O2
 TESTFLAGS = -std=c++11 -pthread -ggdb -Wall -Wextra -g $(TEST_EXTRA_FLAGS) -fno-inline -fsanitize=address,undefined -I$(GTEST_HEADERS)
 
 # Doesn't work.
-%.o: %.cc
-	override CXXFLAGS = $(TESTFLAGS)
-	$(CC) $(CXXFLAGS) $(LDFLAGS) $< -o $@
+#%.o: %.cc
+#	override CXXFLAGS = $(TESTFLAGS)
+#	$(CC) $(CXXFLAGS) $(LDFLAGS) $< -o $@
 
 test_all:
 	make clean
