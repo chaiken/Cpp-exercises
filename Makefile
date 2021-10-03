@@ -19,24 +19,23 @@ USDT_LIB_PATH=$(USDT_DIR)/build/src/cc
 USDT_HEADERS=$(USDT_DIR)/tests/python/include
 USDT_LIBS=$(USDT_LIB_PATH)/libbcc.a $(USDT_LIB_PATH)/libbcc_bpf.a
 
-# http://www.valgrind.org/docs/manual/quick-start.html#quick-start.prepare
-# Compile your program with -g . . . Using -O0 is also a good idea, 
-# cc1plus: error: ‘-fsanitize=address’ and ‘-fsanitize=kernel-address’ are incompatible with ‘-fsanitize=thread’
 # https://gcc.gnu.org/onlinedocs/gcc/C_002b_002b-Dialect-Options.html#C_002b_002b-Dialect-Options
 # Weffc++: Warn about violations of the style guidelines from Scott Meyers’ Effective C++ series of books
 # Turning Weffc++ on results in errors only from googletest.
 #CXXFLAGS= -std=c++11 -pthread -ggdb -Wall -Wextra -Weffc++ -g -O0 -fno-inline -fsanitize=address,undefined -I$(GTEST_HEADERS)
-CXXFLAGS= -std=c++11 -pthread -ggdb -Wall -Wextra -g -O0 -fno-inline -fsanitize=address,undefined -I$(GTEST_HEADERS)
-CXXFLAG-NOTEST= -std=c++11 -ggdb -Wall -Wextra -g -O0 -fno-inline -fsanitize=address,undefined
-CXXFLAGS-NOSANITIZE= -std=c++11 -ggdb -Wall -Wextra -g -O0 -fno-inline -I$(GTEST_HEADERS)
+#
+# Note -pthread, not -lpthread.   Without this option, Googletest does not compile.
+CXXFLAGS= -std=c++11 -pthread -ggdb -Wall -Wextra -Werror -g -O0 -fno-inline -fsanitize=address,undefined -I$(GTEST_HEADERS)
+CXXFLAG-NOTEST= -std=c++11 -ggdb -Wall -Wextra -Werror -g -O0 -fno-inline -fsanitize=address,undefined
+CXXFLAGS-NOSANITIZE= -std=c++11 -pthread -ggdb -Wall -Wextra -Werror -g -O0 -fno-inline -I$(GTEST_HEADERS)
 # Set Google Test's header directory as a system directory, such that
 # the compiler doesn't generate warnings in Google Test headers.
 CPPFLAGS += -isystem $(GTEST_DIR)/include
 USDT_FLAGS= -I$(USDT_HEADERS)
 
-LDFLAGS= -ggdb -g -fsanitize=address -L$(GTESTLIBPATH) -lpthread
-LDFLAGS-NOSANITIZE= -ggdb -g -L$(GTESTLIBPATH) -lpthread
-LDFLAGS-NOTEST= -ggdb -g -fsanitize=address -lpthread
+LDFLAGS= -ggdb -g -fsanitize=address -L$(GTESTLIBPATH)
+LDFLAGS-NOSANITIZE= -ggdb -g -L$(GTESTLIBPATH)
+LDFLAGS-NOTEST= -ggdb -g -fsanitize=address
 #LDFLAGS= -ggdb -g -L$(GTESTLIBPATH) -lpthread
 #THREADFLAGS= -D_REENTRANT -I/usr/include/ntpl -L/usr/lib/nptl -lpthread
 THREADFLAGS= -D_REENTRANT -lpthread
@@ -47,11 +46,33 @@ CC=/usr/bin/g++
 #CC=/usr/bin/clang
 LIBWR=-Llibwr -lwr
 
+# template class have the code in the template_%_impl.h file, not a *lib.cc
+#  file, so the template_%_impl.h header must be explicited included in the
+# compilation.  It needs the template_%.h file which includes it in order to
+# compile.
 template_%_lib_test:  template_%_lib_test.o template_%.h $(GTESTHEADERS)
 	$(CC) $(CXXFLAGS)  $(LDFLAGS) $^ $(GTESTLIBS) -o $@
 
+# Compile tests without template class or functions.
 %_test:  %.o %_test.o  $(GTESTHEADERS)
 	$(CC) $(CXXFLAGS)  $(LDFLAGS) $^ $(GTESTLIBS) -o $@
+
+# http://www.valgrind.org/docs/manual/quick-start.html#quick-start.prepare
+# Compile your program with -g . . . Using -O0 is also a good idea,
+# cc1plus: error: ‘-fsanitize=address’ and ‘-fsanitize=kernel-address’ are incompatible with ‘-fsanitize=thread’
+# https://www.gnu.org/software/make/manual/make.html#Pattern_002dspecific
+# Without the flags redefinition, setting the object files as prerequisites of
+# %_lib_test-valgrind would trigger compilation with the rules above, which has
+# the wrong flags.   Valgrind does not work with the sanitizers.
+# "As with target-specific variable values, multiple pattern values create a
+# pattern-specific variable value for each pattern individually."
+%_test-valgrind template_%_lib_test-valgrind : CXXFLAGS = $(CXXFLAGS-NOSANITIZE) -O0
+%_test-valgrind template_%_lib_test-valgrind :  LDFLAGS = $(LDFLAGS-NOSANITIZE)
+%_test-valgrind: %_test.o %.o $(GTESTHEADERS)
+	$(CC) $(CXXFLAGS-NOSANITIZE) $(LDFLAGS-NOSANITIZE) $^ $(GTESTLIBS) -o $@
+
+template_%_lib_test-valgrind: template_%_lib_test.o template_%.h $(GTESTHEADERS)
+	$(CC) $(CXXFLAGS-NOSANITIZE) $(LDFLAGS-NOSANITIZE) $^ $(GTESTLIBS) -o $@
 
 calc_num_digits: calc_num_digits.cc
 	$(CC) $(CXXFLAGS) $(LDFLAGS) calc_num_digits.cc -lm -o $@
@@ -79,18 +100,22 @@ slist_main: slist_main.cc slist_lib.cc slist.h
 # Listing the headers as prerequisites means that the target will be recompiled if the
 # header are changed.
 matrix_lib_test: matrix_lib.o matrix_lib_test.o matrix.h dbl_vector.h dbl_vector_lib.cc
+matrix_lib_test-valgrind: matrix_lib.o matrix_lib_test.o matrix.h dbl_vector.h dbl_vector_lib.cc
 
 matrix_lib_test_debug: matrix_lib.cc matrix_lib_test.cc matrix.h dbl_vector.h dbl_vector_lib.cc $(GTEST_HEADERS)
 	$(CC) $(CXXFLAGS) -DDEBUG $(LDFLAGS) -lm matrix_lib.cc matrix_lib_test.cc dbl_vector_lib.cc  $(GTESTLIBS) -o $@
 
 polynomial_lib_test: polynomial_lib.o polynomial_lib_test.o polynomial.h polynomial_impl.h term_lib.cc term_vector_lib.cc term.h term_impl.h term_vector.h
+polynomial_lib_test-valgrind: polynomial_lib.o polynomial_lib_test.o polynomial.h polynomial_impl.h term_lib.cc term_vector_lib.cc term.h term_impl.h term_vector.h
 
 polynomial_lib_test_debug: polynomial_lib.cc polynomial_lib_test.cc polynomial.h polynomial_impl.h term_lib.cc term_vector_lib.cc term.h term_impl.h term_vector.h $(GTEST_HEADERS)
 	$(CC) $(CXXFLAGS) -DDEBUG $(LDFLAGS) polynomial_lib.cc polynomial_lib_test.cc term_lib.cc term_vector_lib.cc  $(GTESTLIBS) -o $@
 
 complex_vector_lib_test: complex_vector_lib.o complex_vector_lib_test.o complex_lib.o complex_vector.h complex.h
+complex_vector_lib_test-valgrind: complex_vector_lib.o complex_vector_lib_test.o complex_lib.o complex_vector.h complex.h
 
 reference_count_string_timer: reference_count_string_timer.cc reference_count_string_lib.cc reference_count_string.h $(GTESTLIBS)
+reference_count_string_timer-valgrind: reference_count_string_timer.cc reference_count_string_lib.cc reference_count_string.h $(GTESTLIBS)
 
 # make DEBUG=DEBUG reference_count_string_timer for verbosity
 reference_count_string_timer_debug: reference_count_string_timer.cc reference_count_string_lib.cc reference_count_string.h
@@ -103,19 +128,25 @@ reference_count_string_timer_debug: reference_count_string_timer.cc reference_co
 # Since the generic pattern rule for template_%_lib_test include %_lib_test.o
 # and template_%.h, listing them here violates the ODR.
 template_stack_lib_test: complex_lib.cc complex.h $(GTESTLIBS)
+template_stack_lib_test-valgrind: complex_lib.cc complex.h $(GTESTLIBS)
 
 # Needs a static rule due to CONSTSIZE
 const_template_stack_lib_test: const_template_stack_lib_test.cc complex_lib.cc template_stack.h complex.h $(GTESTLIBS)
 	$(CC) $(CXXFLAGS) $(LDFLAGS) const_template_stack_lib_test.cc -DCONSTSIZE=20 $(GTESTLIBS) -o $@
+const_template_stack_lib_test-valgrind: const_template_stack_lib_test.cc complex_lib.cc template_stack.h complex.h $(GTESTLIBS)
+	$(CC) $(CXXFLAGS-NOSANITIZE) $(LDFLAGS-NOSANITIZE) const_template_stack_lib_test.cc -DCONSTSIZE=20 $(GTESTLIBS) -o $@
 
 macro-vs-template: macro-vs-template.cc macro-vs-template.h complex_lib.cc complex.h
 	$(CC) $(CXXFLAGS-NOTEST) $(LDFLAGS-NOTEST) macro-vs-template.cc complex_lib.cc -o $@
 
 template_cycle_lib_test: polynomial_lib.cc polynomial.h polynomial_impl.h term_lib.cc term.h term_impl.h term_vector_lib.cc term_vector.h $(GTESTLIBS)
+template_cycle_lib_test-valgrind: polynomial_lib.cc polynomial.h polynomial_impl.h term_lib.cc term.h term_impl.h term_vector_lib.cc term_vector.h $(GTESTLIBS)
 
 template_rotate_lib_test: complex.h complex_lib.cc $(GTESTLIBS)
+template_rotate_lib_test-valgrind: complex.h complex_lib.cc $(GTESTLIBS)
 
 template_vector_lib_test: complex.h complex_lib.cc polynomial.h polynomial_impl.h polynomial_lib.cc term.h term_impl.h term_vector.h term_lib.cc term_vector_lib.cc $(GTESTLIBS)
+template_vector_lib_test-valgrind: complex.h complex_lib.cc polynomial.h polynomial_impl.h polynomial_lib.cc term.h term_impl.h term_vector.h term_lib.cc term_vector_lib.cc $(GTESTLIBS)
 
 template_vector_lib_test_debug: template_vector.h template_vector_impl.h template_vector_lib_test.cc complex.h complex_lib.cc polynomial.h polynomial_impl.h polynomial_lib.cc term.h term_impl.h term_vector.h term_lib.cc term_vector_lib.cc  $(GTEST_HEADERS)
 	$(CC) $(CXXFLAGS) -DDEBUG="DEBUG" $(LDFLAGS) template_vector_lib_test.cc complex_lib.cc polynomial_lib.cc term_lib.cc term_vector_lib.cc $(GTESTLIBS) -o $@
@@ -126,26 +157,33 @@ template_vector_main: template_vector.h template_vector_impl.h term.h term_impl.
 # template_%_lib.cc is not a prerequisite of the generic template_%_lib_test
 # rule, so adding it here is not an ODR violation.
 template_list_lib_test: template_list_lib.cc complex.h complex_lib.cc $(GTESTLIBS)
+template_list_lib_test-valgrind: template_list_lib.cc complex.h complex_lib.cc $(GTESTLIBS)
 
-# Test name does not match template_%_lib_test pattern.
+# Test name does not match template_%_test pattern.
 reverse_list_lib_test: reverse_list.h reverse_list_impl.h reverse_list_lib_test.cc
 	$(CC) $(CXXFLAGS) $(LDFLAGS) reverse_list_lib_test.cc $(GTESTLIBS) -o $@
+reverse_list_lib_test-valgrind: reverse_list.h reverse_list_impl.h reverse_list_lib_test.cc
+	$(CC) $(CXXFLAGS-NOSANITIZE) $(LDFLAGS-NOSANITIZE) reverse_list_lib_test.cc $(GTESTLIBS) -o $@
 
 inheritance_casting_main: student_inheritance.h student_inheritance_lib.cc inheritance_casting_main.cc
 	$(CC) $(CXXFLAGS) $(LDFLAGS) student_inheritance_lib.cc inheritance_casting_main.cc -o $@
 
-# Test name does not match template_%_lib_test pattern.
+# Test name does not match template_%_test pattern.
 one_index_vector_lib_test: one_index_vector.h one_index_vector_impl.h one_index_vector_lib_test.cc
 	$(CC) $(CXXFLAGS) $(LDFLAGS) one_index_vector_lib_test.cc $(GTESTLIBS) -o $@
+one_index_vector_lib_test-valgrind: one_index_vector.h one_index_vector_impl.h one_index_vector_lib_test.cc
+	$(CC) $(CXXFLAGS-NOSANITIZE) $(LDFLAGS-NOSANITIZE) one_index_vector_lib_test.cc $(GTESTLIBS) -o $@
 
 override_vs_overload_main: override_vs_overload.h override_vs_overload_main.cc
 	$(CC) $(CXXFLAGS) $(LDFLAGS) override_vs_overload_main.cc -o $@
 
 multiple_inheritance_lib_test: student_inheritance.h student_inheritance_lib.cc
 
-# Test name does not match template_%_lib_test pattern.
+# Test name does not match template_%_test pattern.
 array_size_deduction_test: array_size_deduction_test.cc array_size_deduction_impl.h
 	$(CC) $(CXXFLAGS) $(LDFLAGS)  array_size_deduction_test.cc $(GTESTLIBS) -o $@
+array_size_deduction_test-valgrind: array_size_deduction_test.cc array_size_deduction_impl.h
+	$(CC) $(CXXFLAGS-NOSANITIZE) $(LDFLAGS-NOSANITIZE)  array_size_deduction_test.cc $(GTESTLIBS) -o $@
 
 BINARY_LIST = calc_num_digits gcd gcd_lib_test reverse_char_stack_lib_test dyn_string_lib_test dyn_string notqsort notqsort_lib_test dbl_vector_lib_test dbl_vector_time slist_main slist_lib_test slist_lib2_test matrix_lib_test matrix_lib_test_debug term_lib_test polynomial_lib_test polynomial_lib_test_debug reference_count_string_lib_test rational_lib_test complex_lib_test complex_vector_lib_test reference_count_string_timer reference_count_string_timer_debug smarter_stack_lib_test smarter_queue_lib_test smarter_list_lib_test new_clock_lib_test template_stack_lib_test const_template_stack_lib_test macro-vs-template template_cycle_lib_test template_rotate_lib_test template_vector_lib_test template_vector_lib_test_debug template_vector_main template_list_lib_test template_largest_lib_test template_integrate_lib_test reverse_list_lib_test student_inheritance_lib_test one_index_vector_lib_test override_vs_overload_main multiple_inheritance_lib_test
 
@@ -168,7 +206,7 @@ TERM_LIB_DEPS_LIST = polynomial_lib_test
 MUST_RUN_LAST_LIST = dbl_vector_lib_test student_inheritance_lib_test template_vector_lib_test polynomial_lib_test term_lib_test complex_lib_test
 
 clean:
-	rm -rf *.o *~ $(BINARY_LIST) *.gcda *.gcov *.gcno *.info *_output *css *html a.out
+	rm -rf *.o *~ $(BINARY_LIST) *-valgrind *.gcda *.gcov *.gcno *.info *_output *css *html a.out
 
 all:
 	make clean
@@ -202,3 +240,7 @@ test_all:
 	make clean
 	@echo "CXXFLAGS is $(CXXFLAGS)"
 	run_all_tests.sh $(TEST_LIST)
+
+valgrind_all: 
+	make clean
+	valgrind_all_tests.sh $(TEST_LIST)

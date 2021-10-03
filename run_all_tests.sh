@@ -7,7 +7,7 @@ set -u
 OUTPUT="$(mktemp)"
 echo "Redirecting stdout to ${OUTPUT}"
 
-TEST_EXTRA_FLAGS="-Werror -O2"
+TEST_EXTRA_FLAGS="-O2"
 GTEST_DIR="$HOME"/gitsrc/googletest/googletest
 GTEST_HEADERS="$GTEST_DIR"/include
 
