@@ -1,11 +1,11 @@
-#ifndef TEMPLATED_STACK_H
-#define TEMPLATED_STACK_H
+#ifndef TEMPLATE_STACK_H
+#define TEMPLATE_STACK_H
 
 #include <cassert>
 #include <iostream>
 #include <string>
 
-namespace templated_stack {
+namespace template_stack {
 
 namespace {
 #ifdef CONSTSIZE
@@ -15,7 +15,7 @@ constexpr int32_t kDefaultSize = 100;
 #endif
 } // namespace
 
-template <typename T> class TemplatedStack {
+template <typename T> class TemplateStack {
 private:
   enum { EMPTY = -1 };
   int max_len_;
@@ -23,26 +23,26 @@ private:
   T *data_;
 
 public:
-  TemplatedStack()
+  TemplateStack()
       : max_len_(kDefaultSize), top_(EMPTY), data_(new T[kDefaultSize]) {
     ::std::cout << "Default ctor" << ::std::endl;
   }
   // Move constructor.
-  TemplatedStack(TemplatedStack &&ts);
+  TemplateStack(TemplateStack &&ts);
   // R-value reference array ctr.
-  TemplatedStack(T(&&input)[], int len);
-  TemplatedStack(T input[], int len);
+  TemplateStack(T(&&input)[], int len);
+  TemplateStack(T input[], int len);
   // https://stackoverflow.com/questions/6077143/disable-copy-constructor
-  TemplatedStack(const TemplatedStack &ts) = delete;
-  // Constructs a TemplatedStack from a good old C-style array. The array can be
+  TemplateStack(const TemplateStack &ts) = delete;
+  // Constructs a TemplateStack from a good old C-style array. The array can be
   // const or non-const; it can capture both. Copied from Philipp Schrader's
   // span.h.  I don't think that it can be exercised from a class that defines a
   // destructor without resulting in "attempting free on address which was not
   // malloc()-ed".
   template <int N>
-  constexpr TemplatedStack(T (&arr)[N])
+  constexpr TemplateStack(T (&arr)[N])
       : max_len_(N), top_(N - 1), data_(&arr[0]){};
-  ~TemplatedStack() { delete[] data_; }
+  ~TemplateStack() { delete[] data_; }
   void reset() { top_ = EMPTY; }
   void push(T x) { data_[++top_] = x; }
   T pop() { return data_[top_--]; }
@@ -51,7 +51,7 @@ public:
   bool full() const { return (top_ == (max_len_ - 1)); }
   int size() const { return max_len_; };
   T &operator[](int i) const { return data_[i]; }
-  TemplatedStack &operator=(TemplatedStack &&input);
+  TemplateStack &operator=(TemplateStack &&input);
   void reverse(T *arr[], int n);
   void reverse(T arr[], int n);
   // https://en.wikibooks.org/wiki/More_C%2B%2B_Idioms/Making_New_Friends
@@ -72,7 +72,7 @@ public:
   // "another way of allowing the compiler to find hidden friends, and that is
   // to put a declaration of the function in the enclosing namespace"
   friend ::std::ostream &operator<<(::std::ostream &out,
-                                    const TemplatedStack<T> &ts) {
+                                    const TemplateStack<T> &ts) {
     int i = ts.top_;
     assert(0 != ts.data_);
     while (i >= 0) {
@@ -88,8 +88,8 @@ public:
 
 // void reverse(char *strarr[], int n);
 
-} // namespace templated_stack
+} // namespace template_stack
 
-#include "templated_stack_impl.h"
+#include "template_stack_impl.h"
 
 #endif

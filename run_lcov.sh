@@ -41,7 +41,7 @@ lcov --base-directory . --directory . --capture -o "$test_name".info
 
 # Applications which depend on libraries that have their own tests:
 #
-# Depend on complex_lib.cc: complex_vector_lib_test, templated_stack_lib_test,
+# Depend on complex_lib.cc: complex_vector_lib_test, template_stack_lib_test,
 # template_rotate_lib_test, template_vector_lib_test, template_list_lib_test
 #
 # Depend on polynomial_lib.cc: template_cycle_lib_test, template_vector_lib_test

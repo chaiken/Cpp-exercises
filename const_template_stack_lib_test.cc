@@ -1,4 +1,4 @@
-#include "templated_stack.h"
+#include "template_stack.h"
 
 #include <iostream>
 #include <vector>
@@ -7,7 +7,7 @@
 
 using namespace std;
 
-namespace templated_stack {
+namespace template_stack {
 namespace testing {
 
 constexpr char alphalist[] = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i',
@@ -20,10 +20,10 @@ constexpr char alphalist2[] = {'z', 'y', 'x', 'w', 'v', 'u', 't', 's', 'r',
 
 class CharStackTest : public ::testing::Test {
 public:
-  CharStackTest() { charstack1 = new TemplatedStack<char>(); }
+  CharStackTest() { charstack1 = new TemplateStack<char>(); }
   ~CharStackTest() { delete charstack1; }
 
-  TemplatedStack<char> *charstack1;
+  TemplateStack<char> *charstack1;
 };
 
 TEST_F(CharStackTest, DefaultCtorTest) {
@@ -48,4 +48,4 @@ TEST_F(CharStackTest, DefaultCtorTest) {
 }
 
 } // namespace testing
-} // namespace templated_stack
+} // namespace template_stack

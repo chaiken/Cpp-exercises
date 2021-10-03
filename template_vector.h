@@ -28,7 +28,7 @@ public:
   iterator operator++() { return &p_[cursor_++]; };
   iterator operator--() { return &p_[cursor_--]; };
   // The function is not found by the linker if not placed in the header.
-  // See comment in templated_stack.h.
+  // See comment in template_stack.h.
   friend ::std::ostream &operator<<(::std::ostream &out,
                                     const TemplateVector<T> &tv) {
     for (T *tvit = tv.begin(); tvit != tv.end(); tvit++) {

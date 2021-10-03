@@ -1,5 +1,5 @@
-#ifndef TEMPLATED_STACK_IMPL_H
-#define TEMPLATED_STACK_IMPL_H
+#ifndef TEMPLATE_STACK_IMPL_H
+#define TEMPLATE_STACK_IMPL_H
 
 #include <cassert>
 #include <cstdio>
@@ -7,11 +7,11 @@
 #include <iostream>
 
 // Any functions that refer explicitly to the template parameter must live here.
-namespace templated_stack {
+namespace template_stack {
 
 // Array of R-value references constructor.
 template <typename T>
-TemplatedStack<T>::TemplatedStack(T(&&input)[], int val)
+TemplateStack<T>::TemplateStack(T(&&input)[], int val)
     : max_len_(val), top_(val - 1), data_(new T[val]) {
   ::std::cout << "R-value reference array ctor" << ::std::endl;
   assert(0 != data_);
@@ -24,7 +24,7 @@ TemplatedStack<T>::TemplatedStack(T(&&input)[], int val)
 }
 
 template <typename T>
-TemplatedStack<T>::TemplatedStack(TemplatedStack &&ts)
+TemplateStack<T>::TemplateStack(TemplateStack &&ts)
     : max_len_(ts.max_len_), top_(ts.top_) {
   ::std::cout << "Move ctor" << ::std::endl;
   data_ = ::std::move(ts.data_);
@@ -32,7 +32,7 @@ TemplatedStack<T>::TemplatedStack(TemplatedStack &&ts)
 }
 
 template <typename T>
-TemplatedStack<T>::TemplatedStack(T input[], int len)
+TemplateStack<T>::TemplateStack(T input[], int len)
     : max_len_(len), top_(len - 1), data_(new T[len]) {
   ::std::cout << "Array-copy ctor" << ::std::endl;
   // AddressSanitizer: attempting free on address which was not malloc()-ed:
@@ -47,8 +47,8 @@ TemplatedStack<T>::TemplatedStack(T input[], int len)
 // Should work if (this->max_len_ < input.top_) since we are stealing input's
 // storage by swapping the pointers to it.
 template <typename T>
-TemplatedStack<T> &TemplatedStack<T>::operator=(TemplatedStack &&input) {
-  ::std::cout << "TemplatedStack move assignment operator" << ::std::endl;
+TemplateStack<T> &TemplateStack<T>::operator=(TemplateStack &&input) {
+  ::std::cout << "TemplateStack move assignment operator" << ::std::endl;
   max_len_ = input.max_len_;
   top_ = input.top_;
   ::std::swap(data_, input.data_);
@@ -58,7 +58,7 @@ TemplatedStack<T> &TemplatedStack<T>::operator=(TemplatedStack &&input) {
 
 // For char* arrays.
 template <typename T> void reverse(T *arr[], int n) {
-  TemplatedStack<T *> stk(arr, n);
+  TemplateStack<T *> stk(arr, n);
   assert(!stk.empty());
   assert(stk.full());
   for (int i = 0; i < n; i++) {
@@ -69,7 +69,7 @@ template <typename T> void reverse(T *arr[], int n) {
 // For Complex arrays.  I couldn't figure out how to initialize an array of type
 // Complex*.
 template <typename T> void reverse(T arr[], int n) {
-  TemplatedStack<T> stk(arr, n);
+  TemplateStack<T> stk(arr, n);
   assert(!stk.empty());
   assert(stk.full());
   for (int i = 0; i < n; i++) {
@@ -77,5 +77,5 @@ template <typename T> void reverse(T arr[], int n) {
   }
 }
 
-} // namespace templated_stack
+} // namespace template_stack
 #endif
