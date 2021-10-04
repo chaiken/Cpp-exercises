@@ -1,6 +1,6 @@
 0. Add comments to the source files identifying the exercises for which they are solutions.  (Status: partial.)
 
-1. Add a coverage tool, and write unit tests for earlier exercises which had none.  (Status: nearly done.)
+1. Add a coverage tool, and write unit tests for earlier exercises which had none.  (Status: done.)
 
 2. Create a Makefile target that runs all the tests. (Status: done)
 
@@ -8,6 +8,12 @@
 
 4. Try microbenchmarking tools (https://www.bfilipek.com/2016/01/micro-benchmarking-libraries-for-c.html)
 
-5. Migrate ACCU- and BPF-related code to a new Github repo
+5. Migrate ACCU- and BPF-related code to a new Github repo (done).
 
+6. Get rid of operator new in favor of RAII.
 
+7. Replace raw pointers with smart pointers.
+
+8. After getting rid of operator new, check all tests for memory leaks with valgrind.
+
+9. Make move() constructors standards-compliant; avoid undefined behavior.
