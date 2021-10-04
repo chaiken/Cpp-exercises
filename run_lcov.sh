@@ -22,10 +22,6 @@ fi
 readonly test_name="$1"
 echo "test_name is ${test_name}"
 readonly target="$(grep "${test_name}:" Makefile)"
-if [[ -z "$target" ]]; then
-  echo "No compilation target matching ${test_name}".
-  exit 2
-fi
 echo "Creating coverage data for ${test_name}."
 
 # Actually run the test.  Not actually necessary, but test failure will as a

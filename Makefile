@@ -178,15 +178,14 @@ all:
 
 # “–coverage” is a synonym for-fprofile-arcs, -ftest-coverage(compiling) and
 # -lgcov(linking).
-COVERAGE_EXTRA_FLAGS = --coverage -Werror
-
-$(NO_DEPS_LIST) $(COMPLEX_LIBS_DEPS_LIST) $(POLYNOMIAL_LIBS_DEPS_LIST) $(TERM_LIB_DEPS_LIST) $(MUST_RUN_LAST_LIST): CXXFLAGS += $(COVERAGE_EXTRA_FLAGS)
+COVERAGE_EXTRA_FLAGS = --coverage
 
 # https://github.com/gcovr/gcovr/issues/314
 # 'A “stamp mismatch” error is shown when the compilation time stamp *within*
 # the gcno and gcda files doesn't match.'
 # Therefore compilation must take place in association with the same test binary,
 # not in association with another dependent test.
+coverage_all:  CXXFLAGS += $(COVERAGE_EXTRA_FLAGS)
 coverage_all:
 	make clean
 	@echo "CXXFLAGS is $(CXXFLAGS)"
