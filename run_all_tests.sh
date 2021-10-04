@@ -15,8 +15,6 @@ export CXXFLAGS="-std=c++11 -pthread -ggdb -Wall -Wextra -g ${TEST_EXTRA_FLAGS} 
 
 for FILE in $@
 do
-# Does not work.
-#  CXXFLAGS="-std=c++11 -pthread -ggdb -Wall -Wextra -g ${TEST_EXTRA_FLAGS} -fno-inline -fsanitize=address,undefined -I${GTEST_HEADERS}" make --no-builtin-variables "$FILE"
  # https://www.gnu.org/software/automake/manual/html_node/Tricks-For-Silencing-Make.html
   make "$FILE" > /dev/null || make
   ./"$FILE" >> "$OUTPUT"

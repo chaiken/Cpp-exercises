@@ -196,19 +196,9 @@ coverage_all:
 	run_lcov_all.sh $(TERM_LIB_DEPS_LIST)
 	run_lcov_all.sh $(MUST_RUN_LAST_LIST)
 
-TEST_LIST = gcd_lib_test reverse_char_stack_lib_test dyn_string_lib_test notqsort_lib_test dbl_vector_lib_test slist_lib_test slist_lib2_test matrix_lib_test matrix_lib_test_debug term_lib_test polynomial_lib_test polynomial_lib_test_debug reference_count_string_lib_test rational_lib_test complex_lib_test complex_vector_lib_test smarter_stack_lib_test smarter_queue_lib_test smarter_list_lib_test new_clock_lib_test template_stack_lib_test const_template_stack_lib_test template_cycle_lib_test template_rotate_lib_test template_vector_lib_test template_vector_lib_test_debug template_list_lib_test template_largest_lib_test template_integrate_lib_test reverse_list_lib_test student_inheritance_lib_test one_index_vector_lib_test multiple_inheritance_lib_test
+TEST_LIST = gcd_lib_test reverse_char_stack_lib_test dyn_string_lib_test notqsort_lib_test dbl_vector_lib_test slist_lib_test slist_lib2_test matrix_lib_test term_lib_test polynomial_lib_test reference_count_string_lib_test rational_lib_test complex_lib_test complex_vector_lib_test smarter_stack_lib_test smarter_queue_lib_test smarter_list_lib_test new_clock_lib_test template_stack_lib_test const_template_stack_lib_test template_cycle_lib_test template_rotate_lib_test template_vector_lib_test template_list_lib_test template_largest_lib_test template_integrate_lib_test reverse_list_lib_test student_inheritance_lib_test one_index_vector_lib_test multiple_inheritance_lib_test
 
-TEST_EXTRA_FLAGS = -Werror -O2
-# None of these work work:
-# $(TEST_LIST): CXXFLAGS = -std=c++11 -pthread -ggdb -Wall -Wextra -g $(TEST_EXTRA_FLAGS) -fno-inline -fsanitize=address,undefined -I$(GTEST_HEADERS)
-#TEST_LIST: CXXFLAGS = -std=c++11 -pthread -ggdb -Wall -Wextra -g $(TEST_EXTRA_FLAGS) -fno-inline -fsanitize=address,undefined -I$(GTEST_HEADERS)
-TESTFLAGS = -std=c++11 -pthread -ggdb -Wall -Wextra -g $(TEST_EXTRA_FLAGS) -fno-inline -fsanitize=address,undefined -I$(GTEST_HEADERS)
-
-# Doesn't work.
-#%.o: %.cc
-#	override CXXFLAGS = $(TESTFLAGS)
-#	$(CC) $(CXXFLAGS) $(LDFLAGS) $< -o $@
-
+test_all: CXXFLAGS += -O2
 test_all:
 	make clean
 	@echo "CXXFLAGS is $(CXXFLAGS)"
