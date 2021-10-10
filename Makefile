@@ -217,7 +217,7 @@ TERM_LIB_DEPS_LIST = polynomial_lib_test
 MUST_RUN_LAST_LIST = dbl_vector_lib_test student_inheritance_lib_test template_vector_lib_test polynomial_lib_test term_lib_test complex_lib_test
 
 clean:
-	rm -rf *.o *~ $(BINARY_LIST) *-valgrind *.gcda *.gcov *.gcno *.info *_output *css *html a.out
+	rm -rf *.o *~ $(BINARY_LIST) *_test *-coverage *-valgrind *.gcda *.gcov *.gcno *.info *_output *css *html a.out
 
 all:
 	make clean
