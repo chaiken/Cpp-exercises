@@ -11,7 +11,12 @@ set -o pipefail
 
 if (( $# != 1)); then
   echo "Usage: run_lcov.sh <test name>, where 'test name' is that of the test"
-  echo "binary, not that the the source file."
+  echo "binary, not that of the source file."
+  exit 1
+fi
+
+if [ ! -e /usr/bin/lcov ]; then
+  echo "Please install the lcov package."
   exit 1
 fi
 
