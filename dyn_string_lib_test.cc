@@ -9,6 +9,36 @@ namespace local_testing {
 
 const ::std::string kTestString = "Strings are cheap.";
 
+TEST(DynStringTest, MoveCtor) {
+  DynString a(kTestString.c_str());
+  DynString b(std::move(a));
+  ASSERT_EQ(kTestString, b.contents());
+}
+
+TEST(DynStringTest, UnequalStringsCompareProperly) {
+  DynString a("a");
+  DynString b("b");
+  ASSERT_EQ(-1, a.compare(b));
+}
+
+TEST(DynStringTest, ShorterStringIsLess) {
+  DynString a("bc");
+  DynString b("a");
+  ASSERT_EQ(1, a.compare(b));
+}
+
+TEST(DynStringTest, EqualStringsCompareProperly) {
+  DynString a("a");
+  DynString b("a");
+  ASSERT_EQ(0, a.compare(b));
+}
+
+TEST(DynStringTest, EmptyStringIsLeast) {
+  DynString a("a");
+  DynString b("");
+  ASSERT_EQ(1, a.compare(b));
+}
+
 TEST(DynStringTest, AssignWorks) {
   DynString a(kTestString.c_str());
   EXPECT_EQ(kTestString.length(), a.len());
@@ -37,30 +67,6 @@ TEST(DynStringTest, ConcatWorks) {
   ASSERT_EQ(0, c.compare(d));
 }
 
-TEST(DynStringTest, UnequalStringsCompareProperly) {
-  DynString a("a");
-  DynString b("b");
-  ASSERT_EQ(-1, a.compare(b));
-}
-
-TEST(DynStringTest, ShorterStringIsLess) {
-  DynString a("bc");
-  DynString b("a");
-  ASSERT_EQ(1, a.compare(b));
-}
-
-TEST(DynStringTest, EqualStringsCompareProperly) {
-  DynString a("a");
-  DynString b("a");
-  ASSERT_EQ(0, a.compare(b));
-}
-
-TEST(DynStringTest, EmptyStringIsLeast) {
-  DynString a("a");
-  DynString b("");
-  ASSERT_EQ(1, a.compare(b));
-}
-
 TEST(DynStringTest, SwapWorks) {
   DynString a(kTestString.c_str());
   DynString b("a");
@@ -85,15 +91,17 @@ TEST(DynStringTest, SortWorks) {
   DynString somedots("..");
   DynString longer("Hello world.");
   DynString nummern("1234");
-  array<DynString, 6> dynstrarr1 = {d, another, a, somedots, longer, nummern};
-  array<DynString, 6> dynstrarr2 = {somedots, nummern, longer, a, d, another};
+  array<DynString, 6> dynstrarr1 = {d.contents(),      another.contents(),
+                                    a.contents(),      somedots.contents(),
+                                    longer.contents(), nummern.contents()};
+  array<DynString, 6> dynstrarr2 = {somedots.contents(), nummern.contents(),
+                                    longer.contents(),   a.contents(),
+                                    d.contents(),        another.contents()};
   dyn_string_sort(&dynstrarr1[0], dynstrarr1.size(), dynstrarr1.size());
 
   auto it1 = dynstrarr1.begin(), it2 = dynstrarr2.begin();
   while (it1 != dynstrarr1.end()) {
     ASSERT_EQ(0, (*it1).compare(*it2));
-    // it1->print();
-    // it2->print();
     it1++, it2++;
   }
 }
@@ -110,6 +118,7 @@ TEST(DynStringTest, DoubleReverseIsIdempotent) {
   DynString b(kTestString.c_str());
   a.reverse();
   ASSERT_EQ(-1, a.compare(b));
+  ASSERT_TRUE(0u < strlen(a.contents()));
   a.reverse();
   ASSERT_EQ(0, a.compare(b));
 }

@@ -1,26 +1,21 @@
 #include <cassert>
 #include <cstring>
 #include <iostream>
+#include <memory>
 
 namespace dyn_string {
 
 class DynString {
 public:
-  DynString() : len_(0u) {
-    s_ = new char[1];
-    assert(s_ != 0);
-    s_[0] = 0;
-  }
+  // unique_ptrs must be initialized through member-initializer list.
+  // Otherwise s_(char *) will attempt to match a non-existent unique_ptr call
+  // operator().
+  DynString() : len_(0u), s_(std::make_unique<char[]>(1u)) {}
+  DynString(char *p);
   DynString(const char *p);
-  DynString(const DynString &str);
-  ~DynString() {
-    //    ::std::cout << "Destructor" << ::std::endl;
-    //    print();
-    //    ::std::cout << "freeing s_: " << s_ << " of this: " << this <<
-    //    ::std::endl;
-    delete[] s_;
-  }
+  DynString(DynString &&str);
 
+  const char *contents() const { return s_.get(); }
   size_t len() const { return len_; }
   bool empty() const { return (0u == len_); }
   DynString &operator=(const DynString &str);
@@ -35,8 +30,8 @@ public:
   void swap(DynString &a);
 
 private:
-  char *s_;
   size_t len_;
+  std::unique_ptr<char[]> s_;
 };
 
 bool operator==(const DynString &a, const DynString &b);
