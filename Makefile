@@ -57,6 +57,16 @@ template_%_lib_test:  template_%_lib_test.o template_%.h $(GTESTHEADERS)
 %_test:  %.o %_test.o  $(GTESTHEADERS)
 	$(CC) $(CXXFLAGS)  $(LDFLAGS) $^ $(GTESTLIBS) -o $@
 
+# “–coverage” is a synonym for-fprofile-arcs, -ftest-coverage(compiling) and
+# -lgcov(linking).
+COVERAGE_EXTRA_FLAGS = --coverage
+%lib_test-coverage: CXXFLAGS += $(COVERAGE_EXTRA_FLAGS)
+%lib_test-coverage:  %lib_test.cc %lib.cc $(GTESTHEADERS)
+	/bin/rm -f $@ *.o
+	@echo "LDFLAGS is  $(LDFLAGS)"
+	$(CC) $(CXXFLAGS)  $(LDFLAGS) $^ $(GTESTLIBS) -o $@
+	run_lcov.sh $@
+
 # http://www.valgrind.org/docs/manual/quick-start.html#quick-start.prepare
 # Compile your program with -g . . . Using -O0 is also a good idea,
 # cc1plus: error: ‘-fsanitize=address’ and ‘-fsanitize=kernel-address’ are incompatible with ‘-fsanitize=thread’
@@ -213,10 +223,6 @@ all:
 	make $(BINARY_LIST)
 
 .SILENT: *.o
-
-# “–coverage” is a synonym for-fprofile-arcs, -ftest-coverage(compiling) and
-# -lgcov(linking).
-COVERAGE_EXTRA_FLAGS = --coverage
 
 # https://github.com/gcovr/gcovr/issues/314
 # 'A “stamp mismatch” error is shown when the compilation time stamp *within*
