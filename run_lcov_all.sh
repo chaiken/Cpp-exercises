@@ -14,7 +14,7 @@ do
   >&2 echo "Generating coverage analysis for ${FILE}."
   # applications must be recompiled afresh so that timestamps *inside* gcno files match
   # https://www.gnu.org/software/automake/manual/html_node/Tricks-For-Silencing-Make.html
-  make "$FILE" > /dev/null || make
-  run_lcov.sh "$FILE"
+  make "$FILE"-coverage > /dev/null || make
+  run_lcov.sh "$FILE"-coverage
   >&2 echo "*****************************************************************************"
 done
