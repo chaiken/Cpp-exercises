@@ -60,7 +60,8 @@ template_%_lib_test:  template_%_lib_test.o template_%.h $(GTESTHEADERS)
 # “–coverage” is a synonym for-fprofile-arcs, -ftest-coverage(compiling) and
 # -lgcov(linking).
 COVERAGE_EXTRA_FLAGS = --coverage
-%lib_test-coverage: CXXFLAGS += $(COVERAGE_EXTRA_FLAGS)
+%lib_test-coverage: CXXFLAGS = $(CXXFLAGS-NOSANITIZE) $(COVERAGE_EXTRA_FLAGS)
+%lib_test-coverage: LDFLAGS = $(LDFLAGS-NOSANITIZE)
 %lib_test-coverage:  %lib_test.cc %lib.cc $(GTESTHEADERS)
 	/bin/rm -f $@ *.o
 	@echo "LDFLAGS is  $(LDFLAGS)"
