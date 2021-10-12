@@ -29,6 +29,11 @@ public:
       : size_(length), reader_cursor_(0), writer_cursor_(0) {
     data_ = new double[size_];
     assert(nullptr != data_);
+    int i = 0;
+    while (i < size_) {
+      data_[i] = 0.0;
+      i++;
+    }
   }
   // Copy constructor.
   SmarterQueue(const SmarterQueue &sq)
