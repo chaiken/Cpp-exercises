@@ -1,53 +1,64 @@
 #ifndef TERM_H
 #define TERM_H
 
-#include "term_impl.h"
-
 #include <array>
+#include <cstdio>
+#include <functional>
 #include <iostream>
+#include <memory>
 
 namespace term {
 
-class Term;
-
-struct termprops {
-  int exp;
-  double coeff;
-  Term *next;
-};
-
-class Term {
-public:
-  Term() : exponent(0), coefficient(0), next(0){};
-  Term(int e, double c, Term *n = 0) : exponent(e), coefficient(c), next(n) {
+// A helper class for Polynomial.
+struct Term {
+  Term() : exponent(0), coefficient(0), next(nullptr){};
+  Term(int e, double c, Term *n)
+      : exponent(e), coefficient(c), next(std::unique_ptr<Term>(n)) {
     //    ::std::cout << "term members constructor" << ::std::endl;
   }
   // Implicitly called by operator+().
-  Term(const struct termprops tp)
-      : exponent(tp.exp), coefficient(tp.coeff), next(tp.next) {
-#ifdef DEBUG
-    ::std::cout << "term struct constructor" << ::std::endl;
-#endif
-  }
-  // clang-format off
-  //Term(Term &&t) : exponent(t.exponent), coefficient(t.coefficient), next(t.next) {
-  //      ::std::cout << "term move constructor" << ::std::endl;
-  //  }
-  // clang-format on
-  // Initialize the object empty, then move() contents in.
-  // Copied from code by Brian Silverman.
-  Term(Term &&t) : Term() {
-#ifdef DEBUG
-    ::std::cout << "term move constructor" << ::std::endl;
-#endif
+  Term(const int exp, const double coeff)
+      : exponent(exp), coefficient(coeff), next(nullptr) {}
+  // p. 126, _C++ Crash Course_: "Your preference should be to use noexcept move
+  // constructors; often the compiler cannot use exception-throwing move
+  // constructors."
+  // What the generated default move ctr
+  //       Term(Term &&t) noexcept = default;
+  // does:
+  //  [ RUN      ] TermTest.MoveTest
+  // t2: 2.000000x^3
+  // term_lib_test.cc:64: Failure
+  // Expected equality of these values:
+  //   0
+  //  t.exponent
+  //    Which is: 3
+  // term_lib_test.cc:65: Failure
+  // Expected equality of these values:
+  //  0
+  //  t.coefficient
+  //    Which is: 2
+  // [  FAILED  ] TermTest.MoveTest (0 ms)
+  Term(Term &&t) noexcept : Term() {
     *this = ::std::move(t);
+    t.exponent = 0;
+    t.coefficient = 0;
+    t.next.reset();
+  }
+  Term(const Term &t) = delete;
+  ~Term() {
+    if (next) {
+#ifdef DEBUG
+      std::cerr << "Deleting next pointer " << *this << std::endl;
+#endif
+      next.reset();
+    }
   }
 
+  bool empty() { return (0.0 == coefficient); }
   // Following
   // https://eli.thegreenplace.net/2011/12/15/understanding-lvalues-and-rvalues-in-c-and-c/
-  Term &operator=(Term &&t);
-  Term &operator=(const Term &t);
-  bool empty() { return 0.0 == coefficient; }
+  Term &operator=(Term &&t) = default;
+  Term &operator=(const Term &t) = delete;
   // Must be a friend, non-member function because operator<<() takes only one
   // parameter, so we cannot override with a function that takes two.
   friend ::std::ostream &operator<<(::std::ostream &out, const Term &t);
@@ -56,9 +67,10 @@ public:
   // itself.
   friend bool operator==(const Term &a, const Term &b);
   friend bool operator!=(const Term &a, const Term &b);
+
   int exponent;
   double coefficient;
-  Term *next;
+  std::unique_ptr<Term> next;
 };
 
 Term operator+(const Term &a, const Term &b);
@@ -72,5 +84,7 @@ void SyncSortTwoArrays(::std::array<int, N> *arr1,
                        ::std::array<double, N> *arr2, int index);
 
 } // namespace term
+
+#include "term_impl.h"
 
 #endif

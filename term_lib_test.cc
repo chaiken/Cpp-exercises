@@ -18,22 +18,27 @@ TEST(TermTest, TermConstructor) {
   EXPECT_FALSE(testTerm.empty());
 }
 
+TEST(TermTest, TermDestructor) {
+  Term aterm(1, 2.0);
+  { aterm.next = std::unique_ptr<Term>(new Term(1, 2.0)); }
+}
+
 // Order a list of exponents, and apply the same ordering to the list of
 // coefficients.
 TEST(TermTest, SyncSortTest) {
-  ::std::array<int, 3> expon = {1, 2, 3};
-  ::std::array<double, 3> coeffs = {1.0, 2.0, 3.0};
+  ::std::array<int, 3> expon = {1, 3, 2};
+  ::std::array<double, 3> coeffs = {1.0, 3.0, 2.0};
   SyncSortTwoArrays(&expon, &coeffs, 0);
   for (int i = 0; i < static_cast<int>(expon.size()); i++) {
     EXPECT_EQ(expon[i], coeffs[i]);
     EXPECT_EQ(expon[i], i + 1);
   }
-  ::std::array<int, 3> expon1 = {3, 2, 1};
-  ::std::array<double, 3> coeffs1 = {3.0, 2.0, 1.0};
+  ::std::array<int, 3> expon1 = {2, 3, 1};
+  ::std::array<double, 3> coeffs1 = {2.0, 3.0, 1.0};
   SyncSortTwoArrays(&expon1, &coeffs1, 0);
   for (int i = 0; i < static_cast<int>(expon1.size()); i++) {
-    EXPECT_EQ(expon1[i], coeffs1[i]);
-    EXPECT_EQ(expon1[i], i + 1);
+    EXPECT_EQ(coeffs1[i], coeffs[i]);
+    EXPECT_EQ(expon1[i], expon[i]);
   }
 }
 
@@ -52,8 +57,7 @@ TEST(TermTest, CopyTest) {
 TEST(TermTest, MoveTest) {
   // term members constructor
   Term t(3, 2);
-  // term members constructor ?
-  const Term &t2(move(t));
+  const Term t2(move(t));
   ostringstream out;
   out << t2;
   EXPECT_EQ("2.000000x^3 ", out.str());
@@ -61,28 +65,9 @@ TEST(TermTest, MoveTest) {
   cout << "t2: " << t2 << endl;
   EXPECT_EQ(3, t2.exponent);
   EXPECT_EQ(2, t2.coefficient);
-  EXPECT_EQ(3, t.exponent);
-  EXPECT_EQ(2, t.coefficient);
-
-  // term members constructor
-  Term t3(5, 6);
-  // term move constructor
-  Term t4(move(t3));
-  out << t4;
-  EXPECT_EQ("6.000000x^5 ", out.str());
-  out.str("");
-  cout << "t4: " << t4 << endl;
-  EXPECT_EQ(5, t4.exponent);
-  EXPECT_EQ(6, t4.coefficient);
-
-  // term members constructor
-  // term assignment operator
-  Term t5(Term(-1, -2));
-  out << t5;
-  EXPECT_EQ("-2.000000x^-1 ", out.str());
-  cout << "t5: " << t5 << endl;
-  EXPECT_EQ(-1, t5.exponent);
-  EXPECT_EQ(-2, t5.coefficient);
+  // t is destroyed
+  EXPECT_EQ(0, t.exponent);
+  EXPECT_EQ(0, t.coefficient);
 }
 
 TEST(TermTest, AssignmentTest) {
@@ -96,12 +81,13 @@ TEST(TermTest, AssignmentTest) {
   // Passing constant lvalue references therefore has the economy of passing a
   // pointer without the notational ugliness, plus the assurance that the
   // address is not null (since a reference can only be to an existing object).
-  const Term &t2 = t;
-  // polynomial_lib_test.cc:58:12: error: use of deleted function ‘constexpr
-  // polynomial::Term::Term(const polynomial::Term&)’ Term t2(t);
-  ASSERT_EQ(t.exponent, t2.exponent);
-  ASSERT_EQ(t.coefficient, t2.coefficient);
+  //
+  Term t2 = std::move(t);
+  ASSERT_EQ(3, t2.exponent);
+  ASSERT_EQ(2, t2.coefficient);
   ASSERT_EQ(t.next, t2.next);
+  EXPECT_EQ(0, t.exponent);
+  EXPECT_EQ(0, t.coefficient);
 }
 
 TEST(TermTest, AdditionTest) {
@@ -112,24 +98,23 @@ TEST(TermTest, AdditionTest) {
 }
 
 TEST(TermTest, EqualityTest) {
-  Term t1(3, 2), t2(3, 2);
+  Term t1(3, 2), t2(3, 2), t3(3, 2, new Term(3, 2)), t4(3, 2, new Term(3, 2));
   ASSERT_EQ(t1, t2);
+  ASSERT_EQ(t3, t4);
   // Make sure != gets called.
   ASSERT_FALSE(t1 != t2);
-}
-
-TEST(TermTest, CopyAssignment) {
-  Term t1(3, 2), t2;
-  ASSERT_FALSE(t1 == t2);
-  t2 = t1;
-  ASSERT_EQ(t1, t2);
+  ASSERT_TRUE(t1 != t3);
+  ASSERT_FALSE(t3 != t4);
 }
 
 TEST(TermTest, PrintingTest) {
-  Term t1(0, 0.0);
   ostringstream out;
-  out << t1;
+  Term t0;
   EXPECT_TRUE(out.str().empty());
+  Term t1(0, 0.0);
+  out.str().clear();
+  out << t1;
+  EXPECT_TRUE(out.str().find(" "));
   Term t2(0, 1.0);
   out.str().clear();
   out << t2;
@@ -137,6 +122,10 @@ TEST(TermTest, PrintingTest) {
   out.str().clear();
   Term t3(1, 3.0);
   out << t3;
+  EXPECT_TRUE(out.str().find("3x ;"));
+  // TODO: expect Polynomial's printer output when that is implemented.
+  Term t4(1, 3.0, new Term(1, 3.0));
+  out << t4;
   EXPECT_TRUE(out.str().find("3x ;"));
 }
 

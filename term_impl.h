@@ -12,15 +12,9 @@ void SyncSortTwoArrays(::std::array<int, N> *array1,
   if ((N - 1) == static_cast<long unsigned int>(index)) {
     return;
   }
-  double dparam;
-  int iparam;
   if ((*array1)[index] > (*array1)[index + 1]) {
-    iparam = (*array1)[index + 1];
-    (*array1)[index + 1] = (*array1)[index];
-    (*array1)[index] = iparam;
-    dparam = (*array2)[index + 1];
-    (*array2)[index + 1] = (*array2)[index];
-    (*array2)[index] = dparam;
+    std::swap((*array1)[index + 1], (*array1)[index]);
+    std::swap((*array2)[index + 1], (*array2)[index]);
   }
   // index++ below resulted in stack overflow.
   SyncSortTwoArrays(array1, array2, ++index);

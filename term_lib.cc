@@ -11,6 +11,11 @@ ostream &operator<<(::std::ostream &out, const Term &t) {
   if (0 == t.coefficient) {
     return out;
   }
+  /* TODO: defer to Polynomial's printer when next is not NULL.
+     Put Polynomial's printer in its own library on which Polynomial and Term
+    both depend.gi if (nullptr != t.next.get()) { polynomial::Polynomial p(t);
+    out << p;
+    } */
   string printme = (t.coefficient == 1) ? "" : ::std::to_string(t.coefficient);
   switch (t.exponent) {
   case 0:
@@ -34,24 +39,35 @@ ostream &operator<<(::std::ostream &out, const Term &t) {
 // "If you declare move members (which legacy C++ code can't do), then we're
 // going to assume that the default copy members are likely to do the wrong
 // thing."
-Term &Term::operator=(Term &&t) {
-#ifdef DEBUG
-  cout << "term move assignment operator\n" << endl;
-#endif
-  swap(coefficient, t.coefficient);
-  swap(exponent, t.exponent);
+// What the generated, default move-assignment operator
+//      Term &operator=(Term &&t) = default;
+// does:
+// [ RUN      ] TermTest.AssignmentTest
+// term_lib_test.cc:84: Failure
+// Expected equality of these values:
+//  0
+//  t.exponent
+//    Which is: 3
+// term_lib_test.cc:85: Failure
+// Expected equality of these values:
+//  0
+//  t.coefficient
+//    Which is: 2
+// [  FAILED  ] TermTest.AssignmentTest (0 ms)
+//
+// Replaced with default.
+/* Term &Term::operator=(Term &&t) {
+  coefficient = t.coefficient;
+  exponent = t.exponent;
+  next = std::move(t.next);
+  t.exponent = 0;
+  t.coefficient = 0;
   // return this;
   // results in "polynomial_lib.cc:20:10: error: invalid initialization of
   // non-const reference of type ‘polynomial::Term&’ from an rvalue of type
   // ‘polynomial::Term*’"
   return *this;
-}
-
-Term &Term::operator=(const Term &t) {
-  coefficient = t.coefficient;
-  exponent = t.exponent;
-  return *this;
-}
+  } */
 
 // Only for terms with equal exponents.
 // Without a move constructor:
@@ -61,19 +77,22 @@ Term &Term::operator=(const Term &t) {
 // That's odd since const lvalue references rather than rvalue references are
 // passed as function parameters.
 Term operator+(const Term &a, const Term &b) {
-#ifdef DEBUG
-  cout << "term operator+()" << endl;
-#endif
   assert(a.exponent == b.exponent);
-  struct termprops tp;
-  tp.exp = a.exponent;
-  tp.coeff = a.coefficient + b.coefficient;
-  tp.next = 0;
-  return tp;
+  Term t{a.exponent, a.coefficient + b.coefficient};
+  return t;
 }
 
 bool operator==(const Term &a, const Term &b) {
-  return ((a.coefficient == b.coefficient) && (a.exponent == b.exponent));
+  // Note that operator* returns the value of the managed ptr.
+  if (a.next && b.next) {
+    return ((a.coefficient == b.coefficient) && (a.exponent == b.exponent) &&
+            (*a.next == *b.next));
+  }
+  if (!a.next && !b.next) {
+    return ((a.coefficient == b.coefficient) && (a.exponent == b.exponent));
+  }
+  // Only one next pointer is null.
+  return false;
 }
 
 bool operator!=(const Term &a, const Term &b) { return !(a == b); }
