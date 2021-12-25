@@ -5,41 +5,35 @@
 #ifndef POLYNOMIAL_IMPL_H
 #define POLYNOMIAL_IMPL_H
 
-#include "polynomial.h"
 #include "term.h"
-#include "term_impl.h"
 #include "term_vector.h"
 
 #include <cassert>
 
 namespace polynomial {
 
-// degree_ is never used for anything, so ditch it.
 template <long unsigned int N>
-Polynomial::Polynomial(::std::array<double, N> coef,
-                       ::std::array<int, N> expon) {
+Polynomial::Polynomial(std::array<double, N> coef, std::array<int, N> expon) {
+#ifdef DEBUG
   log("Polynomial arrays constructor");
+#endif
+  // Following is covered by a DEATH test that gcov does not recognize.
   if (coef.empty() || expon.empty()) {
     std::cerr
         << "Cannot create a polynomial from empty coefficients or exponent.";
     assert_perror(EINVAL);
   }
   term::SyncSortTwoArrays(&expon, &coef, 0);
-  // Head of list.
-  term::Term *temp = new term::Term(expon[0], coef[0]);
-  assert(temp != 0);
-  h_ = 0;
-  Prepend(temp);
+  // Does not work, as  it overwrites the class member of the same name!
+  //     std::unique_ptr<term::Term> h_(new term::Term(expon[0], coef[0]));
+  h_ = std::unique_ptr<term::Term>(new term::Term(expon[0], coef[0]));
 
   // Other nodes.
   for (int i = 1; i < static_cast<int>(N); i++) {
-    assert(expon[i - 1] < expon[i]);
-    term::Term *temp = new term::Term(expon[i], coef[i]);
-    assert(temp != 0);
-    Prepend(temp);
+    Prepend(std::unique_ptr<term::Term>(new term::Term(expon[i], coef[i])));
   }
-  // degree_ = h_->exponent;
 }
+
 } // namespace polynomial
 
 // I tried placing the following code in a term_vector_impl.h and then referring
@@ -49,19 +43,21 @@ Polynomial::Polynomial(::std::array<double, N> coef,
 namespace termvector {
 
 template <long unsigned int N>
-TermVector::TermVector(::std::array<double, N> coeff,
-                       ::std::array<int, N> expon) {
+TermVector::TermVector(std::array<double, N> coeff, std::array<int, N> expon) {
 #ifdef DEBUG
-  ::std::cout << "TermVector arrays constructor" << ::std::endl;
+  std::cerr << "TermVector arrays constructor" << std::endl;
 #endif
   term::SyncSortTwoArrays(&expon, &coeff, 0);
   size_ = N;
-  termvec_ = new term::Term[size_];
-  termvec_[0] = term::Term(expon[0], coeff[0]);
+  // Performs allocation.
+  //  termvec_[0] = std::make_unique<term::Term>(Term(expon[0], coeff[0]));
+  assert(coeff.size() == static_cast<unsigned>(size_));
+  assert(expon.size() == static_cast<unsigned>(size_));
+  termvec_ = std::make_unique<term::Term[]>(3u);
 
-  for (unsigned i = 1; i < static_cast<unsigned>(size_); i++) {
-    assert(expon[i - 1] < expon[i]);
-    termvec_[i] = term::Term(expon[i], coeff[i]);
+  for (unsigned i = 0; i < static_cast<unsigned>(size_); i++) {
+    termvec_[i].exponent = expon[i];
+    termvec_[i].coefficient = coeff[i];
   }
 }
 } // namespace termvector

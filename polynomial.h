@@ -4,6 +4,9 @@
 #include "term.h"
 #include "term_vector.h"
 
+// FRIEND_TEST declaration below does not work.
+// #include "gtest/gtest_prod.h"
+
 #include <array>
 #include <iostream>
 
@@ -11,35 +14,46 @@ namespace polynomial {
 
 class Polynomial {
 public:
-  // Polynomial() : h_(0), degree_(0) {}
-  Polynomial() : h_(0) { log("Polynomial default constructor"); }
+  // With term::term_deleter instead of term::Term::term_deleter, the compiler
+  // complains that term_deleter is in an anonymous namespace.   That's not
+  // allowed since the anonymous namespace must be unique to each file.
+  // https://stackoverflow.com/questions/154469/unnamed-anonymous-namespaces-vs-static-functions
+  Polynomial() : h_(std::unique_ptr<term::Term>()) {
+    log("Polynomial default constructor");
+  }
+  /*  template <long unsigned int N>
+      Polynomial(std::array<double, N> coef, std::array<int, N> expon); */
   template <long unsigned int N>
-  Polynomial(::std::array<double, N> coef, ::std::array<int, N> expon);
+  Polynomial(std::array<double, N> coef, std::array<int, N> expon);
   // List constructor
   Polynomial(const term::Term &termlist);
   // TermVector constructor.
   Polynomial(const termvector::TermVector &tv);
-  // Move constructor.
-  Polynomial(Polynomial &&p) : Polynomial() {
+  // Move constructor.  Could be default except for DEBUG output.
+  Polynomial(Polynomial &&p) noexcept : Polynomial() {
 #ifdef DEBUG
     ::std::cout << "term polynomial move constructor" << ::std::endl;
 #endif
-    *this = ::std::move(p);
+    *this = std::move(p);
+    p.h_.reset();
   }
+  Polynomial(const Polynomial &p) = delete;
   ~Polynomial() {
-    if (0 != h_)
-      Release();
+    if (h_) {
+#ifdef DEBUG
+      std::cout << "Deleting polynomial head" << std::endl;
+#endif
+      h_.reset();
+    }
   }
-  const term::Term *head() const { return h_; }
-  // If the head has a next pointer but a zero coefficient, it should be deleted
-  // and replaced.
-  bool empty() const {
-    return ((nullptr == h_) || ((h_->empty()) && (nullptr == h_->next)));
-  }
+  const term::Term *head() const { return h_.get(); }
+  // A Term is empty if the coefficient is zero.  An empty Polynomial must have
+  // an empty head as well as a null next pointer.
+  bool empty() const { return (!h_ || ((h_->empty()) && (!h_->next))); }
   void RemoveEmptyTerms();
   void Reverse();
-  Polynomial &operator=(Polynomial &&p);
-  Polynomial &operator=(const Polynomial &p);
+  Polynomial &operator=(Polynomial &&p) = default;
+  Polynomial &operator=(const Polynomial &p) = delete;
   friend ::std::ostream &operator<<(::std::ostream &out, const Polynomial &pn);
   friend Polynomial operator+(const Polynomial &a, const Polynomial &b);
   friend Polynomial operator-(const Polynomial &a, const Polynomial &b);
@@ -49,10 +63,8 @@ public:
   friend bool operator==(const Polynomial &a, const Polynomial &b);
 
 private:
-  term::Term *h_;
-  //  int degree_;
-  void Prepend(term::Term *t);
-  void Release();
+  void Prepend(std::unique_ptr<term::Term> t);
+  std::unique_ptr<term::Term> h_;
   // idea for function from
   // https://eli.thegreenplace.net/2011/12/15/understanding-lvalues-and-rvalues-in-c-and-c/
   // unused attribute from
@@ -63,6 +75,8 @@ private:
     ::std::cout << msg << "\n";
 #endif
   }
+  // Does not work.
+  // FRIEND_TEST(PolynomialSimpleTest, PrependTest);
 };
 
 Polynomial operator+(const Polynomial &a, const Polynomial &b);

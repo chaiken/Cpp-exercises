@@ -13,10 +13,12 @@ namespace polynomial {
 
 Polynomial::Polynomial(const TermVector &tv) {
   log("Polynomial TermVector constructor");
-  h_ = new Term(tv.at(0).exponent, tv.at(0).coefficient);
+  h_ = std::unique_ptr<Term>(new Term(tv.at(0).exponent, tv.at(0).coefficient));
   for (int i = 1; i < tv.size(); i++) {
-    Term *t = new Term(tv.at(i).exponent, tv.at(i).coefficient);
-    Prepend(t);
+    // Separately creating a temporary unique_ptr and then Prepend()-ing
+    // requires deleted unique_ptr copy ctor.
+    Prepend(std::unique_ptr<Term>(
+        new Term(tv.at(i).exponent, tv.at(i).coefficient)));
   }
   Reverse();
 }
@@ -24,34 +26,34 @@ Polynomial::Polynomial(const TermVector &tv) {
 // Termlist constructor.
 Polynomial::Polynomial(const Term &tlist) {
   log("Polynomial termlist constructor");
-  // An earlier version included the next pointer as an argument to the Term
-  // constructor.  That resulted in h_ have a non-NULL next pointer, which after
-  // reversal meant that the original trailing Terms were now at the head of the
-  // list.
-  h_ = new Term(tlist.exponent, tlist.coefficient);
-  assert(h_ != 0);
-
-  Term *cursor = tlist.next;
-  while (cursor != 0) {
-    Term *t = new Term(move(*cursor));
-    Prepend(t);
-    cursor = cursor->next;
+  h_ = std::unique_ptr<Term>(new Term(tlist.exponent, tlist.coefficient));
+  Term *cursor = tlist.next.get();
+  while (cursor) {
+    // If next is not explicitly set to NULL, it contains garbage, resulting in
+    // an infinite loop.
+    Term *next = nullptr;
+    if (cursor->next) {
+      next = cursor->next.get();
+    }
+    Prepend(
+        std::unique_ptr<Term>(new Term(cursor->exponent, cursor->coefficient)));
+    cursor = next;
   }
   Reverse();
 }
 
-Polynomial &Polynomial::operator=(Polynomial &&p) {
+/* Polynomial &Polynomial::operator=(Polynomial &&p) {
   log("Polynomial move assignment operator");
-  swap(h_, p.h_);
+  h_ = std::make_unique<Term>(p.h_.release());
   return *this;
-}
+} */
 
 // Tasks: delete existing terms that are part of a polynomial as we link in new
 // terms that replace them.  Failure to delete the existing terms will result in
 // a memory leak.
 // It's striking how much more complex the copy assignment is than the move
 // assignment.
-Polynomial &Polynomial::operator=(const Polynomial &p) {
+/* Polynomial &Polynomial::operator=(const Polynomial &p) {
   log("Polynomial copy assignment operator");
   if ((h_) && (!h_->empty())) {
     // Delete everything but head.
@@ -71,15 +73,13 @@ Polynomial &Polynomial::operator=(const Polynomial &p) {
     h_ = new Term(p.h_->exponent, p.h_->coefficient);
   }
   Term *cursor = p.h_->next;
-  while (cursor != nullptr) {
-    // Doesn't leak memory since the dtor only uses head() to find the rest.
-    Term *newterm = new Term(cursor->exponent, cursor->coefficient);
-    Prepend(newterm);
-    cursor = cursor->next;
+  while (cursor != nullptr) {    // Doesn't leak memory since the dtor only uses
+head() to find the rest. Term *newterm = new Term(cursor->exponent,
+cursor->coefficient); Prepend(newterm); cursor = cursor->next;
   }
   Reverse();
   return *this;
-}
+} */
 
 // Remove any terms whose coefficient is zero.
 // The resulting polynomial will be shorter or even empty.
@@ -87,33 +87,32 @@ void Polynomial::RemoveEmptyTerms() {
   if (empty()) {
     return;
   }
-  std::unique_ptr<Term> cursor(h_);
-  Term *previous = cursor.get();
-  // Go past all empty terms at head().
+  // In order to walk two pointers through a list of unique_ptr's, one must
+  // point to a raw pointer in order to avoid copying.
+  Term *previous = h_.get();
+  // Remove all terms at head() with 0 coefficients.
   while (h_ && h_->empty()) {
-    cursor.reset(previous->next);
-    h_ = cursor.get();
-    previous = h_;
+    h_.reset(previous->next.release());
+    previous = h_.get();
   }
-  // If all terms are empty, then set the polynomial empty.
-  if (!h_ || !h_->next) {
-    h_ = nullptr;
+  //  The whole polynomial consisted of empty terms.
+  if (!h_) {
     return;
   }
 
-  while (nullptr != cursor) {
+  // Empty terms have been removed at the list head only.
+  // previous->next and cursor are the same.
+  Term *cursor = h_->next.get();
+  while (cursor) {
     if (cursor->empty()) {
-      // empty() means coefficient==0.0, not that exponent==0.0 or
-      // next==nullptr.
-      previous->next = cursor.get()->next;
-      // Destroys the object currently managed by the unique_ptr (if any) and
-      // takes ownership of parameter.
-      cursor.reset(previous->next);
-      previous = cursor.get();
+      previous->next.swap(cursor->next);
+      cursor->next.reset();
+      cursor = previous->next.get();
+      previous = cursor;
     } else {
       // Simply advance forward.
-      previous = cursor.release();
-      cursor.reset(previous->next);
+      previous = cursor;
+      cursor = previous->next.get();
     }
   }
 }
@@ -126,26 +125,26 @@ void Polynomial::RemoveEmptyTerms() {
 // no way to free it via the returned rvalue. Implicitly calls TermVector
 // constructor.
 Polynomial operator+(const Polynomial &a, const Polynomial &b) {
-  Term *cursorA = a.h_;
-  Term *cursorB = b.h_;
+  Term *cursorA = a.h_.get();
+  Term *cursorB = b.h_.get();
   int i = 0;
   vector<double> coeffs;
   vector<int> expon;
 
-  while ((0 != cursorA) && (0 != cursorB)) {
+  while ((cursorA) && (cursorB)) {
     if (cursorA->exponent > cursorB->exponent) {
-      Term *A_next = cursorA->next;
+      Term *A_next = cursorA->next.get();
       coeffs.push_back(cursorA->coefficient);
       expon.push_back(cursorA->coefficient);
       cursorA = A_next;
     } else if (cursorB->exponent > cursorA->exponent) {
-      Term *B_next = cursorB->next;
+      Term *B_next = cursorB->next.get();
       coeffs.push_back(cursorB->coefficient);
       expon.push_back(cursorB->exponent);
       cursorB = B_next;
     } else {
-      Term *A_next = cursorA->next;
-      Term *B_next = cursorB->next;
+      Term *A_next = cursorA->next.get();
+      Term *B_next = cursorB->next.get();
       coeffs.push_back(cursorA->coefficient + cursorB->coefficient);
       expon.push_back(cursorA->exponent);
       cursorA = A_next;
@@ -154,13 +153,13 @@ Polynomial operator+(const Polynomial &a, const Polynomial &b) {
     i++;
   }
   while (0 != cursorB) {
-    Term *B_next = cursorB->next;
+    Term *B_next = cursorB->next.get();
     coeffs.push_back(cursorB->coefficient);
     expon.push_back(cursorB->exponent);
     cursorB = B_next;
   }
   while (0 != cursorA) {
-    Term *A_next = cursorA->next;
+    Term *A_next = cursorA->next.get();
     coeffs.push_back(cursorA->coefficient);
     expon.push_back(cursorA->coefficient);
     cursorA = A_next;
@@ -176,17 +175,18 @@ Polynomial operator*(const int factor, const Polynomial &a) {
   std::vector<int> exps;
   std::vector<double> coeffs;
 
-  Term *cursor = a.h_;
+  // Must the existing Polynomial be destroyed?
   if (0 == factor) {
-    return Term(0, 0.0);
+    // Implicitly call TermVector ctor.
+    return {Term(0, 0.0)};
   }
-  while (nullptr != cursor) {
+  Term *cursor = a.h_.get();
+  while (cursor) {
     coeffs.push_back(factor * cursor->coefficient);
     exps.push_back(cursor->exponent);
-    cursor = cursor->next;
+    cursor = cursor->next.get();
   }
-  TermVector tv(coeffs, exps);
-  return tv;
+  return TermVector(coeffs, exps);
 }
 
 // Order of operands matters.  Without this, (-1 * b) compiles but (b * -1) does
@@ -201,6 +201,7 @@ Polynomial operator-(const Polynomial &a, const Polynomial &b) {
   return (temp);
 }
 
+/* No longer needed with std::unique_ptr implementation.
 void Polynomial::Release() {
   Term *cursor, *t = h_;
   // A test for (nullptr==h_) appears unreachable.
@@ -211,9 +212,10 @@ void Polynomial::Release() {
   }
   delete t;
   // Following
-  // https://eli.thegreenplace.net/2011/12/15/understanding-lvalues-and-rvalues-in-c-and-c/
+  //
+https://eli.thegreenplace.net/2011/12/15/understanding-lvalues-and-rvalues-in-c-and-c/
   t = 0;
-}
+} */
 
 bool operator==(const Polynomial &a, const Polynomial &b) {
   // No proper XOR in C++.
@@ -223,69 +225,59 @@ bool operator==(const Polynomial &a, const Polynomial &b) {
   if (a.empty() || b.empty()) {
     return false;
   }
-#ifdef DEBUG
-  cout << "Polynomial equality operator" << endl;
-#endif
-  // Need to work around the fact that head() returns const.
-  if (*a.head() == *b.head()) {
-    Term *ap = a.head()->next;
-    Term *bp = b.head()->next;
+  if (*(a.h_.get()) == *(b.h_.get())) {
+    Term *ap = a.h_->next.get();
+    Term *bp = b.h_->next.get();
     if ((!ap) && (!bp)) {
       return true;
     }
     while (*ap == *bp) {
-      ap = ap->next;
-      bp = bp->next;
+      ap = ap->next.get();
+      bp = bp->next.get();
       // Exhausted both lists without finding a mismatch.
-      if ((ap == nullptr) && (bp == nullptr)) {
+      if ((!ap) && (!bp)) {
         return true;
-      }
-      if ((ap == nullptr) || (bp == nullptr)) {
-        return false;
       }
     }
   }
   return false;
 }
 
-bool operator!=(const Polynomial &a, const Polynomial &b) {
-#ifdef DEBUG
-  cout << "Polynomial inequality operator." << endl;
-#endif
-  return !(a == b);
-}
+bool operator!=(const Polynomial &a, const Polynomial &b) { return !(a == b); }
 
-inline void Polynomial::Prepend(Term *t) {
-  t->next = h_;
-  h_ = t;
+void Polynomial::Prepend(std::unique_ptr<Term> t) {
+  t->next = std::move(h_);
+  h_ = std::move(t);
 }
 
 // Far simpler than what appears in the text on p. 176.
 void Polynomial::Reverse() {
-  Term *predecessor = 0, *element, *successor = h_;
-  if (!h_) {
+  if (!h_ || !h_->next) {
     return;
   }
-  while (successor != 0) {
-    element = successor;
-    successor = successor->next;
-    element->next = predecessor;
-    predecessor = element;
+  std::unique_ptr<Term> successor(h_->next.release());
+  while (successor) {
+    std::unique_ptr<Term> successor_next;
+    if (successor->next) {
+      successor_next = std::move(successor->next);
+    }
+    Prepend(std::move(successor));
+    successor = std::move(successor_next);
   }
-  h_ = element;
 }
 
 ostream &operator<<(ostream &out, const Polynomial &pn) {
   if (!pn.h_) {
     return out;
   }
-  Term *cursor = pn.h_;
-  do {
+  Term *cursor = pn.h_.get();
+  while (cursor) {
     out << *cursor;
-    if (cursor->next != 0) {
+    if (cursor->next.get()) {
       out << "+ ";
     }
-  } while ((cursor = cursor->next) != 0);
+    cursor = cursor->next.get();
+  }
   return out;
 }
 
