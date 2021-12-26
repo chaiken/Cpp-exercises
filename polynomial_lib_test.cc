@@ -3,7 +3,6 @@
 #include "term_vector.h"
 
 #include "gtest/gtest.h"
-#include "gtest/gtest_prod.h"
 
 #include <iostream>
 
@@ -12,7 +11,6 @@ using namespace term;
 using namespace termvector;
 
 namespace polynomial {
-namespace local_testing {
 
 // TEST: after addition, all terms have zero coefficients!   Multiplication by
 // zero.
@@ -74,16 +72,15 @@ TEST(PolynomialSimpleTest, TermVectorCtorTest) {
   ASSERT_EQ(1.0, poly.head()->coefficient);
 }
 
-/* FRIEND_TEST declaration in class definition does not work.
 TEST(PolynomialSimpleTest, PrependTest) {
-// An anonymous Term is not const and doesn't match Polynomial list
-// constructor.
-const term::Term t(1.0, 1);
-Polynomial testpoly(t);
-testpoly.Prepend(std::unique_ptr<term::Term>(new Term(2.0, 2)));
-ASSERT_EQ(2, testpoly.head()->exponent);
-ASSERT_EQ(2.0, testpoly.head()->coefficient);
-} */
+  // An anonymous Term is not const and doesn't match Polynomial list
+  // constructor.
+  const term::Term t(1.0, 1);
+  Polynomial testpoly(t);
+  testpoly.Prepend(std::unique_ptr<term::Term>(new Term(2.0, 2)));
+  ASSERT_EQ(2, testpoly.head()->exponent);
+  ASSERT_EQ(2.0, testpoly.head()->coefficient);
+}
 
 TEST(PolynomialSimpleTest, ReverseEmpty) {
   Polynomial testpoly;
@@ -489,5 +486,4 @@ TEST(PolynomialDeathTest, EmptyInputs) {
       "Cannot create a polynomial from empty coefficients or exponent.");
 }
 
-} // namespace local_testing
 } // namespace polynomial

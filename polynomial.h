@@ -1,11 +1,10 @@
 #ifndef POLYNOMIAL_H
 #define POLYNOMIAL_H
 
+#include "gtest/gtest_prod.h"
+
 #include "term.h"
 #include "term_vector.h"
-
-// FRIEND_TEST declaration below does not work.
-// #include "gtest/gtest_prod.h"
 
 #include <array>
 #include <iostream>
@@ -75,8 +74,12 @@ private:
     ::std::cout << msg << "\n";
 #endif
   }
-  // Does not work.
-  // FRIEND_TEST(PolynomialSimpleTest, PrependTest);
+  // Had to remove the local_testing namespace around the test to get
+  // FRIEND_TEST to work.
+  // https://github.com/google/googletest/blob/3306848f697568aacf4bcca330f6bdd5ce671899/googletest/include/gtest/gtest_prod.h#L55
+  // via
+  // https://stackoverflow.com/questions/2396370/how-to-make-google-test-classes-friends-with-my-classes
+  FRIEND_TEST(PolynomialSimpleTest, PrependTest);
 };
 
 Polynomial operator+(const Polynomial &a, const Polynomial &b);
