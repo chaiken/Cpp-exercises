@@ -12,9 +12,6 @@ using namespace termvector;
 
 namespace polynomial {
 
-// TEST: after addition, all terms have zero coefficients!   Multiplication by
-// zero.
-
 TEST(TermVectorTest, ArrayConstructorTest) {
   array<int, 3> expon = {{1, 2, 3}};
   array<double, 3> coeffs = {{1.0, 2.0, 3.0}};
@@ -338,6 +335,11 @@ TEST_F(PolynomialTest, MultiplicationTest) {
             another.head()->next->coefficient);
   EXPECT_EQ(2 * testpoly.head()->next->next->coefficient,
             another.head()->next->next->coefficient);
+}
+
+TEST_F(PolynomialTest, MultiplicationByZeroTest) {
+  const Polynomial another(testpoly * 0);
+  EXPECT_TRUE(another.empty());
 }
 
 TEST_F(PolynomialTest, PlusMinusTest) {
