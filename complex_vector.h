@@ -5,21 +5,27 @@
 
 #include "complex.h"
 
+#include <memory>
 #include <vector>
 
 namespace complex_vec {
 class ComplexVector {
 public:
-  ComplexVector() : c_(0), size_(0) {
-    ::std::cout << "Default constructor." << ::std::endl;
-  }
+  ComplexVector() : size_(0), c_(std::unique_ptr<complex::Complex[]>()) {}
   ComplexVector(const complex::Complex &x);
-  ComplexVector(const ComplexVector &x) : c_(x.c_), size_(x.size_) {}
+  ComplexVector(const ComplexVector &x) = delete;
+  ComplexVector(ComplexVector &&x) = default;
   ComplexVector(const ::std::vector<complex::Complex> &x);
   ComplexVector(const complex::Complex x[], int count);
-  ~ComplexVector() { delete[] c_; }
+  /* The following results in a double-free if c_ is a unique_ptr to a Complex
+     object rather than to an array.
+  ~ComplexVector() {
+    for (int i=0; i < size_; i++) {
+      delete[] c_.get();
+    }
+    } */
   int ub() const { return size_ - 1; }
-  const complex::Complex &element(int i) const { return c_[i]; }
+  complex::Complex &at(int i) const { return c_.get()[i]; }
   complex::Complex &operator[](int i);
   bool operator==(ComplexVector &c);
   bool operator!=(ComplexVector &c);
@@ -31,8 +37,13 @@ public:
   friend ::std::vector<double> operator*(ComplexVector &v, ComplexVector &w);
 
 private:
-  complex::Complex *c_;
   int size_;
+  // If c_ is instead   std::unique_ptr<complex::Complex> c_, then the generated
+  // ComplexVector destructor does not match the type of the variable to be
+  // deleted.
+  // ==ERROR: AddressSanitizer: alloc-dealloc-mismatch (operator new [] vs
+  // operator delete) on 0x6020000002f0
+  std::unique_ptr<complex::Complex[]> c_;
 };
 
 ::std::ostream &operator<<(::std::ostream &out, const ComplexVector &v);

@@ -9,41 +9,36 @@ using namespace complex;
 
 namespace complex_vec {
 
-// Copy constructor.
-ComplexVector::ComplexVector(const Complex &x) {
-  size_ = 1;
-  c_ = new Complex[1];
-  // c_ = x; << doesn't work.
-  c_[0] = x;
+ComplexVector::ComplexVector(const Complex &x) : size_(1) {
+  c_ = std::unique_ptr<Complex[]>(new Complex[1]);
+  c_.get()[0] = x;
 }
 
-ComplexVector::ComplexVector(const Complex x[], int count) {
-  size_ = count;
+ComplexVector::ComplexVector(const Complex x[], int count) : size_(count) {
+  c_ = std::unique_ptr<Complex[]>(new Complex[size_]);
   int i = 0;
-  c_ = new Complex[size_];
   while (i < count) {
-    c_[i] = x[i];
+    c_.get()[i] = x[i];
     i++;
   }
 }
 
-ComplexVector::ComplexVector(const vector<Complex> &x) {
-  size_ = x.size();
+ComplexVector::ComplexVector(const vector<Complex> &x) : size_(x.size()) {
+  c_ = std::unique_ptr<Complex[]>(new Complex[size_]);
   int i = 0;
-  c_ = new Complex[size_];
   while (i < size_) {
-    c_[i] = x.at(i);
+    c_.get()[i] = x.at(i);
     i++;
   }
 }
 
-// If the function calls only public functions of the class like element(), it
+// If the function calls only public functions of the class like at(), it
 // could be a non-member, except that "Overloading assignment and subscription
 // functions share several characteristics.   Both must be done as nonstatic
 // member functions, and both usually involve a reference return type."
 Complex &ComplexVector::operator[](int i) {
   assert((i >= 0) && (i < size_));
-  return c_[i];
+  return c_.get()[i];
 }
 
 bool ComplexVector::operator==(ComplexVector &c) {
@@ -68,20 +63,20 @@ ComplexVector &ComplexVector::operator=(const ComplexVector &cv) {
   if (this != &cv) {
     assert(ub() == cv.ub());
     for (int i = 0; i <= cv.ub(); i++) {
-      c_[i] = cv.c_[i];
+      c_.get()[i] = cv.c_.get()[i];
     }
   }
   return *this;
 }
 
-// Use element() to access Complex objects from ComplexVector object, and then
+// Use at() to access Complex objects from ComplexVector object, and then
 // call Complex's overloaded << operator.  When the ComplexVector parameter in
 // the function definition below was not a const reference, the function exit
 // destroyed the ComplexVector object!
 ostream &operator<<(ostream &out, const ComplexVector &v) {
   int i = 0;
   while (i <= v.ub()) {
-    out << v.element(i++) << ends;
+    out << v.at(i++) << ends;
     out << "; ";
   }
   out << endl;
@@ -93,7 +88,7 @@ ComplexVector operator+(const ComplexVector &v, const ComplexVector &w) {
   int i = 0;
   vector<Complex> sumvec;
   while (i <= v.ub()) {
-    Complex c(v.c_[i] + w.c_[i]);
+    Complex c(v.c_.get()[i] + w.c_.get()[i]);
     sumvec.push_back(c);
     i++;
   }
