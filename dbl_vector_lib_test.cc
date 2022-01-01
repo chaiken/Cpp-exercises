@@ -8,145 +8,111 @@ namespace local_testing {
 
 class DoubleVectorTest : public ::testing::Test {
 public:
-  DoubleVectorTest(int n = 5) {
-    a = new DoubleVector(n);
-    b = new DoubleVector(n);
-    assert(a->ub() == b->ub());
+  DoubleVectorTest() : a(DoubleVector(5)), b(DoubleVector(5)) {
+    assert(a.ub() == b.ub());
     int i = 0;
-    while (i <= a->ub()) {
-      a->Element(i) = 2.0 * i;
-      b->Element(i) = 0.5 * i;
+    while (i <= a.ub()) {
+      a.Element(i) = 2.0 * i;
+      b.Element(i) = 0.5 * i;
       i++;
     }
   }
-  virtual ~DoubleVectorTest() {
-    assert(a != b);
-    delete a;
-    delete b;
-  }
-  DoubleVector *a, *b;
+  DoubleVector a, b;
 };
 
-TEST_F(DoubleVectorTest, SumElementsWorks) {
-  ASSERT_EQ(20.0, a->SumElements());
-}
+TEST_F(DoubleVectorTest, SumElementsWorks) { ASSERT_EQ(20.0, a.SumElements()); }
 
-TEST_F(DoubleVectorTest, DotProductWorks) {
-  ASSERT_EQ(30.0, a->DotProduct(*b));
-}
+TEST_F(DoubleVectorTest, DotProductWorks) { ASSERT_EQ(30.0, a.DotProduct(b)); }
 
 TEST_F(DoubleVectorTest, AmplitudeWorks) {
-  double val = a->DotProduct(*a);
+  double val = a.DotProduct(a);
   ASSERT_LE(0, val);
-  ASSERT_EQ(sqrt(val), a->Amplitude());
+  ASSERT_EQ(sqrt(val), a.Amplitude());
 }
 
 TEST_F(DoubleVectorTest, ScaleWorks) {
-  b->Scale(4.0);
-  ASSERT_EQ(a->SumElements(), b->SumElements());
+  b.Scale(4.0);
+  ASSERT_EQ(a.SumElements(), b.SumElements());
 }
 
 TEST_F(DoubleVectorTest, AddWorks) {
-  DoubleVector c(*b);
-  DoubleVector d = c.Add(*a);
-  ASSERT_EQ(a->SumElements() + b->SumElements(), d.SumElements());
+  int sum = a.SumElements() + b.SumElements();
+  DoubleVector c(std::move(b));
+  DoubleVector d = c.Add(a);
+  ASSERT_EQ(sum, d.SumElements());
 }
 
 TEST_F(DoubleVectorTest, SubscriptWorks) {
-  for (int i = 0; i <= a->ub(); i++) {
-    EXPECT_TRUE((*a)[i] == a->Element(i));
+  for (int i = 0; i <= a.ub(); i++) {
+    EXPECT_TRUE(a[i] == a.Element(i));
   }
 }
 
 TEST_F(DoubleVectorTest, AssignmentWorks) {
-  EXPECT_FALSE((*a) == (*b));
-  // a = b causes a failure when the destructor runs.
-  *a = *b;
-  EXPECT_TRUE((*a) == (*b));
+  EXPECT_FALSE(a == b);
+  vector<double> save;
+  for (int i = 0; i <= b.ub(); i++) {
+    save.push_back(b[i]);
+  }
+  DoubleVector c(save);
+  a = std::move(b);
+  EXPECT_TRUE(a == c);
 }
 
 TEST_F(DoubleVectorTest, PrintingWorks) {
   ostringstream out;
-  out << *a;
+  out << a;
   EXPECT_EQ("0,0 1,2 2,4 3,6 4,8 \n", out.str());
 }
 
 TEST_F(DoubleVectorTest, PlusWorks) {
-  DoubleVector c(*a);
-  c = *a + *b;
-  ASSERT_EQ(c.ub(), a->ub());
-  ASSERT_EQ(a->SumElements() + b->SumElements(), c.SumElements());
+  DoubleVector c = a + b;
+  ASSERT_EQ(c.ub(), a.ub());
+  ASSERT_EQ(a.SumElements() + b.SumElements(), c.SumElements());
   // Prints the leading string with ::std::cout, then calls the operator<<() for
   // the DoubleVector.
-  cout << "a: " << *a;
-  cout << "b: " << *b;
+  cout << "a: " << a;
+  cout << "b: " << b;
   cout << "Sum: " << c;
 }
 
 TEST_F(DoubleVectorTest, DoubleVectorIteratorBasic) {
-  DoubleVectorIterator iter(*a), iter2(*b);
+  DoubleVectorIterator iter(a), iter2(b);
   double val = ++iter;
-  ASSERT_EQ(val, (*a)[1]);
+  ASSERT_EQ(val, (a)[1]);
   double val2 = ++iter2;
-  ASSERT_EQ(val2, (*b)[1]);
+  ASSERT_EQ(val2, (b)[1]);
   val = ++iter;
-  ASSERT_EQ(val, (*a)[2]);
+  ASSERT_EQ(val, (a)[2]);
 }
 
 TEST_F(DoubleVectorTest, MaxWorks) {
   // The array is monotonically increasing.
-  double c = (*a)[a->ub()];
-  ASSERT_EQ(c, Max(*a));
+  double c = (a)[a.ub()];
+  ASSERT_EQ(c, Max(a));
 }
 
 TEST_F(DoubleVectorTest, MemberOperatorTest) {
-  DoubleVectorIterator c(*a);
+  DoubleVectorIterator c(a);
   // Call DoubleVector's ub() method via the member-access operator overload of
   // DoubleVectorIterator.
   EXPECT_EQ(4, c->ub());
 }
 
-TEST(DoubleVectorSimpleTest, CopyConstructorWorks) {
-  DoubleVector a(5);
-  int i = 0;
-  while (i <= a.ub()) {
-    a.Element(i) = 2.0 * i;
-    i++;
-  }
-  DoubleVector b(a);
-  ASSERT_EQ(a.SumElements(), b.SumElements());
-}
-
 TEST(DoubleVectorSimpleTest, CArrayConstructorWorks) {
-  double a[5];
-  int i = 0;
-  while (i < 5) {
-    a[i] = i * 10.0;
-    i++;
-  }
-  DoubleVector b(static_cast<const double *>(a), 5);
-
-  i = 0;
-  double sum1 = 0;
-  while (i < 5) {
-    sum1 += a[i];
-    i++;
-  }
-  ASSERT_EQ(sum1, b.SumElements());
+  double vec[] = {0, 10, 20, 30, 40};
+  DoubleVector b(vec, 5);
+  ASSERT_EQ(100, b.SumElements());
 }
 
 TEST(DoubleVectorSimpleTest, AddWorks) {
-  DoubleVector a(5), b(5);
-  int i = 0;
-  while (i <= a.ub()) {
-    a.Element(i) = i;
-    b.Element(i) = -i;
-    i++;
-  }
+  DoubleVector a({0, 1, 2, 3, 4}), b({0, -1, -2, -3, -4});
   ASSERT_EQ(10, a.SumElements());
   ASSERT_EQ(-10, b.SumElements());
-  b.Add(a);
-  ASSERT_EQ(0, b.SumElements());
+  DoubleVector c(std::move(b.Add(a)));
+  ASSERT_EQ(4, c.ub());
+  ASSERT_EQ(0, Max(c));
+  ASSERT_EQ(0, c.SumElements());
 }
 
 // Initializing c and then assigning its value to the return value of SumVectors
@@ -168,8 +134,7 @@ TEST(DoubleVectorSimpleTest, SumVectorsWorks) {
   }
   ASSERT_LT(0, a.SumElements());
   ASSERT_GT(0, b.SumElements());
-  DoubleVector c = SumVectors(static_cast<const DoubleVector>(a),
-                              static_cast<const DoubleVector>(b));
+  DoubleVector c = SumVectors(std::move(a), std::move(b));
   ASSERT_EQ(0, c.SumElements());
 }
 
@@ -202,5 +167,5 @@ TEST(DoubleVectorSimpleTest, EqualityOperatorWorks) {
 //   DoubleVector c(a);
 // TEST_F(DoubleVectorTest, CopyConstructorWorks) {
 //  DoubleVector c(a);
-//  ASSERT_EQ(a->SumElements(), c.SumElements());
+//  ASSERT_EQ(a.SumElements(), c.SumElements());
 //}

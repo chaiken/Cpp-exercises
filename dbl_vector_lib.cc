@@ -11,75 +11,25 @@ namespace dbl_vect {
 
 double &DoubleVectorIterator::operator++() const { return (*dv_)[++position_]; }
 
-double &Max(DoubleVector &v) {
+double Max(DoubleVector &v) {
   DoubleVectorIterator iter(v);
-  int max = 0, i = 0;
-  double a = *(v.begin());
+  double max = *(v.begin());
   // The begin() and end() are those of DoubleVector and are accessed via
   // operator->().  The -> here does not indicate a pointer-based lookup.
   for (double *b = iter->begin(); b != iter->end(); b++) {
-    if (*b > a) {
-      a = *b;
-      max = i;
+    if (*b > max) {
+      max = *b;
     }
-    i++;
   }
-  // iter->ub() uses DoubleVector's member-access overload operator->().
-  // v.ub() would use the DoubleVector object's call directly.
-#ifdef DEBUG
-  assert(max >= 0 && max <= iter->ub());
-#endif
-  return v[max];
+  return max;
 }
 
-DoubleVector::DoubleVector(int n) : size_(n) {
-  p_ = new double[size_];
-#ifdef DEBUG
-  assert(n > 0);
-  assert(p_ != 0);
-#endif
-}
-
-DoubleVector::DoubleVector(const DoubleVector &v) {
-  p_ = new double[v.size_];
-  size_ = v.size_;
-#ifdef DEBUG
-  assert(p_ != 0);
-#endif
-  int i = 0;
-  while (i <= v.ub()) {
-    p_[i] = v.p_[i];
-    i++;
-  }
-}
-
-DoubleVector::DoubleVector(const vector<double> v) {
-#ifdef DEBUG
-  assert(v.size() > 0);
-#endif
+DoubleVector::DoubleVector(const vector<double> &v) {
   size_ = v.size();
-  p_ = new double[size_];
+  p_ = std::unique_ptr<double[]>(new double[size_]);
   for (int i = 0; i < size_; i++) {
     p_[i] = v.at(i);
   }
-}
-
-DoubleVector::DoubleVector(const double *v, int sz) : size_(sz) {
-  p_ = new double[sz];
-#ifdef DEBUG
-  assert(p_ != 0);
-#endif
-  size_ = sz;
-  for (int i = 0; i < sz; i++) {
-    p_[i] = *(v + i);
-  }
-}
-
-double &DoubleVector::Element(int i) {
-#ifdef DEBUG
-  assert(i >= 0 && i < size_);
-#endif
-  return p_[i];
 }
 
 ostream &operator<<(ostream &out, DoubleVector &dv) {
@@ -106,8 +56,10 @@ double DoubleVector::DotProduct(const DoubleVector &v) const {
 
 double DoubleVector::SumElements() const {
   double sum = 0;
-  for (int i = 0; i < size_; i++) {
+  int i = ub();
+  while (i >= 0) {
     sum += p_[i];
+    i--;
   }
   return sum;
 }
@@ -130,10 +82,11 @@ DoubleVector DoubleVector::Add(const DoubleVector &a) {
 #ifdef DEBUG
   assert(ub() == a.ub());
 #endif
+  vector<double> sum;
   for (int i = 0; i <= ub(); i++) {
-    p_[i] += a.p_[i];
+    sum.push_back(p_[i] + a.p_[i]);
   }
-  return *this;
+  return sum;
 }
 
 double &DoubleVector::operator[](int i) {
@@ -141,20 +94,6 @@ double &DoubleVector::operator[](int i) {
   assert((i >= 0) && (i <= ub()));
 #endif
   return p_[i];
-}
-
-DoubleVector &DoubleVector::operator=(const DoubleVector &v) {
-#ifdef DEBUG
-  assert(ub() == v.ub());
-#endif
-  if (this != &v) {
-    for (int i = 0; i <= ub(); i++) {
-      p_[i] = v.p_[i];
-    }
-  }
-  // To return a reference, we can't return 'this', as it is a pointer to an
-  // object, not the object itself.
-  return *this;
 }
 
 bool DoubleVector::operator==(const DoubleVector &v) const {
@@ -173,16 +112,16 @@ bool DoubleVector::operator!=(const DoubleVector &v) const {
   return (!operator==(v));
 }
 
-// Below is the text's function signature, but it must be wrong.
+// Below is the textbook's function signature, but it must be wrong.
 // As stated, the function takes consts as arguments and returns nothing, so
 // what good is it?
 // void SumVectors(const DoubleVector &a, const DoubleVector &b) {
-DoubleVector SumVectors(const DoubleVector &a, const DoubleVector &b) {
+DoubleVector SumVectors(DoubleVector &&a, DoubleVector &&b) {
 #ifdef DEBUG
   assert(a.ub() == b.ub());
 #endif
-  DoubleVector c(a);
-  return c.Add(b);
+  DoubleVector c(a.Add(b));
+  return c;
 }
 
 DoubleVector operator+(DoubleVector &a, DoubleVector &b) {

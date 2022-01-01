@@ -2,7 +2,9 @@
 #define DBL_VECTOR_H
 
 // Implementation of a safe array type dbl_vect.
+#include <cassert>
 #include <iostream>
+#include <memory>
 #include <vector>
 
 // This forward declaration is needed so that the forward declaration of
@@ -25,8 +27,10 @@ dbl_vect::DoubleVector Multiply(const dbl_vect::DoubleVector &v,
 
 namespace dbl_vect {
 
-double &Max(DoubleVector &);
+double Max(DoubleVector &);
 
+// arrays, smart pointers and iterators:
+// https://www.reddit.com/r/cpp/comments/qfce8b/c_smart_pointers_and_arrays/
 class DoubleVectorIterator {
 public:
   // Can't be const argument, as then dv_ would have to be const, and the
@@ -49,12 +53,23 @@ public:
   // https://stackoverflow.com/questions/121162/what-does-the-explicit-keyword-mean
   // 'explicit' means that a cast is required if an int is provided when the
   // matching function definition specifies a DoubleVector.
-  explicit DoubleVector(int n = 10);
-  DoubleVector(const DoubleVector &v);
-  DoubleVector(const double *v, int sz);
-  DoubleVector(const ::std::vector<double> v);
-  ~DoubleVector() { delete[] p_; }
-  double &Element(int i);
+  explicit DoubleVector()
+      : size_(10), p_(std::unique_ptr<double[]>(new double[10])) {}
+  DoubleVector(int n)
+      : size_(n), p_(std::unique_ptr<double[]>(new double[n])) {}
+  DoubleVector(const DoubleVector &v) = delete;
+  DoubleVector(DoubleVector &&v) = default;
+  DoubleVector(double v[], int sz)
+      : size_(sz), p_(std::unique_ptr<double[]>(new double[size_])) {
+    for (int i = 0; i < size_; i++) {
+      p_[i] = v[i];
+    }
+  }
+  DoubleVector(const ::std::vector<double> &v);
+  double &Element(int i) {
+    assert(i >= 0 && i < size_);
+    return p_[i];
+  }
   double &Iterate();
   int ub() const { return (size_ - 1); }
   double SumElements() const;
@@ -68,7 +83,8 @@ public:
   // Returns an iterator pointing to the past-the-end element in the sequence:
   // Array: The function returns arr+N.
   double *end() const { return &p_[ub() + 1]; }
-  DoubleVector &operator=(const DoubleVector &v);
+  DoubleVector &operator=(const DoubleVector &v) = delete;
+  DoubleVector &operator=(DoubleVector &&v) = default;
   bool operator==(const DoubleVector &v) const;
   bool operator!=(const DoubleVector &v) const;
   // Not an overload but a friend, since the function signature doesn't match.
@@ -81,13 +97,15 @@ public:
                                        const matrix::Matrix &m);
 
 private:
-  double *p_;
   int size_;
+  std::unique_ptr<double[]> p_;
 };
 
 ::std::ostream &operator<<(::std::ostream &out, DoubleVector &dv);
+// Since it's not possible to provide a const overload of operator[] in addition
+// to the non-const one, the arguments must be non-const
+DoubleVector SumVectors(DoubleVector &&, DoubleVector &&);
 DoubleVector operator+(DoubleVector &a, DoubleVector &b);
-DoubleVector SumVectors(const DoubleVector &, const DoubleVector &);
 } // namespace dbl_vect
 
 #endif
