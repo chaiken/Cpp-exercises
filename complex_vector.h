@@ -43,6 +43,8 @@ private:
   // deleted.
   // ==ERROR: AddressSanitizer: alloc-dealloc-mismatch (operator new [] vs
   // operator delete) on 0x6020000002f0
+  // Why manage the object as pointer in the first place?  Since an array whose
+  // size is known only at runtime must be allocated on the heap.
   std::unique_ptr<complex::Complex[]> c_;
 };
 
