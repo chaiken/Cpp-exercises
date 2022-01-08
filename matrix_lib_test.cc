@@ -36,21 +36,12 @@ bool is_even(int i) { return (2 * (i / 2) == i); }
 
 class MatrixLibTest : public ::testing::Test {
 public:
-  MatrixLibTest() {
-    testvec1 = new vector<double>({1.0, 2.0, 3.0, 4.0, 5.0, 6.0});
-    assert(nullptr != testvec1);
-    testvec2 = new vector<double>();
-    assert(nullptr != testvec2);
+  MatrixLibTest() : testvec1({1.0, 2.0, 3.0, 4.0, 5.0, 6.0}) {
     for (int i = 0; i < kLimit1 * kLimit2; i++) {
-      testvec2->push_back(i);
+      testvec2.push_back(i);
     }
   }
-  ~MatrixLibTest() {
-    delete testvec1;
-    delete testvec2;
-  }
-
-  vector<double> *testvec1, *testvec2, *testvec3;
+  vector<double> testvec1, testvec2;
 };
 
 TEST(MatrixLibSimpleTest, DefaultConstructor) {
@@ -66,22 +57,22 @@ TEST(MatrixLibSimpleTest, DefaultConstructorOffset) {
 }
 
 TEST_F(MatrixLibTest, VectorConstructor) {
-  Matrix tensor2(kLimit1, kLimit2, *testvec2);
+  Matrix tensor2(kLimit1, kLimit2, testvec2);
 #ifdef DEBUG
   cout << tensor2;
 #endif
   ASSERT_EQ(kLimit1 - 1, tensor2.ub1());
   ASSERT_EQ(kLimit2 - 1, tensor2.ub2());
-  ASSERT_EQ(0.0, tensor2.Element(0, 0));
-  ASSERT_EQ(1.0, tensor2.Element(0, 1));
-  ASSERT_EQ((kLimit1 * kLimit2) - 1,
+  EXPECT_EQ(0.0, tensor2.Element(0, 0));
+  EXPECT_EQ(1.0, tensor2.Element(0, 1));
+  EXPECT_EQ((kLimit1 * kLimit2) - 1,
             tensor2.Element(tensor2.ub1(), tensor2.ub2()));
-  ASSERT_EQ((kLimit1 * kLimit2) - 2,
+  EXPECT_EQ((kLimit1 * kLimit2) - 2,
             tensor2.Element(tensor2.ub1(), tensor2.ub2() - 1));
 }
 
 TEST_F(MatrixLibTest, VectorConstructorOffset) {
-  Matrix tensor2(kLimit1, kLimit2, *testvec2, 1);
+  Matrix tensor2(kLimit1, kLimit2, testvec2, 1);
 #ifdef DEBUG
   cout << tensor2;
 #endif
@@ -89,16 +80,16 @@ TEST_F(MatrixLibTest, VectorConstructorOffset) {
   ASSERT_EQ(kLimit1, tensor2.ub1());
   ASSERT_EQ(kLimit2, tensor2.ub2());
   ASSERT_EQ(1, tensor2.lb());
-  ASSERT_EQ(0.0, tensor2.Element(1, 1));
-  ASSERT_EQ(1.0, tensor2.Element(1, 2));
-  ASSERT_EQ((kLimit1 * kLimit2) - 1,
+  EXPECT_EQ(0.0, tensor2.Element(1, 1));
+  EXPECT_EQ(1.0, tensor2.Element(1, 2));
+  EXPECT_EQ((kLimit1 * kLimit2) - 1,
             tensor2.Element(tensor2.ub1(), tensor2.ub2()));
-  ASSERT_EQ((kLimit1 * kLimit2) - 2,
+  EXPECT_EQ((kLimit1 * kLimit2) - 2,
             tensor2.Element(tensor2.ub1(), tensor2.ub2() - 1));
 }
 
 TEST_F(MatrixLibTest, TransformConstructorCopyTest) {
-  Matrix tensor2(kLimit1, kLimit2, *testvec2);
+  Matrix tensor2(kLimit1, kLimit2, testvec2);
   Matrix tensor3(tensor2, copy);
   ASSERT_EQ(tensor2.ub1(), tensor3.ub1());
   ASSERT_EQ(tensor2.ub2(), tensor3.ub2());
@@ -109,7 +100,7 @@ TEST_F(MatrixLibTest, TransformConstructorCopyTest) {
 }
 
 TEST_F(MatrixLibTest, TransformConstructorCopyTestOffset) {
-  Matrix tensor2(kLimit1, kLimit2, *testvec2, 1);
+  Matrix tensor2(kLimit1, kLimit2, testvec2, 1);
   Matrix tensor3(tensor2, copy);
   ASSERT_EQ(tensor2.ub1(), tensor3.ub1() + 1);
   ASSERT_EQ(tensor2.ub2(), tensor3.ub2() + 1);
@@ -120,7 +111,7 @@ TEST_F(MatrixLibTest, TransformConstructorCopyTestOffset) {
 }
 
 TEST_F(MatrixLibTest, TransformConstructorTranposeTest) {
-  Matrix tensor2(kLimit1, kLimit2, *testvec2);
+  Matrix tensor2(kLimit1, kLimit2, testvec2);
   Matrix tensor3(tensor2, transpose);
 #ifdef DEBUG
   cout << tensor2;
@@ -136,7 +127,7 @@ TEST_F(MatrixLibTest, TransformConstructorTranposeTest) {
 }
 
 TEST_F(MatrixLibTest, TransformConstructorTranposeTestOffset) {
-  Matrix tensor2(kLimit1, kLimit2, *testvec2, -1);
+  Matrix tensor2(kLimit1, kLimit2, testvec2, -1);
   Matrix tensor3(tensor2, transpose);
 #ifdef DEBUG
   cout << tensor2;
@@ -153,7 +144,7 @@ TEST_F(MatrixLibTest, TransformConstructorTranposeTestOffset) {
 }
 
 TEST_F(MatrixLibTest, TransformConstructorNegativeTest) {
-  Matrix tensor2(kLimit1, kLimit2, *testvec2);
+  Matrix tensor2(kLimit1, kLimit2, testvec2);
   Matrix tensor3(tensor2, negative);
 #ifdef DEBUG
   cout << tensor2;
@@ -165,7 +156,7 @@ TEST_F(MatrixLibTest, TransformConstructorNegativeTest) {
 }
 
 TEST_F(MatrixLibTest, TransformConstructorNegativeTestOffset) {
-  Matrix tensor2(kLimit1, kLimit2, *testvec2, -2);
+  Matrix tensor2(kLimit1, kLimit2, testvec2, -2);
   Matrix tensor3(tensor2, negative);
 #ifdef DEBUG
   cout << tensor2;
@@ -178,7 +169,7 @@ TEST_F(MatrixLibTest, TransformConstructorNegativeTestOffset) {
 }
 
 TEST_F(MatrixLibTest, TransformConstructorUpperTest) {
-  Matrix tensor2(kLimit1, kLimit2, *testvec2);
+  Matrix tensor2(kLimit1, kLimit2, testvec2);
   Matrix tensor3(tensor2, upper);
 #ifdef DEBUG
   cout << tensor2;
@@ -189,7 +180,7 @@ TEST_F(MatrixLibTest, TransformConstructorUpperTest) {
 }
 
 TEST_F(MatrixLibTest, TransformConstructorUpperTestOffset) {
-  Matrix tensor2(kLimit1, kLimit2, *testvec2, -1);
+  Matrix tensor2(kLimit1, kLimit2, testvec2, -1);
   Matrix tensor3(tensor2, upper);
 #ifdef DEBUG
   cout << tensor2;
@@ -199,10 +190,64 @@ TEST_F(MatrixLibTest, TransformConstructorUpperTestOffset) {
   ASSERT_EQ(tensor2.Element(tensor2.lb(), tensor2.lb()), tensor3.Element(0, 0));
 }
 
+TEST_F(MatrixLibTest, IteratorTest) {
+  Matrix tensor(2, 3, testvec1);
+  MatrixIterator iter(tensor);
+  double val = iter.Iterate();
+  EXPECT_EQ(2, val);
+  val = iter.Iterate();
+  EXPECT_EQ(3, val);
+  val = iter.Iterate();
+  EXPECT_EQ(4, val);
+}
+
+TEST_F(MatrixLibTest, IteratorTestOffset) {
+  Matrix tensor(2, 3, testvec1, -1);
+  MatrixIterator iter(tensor);
+  double val = iter.Iterate();
+  EXPECT_EQ(2, val);
+  val = iter.Iterate();
+  EXPECT_EQ(3, val);
+  val = iter.Iterate();
+  EXPECT_EQ(4, val);
+}
+
+TEST_F(MatrixLibTest, IteratorFeaturesTest) {
+  Matrix tensor(2, 3, testvec1);
+  MatrixIterator iter(tensor);
+  double val = iter.Iterate();
+  EXPECT_EQ(2, val);
+  val = iter.successor();
+  EXPECT_EQ(3, val);
+  val = iter.predecessor();
+  EXPECT_EQ(1, val);
+  iter.reset();
+  val = iter.item();
+  EXPECT_EQ(1, val);
+  val = iter.Iterate();
+  EXPECT_EQ(2, val);
+}
+
+TEST_F(MatrixLibTest, IteratorFeaturesTestOffset) {
+  Matrix tensor(2, 3, testvec1, 1);
+  MatrixIterator iter(tensor);
+  double val = iter.Iterate();
+  EXPECT_EQ(2, val);
+  val = iter.successor();
+  EXPECT_EQ(3, val);
+  val = iter.predecessor();
+  EXPECT_EQ(1, val);
+  iter.reset();
+  val = iter.item();
+  EXPECT_EQ(1, val);
+  val = iter.Iterate();
+  EXPECT_EQ(2, val);
+}
+
 TEST_F(MatrixLibTest, SubmatrixConstructionCopiesWithEmptyVectors) {
   vector<double> testvec;
   vector<int> rows, cols;
-  Matrix tensor2(kLimit1, kLimit2, *testvec2);
+  Matrix tensor2(kLimit1, kLimit2, testvec2);
   Matrix tensor3(tensor2, rows, cols);
 #ifdef DEBUG
   cout << tensor2;
@@ -217,7 +262,7 @@ TEST_F(MatrixLibTest, SubmatrixConstructionCopiesWithEmptyVectors) {
 TEST_F(MatrixLibTest, SubmatrixConstructionCopiesWithEmptyVectorsOffset) {
   vector<double> testvec;
   vector<int> rows, cols;
-  Matrix tensor2(kLimit1, kLimit2, *testvec2, 1);
+  Matrix tensor2(kLimit1, kLimit2, testvec2, 1);
   Matrix tensor3(tensor2, rows, cols);
 #ifdef DEBUG
   cout << tensor2;
@@ -237,7 +282,7 @@ TEST_F(MatrixLibTest, SubmatrixConstructorSkipColumns) {
       cols.push_back(0);
     }
   }
-  Matrix tensor2(kLimit1, kLimit2, *testvec2);
+  Matrix tensor2(kLimit1, kLimit2, testvec2);
   Matrix tensor3(tensor2, rows, cols);
 #ifdef DEBUG
   cout << tensor2;
@@ -263,7 +308,7 @@ TEST_F(MatrixLibTest, SubmatrixConstructorSkipColumnsOffset) {
       cols.push_back(0);
     }
   }
-  Matrix tensor2(kLimit1, kLimit2, *testvec2, 100);
+  Matrix tensor2(kLimit1, kLimit2, testvec2, 100);
   Matrix tensor3(tensor2, rows, cols);
 #ifdef DEBUG
   cout << tensor2;
@@ -292,7 +337,7 @@ TEST_F(MatrixLibTest, SubmatrixConstructorSkipRows) {
       rows.push_back(0);
     }
   }
-  Matrix tensor2(kLimit1, kLimit2, *testvec2);
+  Matrix tensor2(kLimit1, kLimit2, testvec2);
   Matrix tensor3(tensor2, rows, cols);
 #ifdef DEBUG
   cout << tensor2;
@@ -318,7 +363,7 @@ TEST_F(MatrixLibTest, SubmatrixConstructorSkipRowsOffset) {
       rows.push_back(0);
     }
   }
-  Matrix tensor2(kLimit1, kLimit2, *testvec2, -1);
+  Matrix tensor2(kLimit1, kLimit2, testvec2, -1);
   Matrix tensor3(tensor2, rows, cols);
 #ifdef DEBUG
   cout << tensor2;
@@ -370,7 +415,7 @@ TEST_F(MatrixLibTest, SubmatrixConstructorSkipBoth) {
 }
 
 TEST_F(MatrixLibTest, TraceTest) {
-  Matrix tensor2(kLimit1, kLimit1, *testvec2);
+  Matrix tensor2(kLimit1, kLimit1, testvec2);
   double sum = 0.0;
   for (int i = 0; i <= tensor2.ub1(); i++) {
     sum += tensor2.Element(i, i);
@@ -382,12 +427,21 @@ TEST_F(MatrixLibTest, TraceTest) {
 }
 
 TEST_F(MatrixLibTest, TraceTestOffset) {
-  Matrix tensor2(kLimit1, kLimit1, *testvec2, 1);
+  Matrix tensor2(kLimit1, kLimit1, testvec2, 1);
   double sum = 0.0;
   for (int i = tensor2.lb(); i <= tensor2.ub1(); i++) {
     sum += tensor2.Element(i, i);
   }
   ASSERT_EQ(sum, Trace(tensor2));
+}
+
+TEST_F(MatrixLibTest, ElementOperatorTest) {
+  Matrix tensor2(kLimit1, kLimit2, testvec2);
+  dbl_vect::DoubleVector dv(std::move(tensor2[0]));
+  EXPECT_EQ(kLimit1, dv.ub());
+  for (int i = 0; i <= kLimit1; i++) {
+    EXPECT_EQ(i, dv[i]);
+  }
 }
 
 TEST(MatrixLibSimpleTest, TrivialDeterminantTest) {
@@ -415,7 +469,7 @@ TEST(MatrixLibSimpleTest, TrivialDeterminantTestOffset) {
 }
 
 TEST_F(MatrixLibTest, DeterminantTest) {
-  Matrix tensor2(kLimit1, kLimit1, *testvec2);
+  Matrix tensor2(kLimit1, kLimit1, testvec2);
 #ifdef DEBUG
   cout << tensor2;
 #endif
@@ -423,7 +477,7 @@ TEST_F(MatrixLibTest, DeterminantTest) {
 }
 
 TEST_F(MatrixLibTest, DeterminantTestOffset) {
-  Matrix tensor2(kLimit1, kLimit1, *testvec2, -1);
+  Matrix tensor2(kLimit1, kLimit1, testvec2, -1);
 #ifdef DEBUG
   cout << tensor2;
 #endif
@@ -443,9 +497,9 @@ TEST(MatrixLibSimpleTest, NonZeroDeterminantTest) {
 #ifdef DEBUG
   cout << tensor;
 #endif
-  ASSERT_EQ(144, Determinant(tensor, 0.0));
+  EXPECT_EQ(144, Determinant(tensor, 0.0));
   Matrix tensor2(tensor, transpose);
-  ASSERT_EQ(144, Determinant(tensor2, 0.0));
+  EXPECT_EQ(144, Determinant(tensor2, 0.0));
 }
 
 TEST(MatrixLibSimpleTest, NonZeroDeterminantTestOffset) {
@@ -461,9 +515,9 @@ TEST(MatrixLibSimpleTest, NonZeroDeterminantTestOffset) {
 #ifdef DEBUG
   cout << tensor;
 #endif
-  ASSERT_EQ(144, Determinant(tensor, 0.0));
+  EXPECT_EQ(144, Determinant(tensor, 0.0));
   Matrix tensor2(tensor, transpose);
-  ASSERT_EQ(144, Determinant(tensor2, 0.0));
+  EXPECT_EQ(144, Determinant(tensor2, 0.0));
 }
 
 // https://en.wikipedia.org/wiki/Eigenvalues_and_eigenvectors#Two-dimensional_matrix_example
@@ -614,12 +668,9 @@ TEST(MatrixLibSimpleTest, SquareMultiplyTestOffset) {
 TEST_F(MatrixLibTest, RectangularMultiplyTest) {
   double threefer_in[] = {1.0, 2.0, 3.0};
   dbl_vect::DoubleVector vec(threefer_in, 3);
-  Matrix tensor(2, 3, *testvec1);
-#ifdef DEBUG
-  cout << tensor;
-#endif
+  Matrix tensor(2, 3, testvec1);
   dbl_vect::DoubleVector ans = matrix::Multiply(vec, tensor);
-  EXPECT_EQ(vec.ub(), ans.ub());
+  EXPECT_EQ(tensor.ub1(), ans.ub());
   EXPECT_EQ(14, ans[0]);
   EXPECT_EQ(32, ans[1]);
   // Why ceil() is used here:
@@ -642,12 +693,10 @@ TEST_F(MatrixLibTest, RectangularMultiplyTest) {
 TEST_F(MatrixLibTest, RectangularMultiplyTestOffset) {
   double threefer_in[] = {1.0, 2.0, 3.0};
   dbl_vect::DoubleVector vec(threefer_in, 3);
-  Matrix tensor(2, 3, *testvec1, 1);
-#ifdef DEBUG
-  cout << tensor;
-#endif
+  const int offset = 1;
+  Matrix tensor(2, 3, testvec1, offset);
   dbl_vect::DoubleVector ans = matrix::Multiply(vec, tensor);
-  EXPECT_EQ(vec.ub(), ans.ub());
+  EXPECT_EQ(tensor.ub1() - offset, ans.ub());
   EXPECT_EQ(14, ans[0]);
   EXPECT_EQ(32, ans[1]);
   EXPECT_EQ(46, ceil(ans.SumElements()));
@@ -685,62 +734,8 @@ TEST(MatrixLibSimpleTest, AddVectorTestOffset) {
   EXPECT_EQ(0, Determinant(ans, 0.0));
 }
 
-TEST_F(MatrixLibTest, IteratorTest) {
-  Matrix tensor(2, 3, *testvec1);
-  MatrixIterator iter(tensor);
-  double val = iter.Iterate();
-  EXPECT_EQ(2, val);
-  val = iter.Iterate();
-  EXPECT_EQ(3, val);
-  val = iter.Iterate();
-  EXPECT_EQ(4, val);
-}
-
-TEST_F(MatrixLibTest, IteratorTestOffset) {
-  Matrix tensor(2, 3, *testvec1, -1);
-  MatrixIterator iter(tensor);
-  double val = iter.Iterate();
-  EXPECT_EQ(2, val);
-  val = iter.Iterate();
-  EXPECT_EQ(3, val);
-  val = iter.Iterate();
-  EXPECT_EQ(4, val);
-}
-
-TEST_F(MatrixLibTest, IteratorFeaturesTest) {
-  Matrix tensor(2, 3, *testvec1);
-  MatrixIterator iter(tensor);
-  double val = iter.Iterate();
-  EXPECT_EQ(2, val);
-  val = iter.successor();
-  EXPECT_EQ(3, val);
-  val = iter.predecessor();
-  EXPECT_EQ(1, val);
-  iter.reset();
-  val = iter.item();
-  EXPECT_EQ(1, val);
-  val = iter.Iterate();
-  EXPECT_EQ(2, val);
-}
-
-TEST_F(MatrixLibTest, IteratorFeaturesTestOffset) {
-  Matrix tensor(2, 3, *testvec1, 1);
-  MatrixIterator iter(tensor);
-  double val = iter.Iterate();
-  EXPECT_EQ(2, val);
-  val = iter.successor();
-  EXPECT_EQ(3, val);
-  val = iter.predecessor();
-  EXPECT_EQ(1, val);
-  iter.reset();
-  val = iter.item();
-  EXPECT_EQ(1, val);
-  val = iter.Iterate();
-  EXPECT_EQ(2, val);
-}
-
 TEST_F(MatrixLibTest, MaxTest) {
-  Matrix tensor(2, 3, *testvec1);
+  Matrix tensor(2, 3, testvec1);
   ASSERT_EQ(6.0, Max(tensor));
 
   Matrix tensor2(0, 0, 1);
@@ -748,20 +743,20 @@ TEST_F(MatrixLibTest, MaxTest) {
 }
 
 TEST_F(MatrixLibTest, MaxTestOffset) {
-  Matrix tensor(2, 3, *testvec1, -1);
+  Matrix tensor(2, 3, testvec1, -1);
   ASSERT_EQ(6.0, Max(tensor));
 }
 
 TEST_F(MatrixLibTest, ExtractionOperator) {
   ostringstream oss;
-  operator<<(oss, Matrix(2, 2, *testvec1));
+  operator<<(oss, Matrix(2, 2, testvec1));
   EXPECT_EQ("\nMatrix of size 2x2\n1\t2\n3\t4\n", oss.str());
 }
 
 using MatrixLibDeathTest = MatrixLibTest;
 
 TEST_F(MatrixLibDeathTest, NonSquareDeterminant) {
-  Matrix tensor(2, 3, *testvec1);
+  Matrix tensor(2, 3, testvec1);
   EXPECT_EXIT(Determinant(tensor, 0.0), testing::KilledBySignal(SIGABRT),
               "Only square matrices have determinants.");
 }
@@ -776,13 +771,13 @@ TEST_F(MatrixLibDeathTest, DeterminantEmptyMatrix) {
  clang-format off
  error: invalid cast from type ‘int’ to type ‘matrix::transform’
  TEST_F(MatrixLibDeathTest, TransformConstructorIllegalChoice) {
- Matrix tensor2(kLimit1, kLimit2, *testvec2);
+ Matrix tensor2(kLimit1, kLimit2, testvec2);
   EXPECT_EXIT(Matrix(tensor2, reinterpret_cast<transform>(transform::upper +3)),
 testing::KilledBySignal(SIGABRT), "Invalid parameter"); clang-format on
 } */
 
 TEST_F(MatrixLibDeathTest, TransformConstructorIllegalChoice) {
-  Matrix tensor2(kLimit1, kLimit2, *testvec2);
+  Matrix tensor2(kLimit1, kLimit2, testvec2);
   EXPECT_EXIT(Matrix(tensor2, static_cast<transform>(11)),
               testing::KilledBySignal(SIGABRT),
               "Illegal constructor parameter");

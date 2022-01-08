@@ -11,12 +11,11 @@
 #include <vector>
 
 using namespace std;
+using namespace dbl_vect;
 
 // Needed so that the definition of the Multiply friend function compiles.   The
 // header file above is not enough!
-namespace dbl_vect {
-class DoubleVector;
-}
+// class DoubleVector;
 
 namespace matrix {
 
@@ -39,7 +38,10 @@ double &MatrixIterator::Iterate() {
   assert((RowIndex() <= rownum_) && (RowIndex() >= 0));
   assert((ColIndex() <= colnum_) && (ColIndex() >= 0));
 #endif
-  return elem_[RowIndex()][ColIndex()];
+  // Parentheses are needed since, as
+  // K&R state in 2.12 p. 48, the operators (),[], -> and . have highest
+  // precedence.
+  return (*mp_)[RowIndex()][ColIndex()];
 }
 
 double &MatrixIterator::successor() {
@@ -48,7 +50,7 @@ double &MatrixIterator::successor() {
   assert(index1 <= rownum_);
   assert(index2 <= colnum_);
 #endif
-  return elem_[index1][index2];
+  return (*mp_)[index1][index2];
 }
 
 double &MatrixIterator::predecessor() {
@@ -57,12 +59,12 @@ double &MatrixIterator::predecessor() {
   assert(index1 >= 0);
   assert(index2 >= 0);
 #endif
-  return elem_[index1][index2];
+  return (*mp_)[index1][index2];
 }
 
 void MatrixIterator::reset() { position_ = 0; }
 
-double &MatrixIterator::item() { return elem_[RowIndex()][ColIndex()]; }
+double &MatrixIterator::item() { return (*mp_)[RowIndex()][ColIndex()]; }
 
 double Max(Matrix &m) {
   if (0 == m.numrows()) {
@@ -85,30 +87,27 @@ Matrix::Matrix(int d1, int d2, int offset)
   // If this argument is zero, the function still returns a distinct non-null
   // pointer on success (although dereferencing this pointer leads to undefined
   // behavior).
-  p_ = new double *[size1_];
 #ifdef DEBUG
   // Both vectors and empy matrices are conformant matrices.
   assert(d1 >= 0 && d2 >= 0);
-  assert(p_ != 0);
 #endif
+  p_ = unique_ptr<DoubleVector[]>(new DoubleVector[size1_]);
   for (int i = 0; i < size1_; i++) {
-    p_[i] = new double[size2_];
-#ifdef DEBUG
-    assert(p_[i] != 0);
-#endif
+    p_[i] = DoubleVector(size2_);
   }
 }
 
-Matrix::Matrix(int d1, int d2, vector<double> inputs, int offset)
+Matrix::Matrix(int d1, int d2, vector<double> &inputs, int offset)
     : size1_(d1), size2_(d2), start_(offset) {
-  p_ = new double *[size1_];
+  p_ = unique_ptr<DoubleVector[]>(new DoubleVector[size1_]);
 #ifdef DEBUG
-  assert(p_ != 0);
   assert(d1 > 0 && d2 > 0);
   assert(static_cast<size_t>(d1 * d2) <= inputs.size());
 #endif
   for (int i = 0; i < size1_; i++) {
-    p_[i] = new double[size2_];
+    // Passing a sub-vector to the DoubleVector constructor would be neater, but
+    // creating a sub-vector without a second copy seems impossible.
+    p_[i] = DoubleVector(size2_);
     for (int j = 0; j < size2_; j++) {
       p_[i][j] = inputs.front();
       inputs.erase(inputs.begin());
@@ -126,15 +125,9 @@ Matrix::Matrix(const Matrix &a, transform t) {
     size2_ = a.size2_;
   }
 
-  p_ = new double *[size1_];
-#ifdef DEBUG
-  assert(p_ != 0);
-#endif
+  p_ = unique_ptr<DoubleVector[]>(new DoubleVector[size1_]);
   for (int i = 0; i < size1_; i++) {
-    p_[i] = new double[size2_];
-#ifdef DEBUG
-    assert(p_[i] != 0);
-#endif
+    p_[i] = DoubleVector(size2_);
     for (int j = 0; j < size2_; j++) {
       switch (t) {
       case copy:
@@ -193,9 +186,8 @@ Matrix::Matrix(const Matrix &a, vector<int> rows, vector<int> cols) {
   } else {
     size2_ = a.size2_;
   }
-  p_ = new double *[size1_];
+  p_ = unique_ptr<DoubleVector[]>(new DoubleVector[size1_]);
 #ifdef DEBUG
-  assert(p_ != 0);
   cout << endl
        << "Creating " << size1_ << " by " << size2_ << " submatrix from "
        << a.size1_ << " by " << a.size2_ << " matrix." << endl;
@@ -208,10 +200,7 @@ Matrix::Matrix(const Matrix &a, vector<int> rows, vector<int> cols) {
       continue;
     }
     // We need to allocate the row vectors at the index of the output array.
-    p_[out_row] = new double[size2_];
-#ifdef DEBUG
-    assert(p_[out_row] != 0);
-#endif
+    p_[out_row] = DoubleVector(size2_);
     int out_col = 0;
     for (int j = 0; j < a.size2_; j++, out_col++) {
       // skip some columns
@@ -224,15 +213,8 @@ Matrix::Matrix(const Matrix &a, vector<int> rows, vector<int> cols) {
   }
 }
 
-Matrix::~Matrix() {
-  for (int i = 0; i < size1_; i++) {
-    delete[] p_[i];
-  }
-  delete[] p_;
-}
-
 // private function
-double &Matrix::InternalElement(int i, int j) const {
+double Matrix::InternalElement(int i, int j) const {
 #ifdef DEBUG
   assert(i >= 0 && i < size1_ && j >= 0 && j < size2_);
 #endif
@@ -240,9 +222,11 @@ double &Matrix::InternalElement(int i, int j) const {
 }
 
 // public accessor
-double &Matrix::Element(int i, int j) const {
+double Matrix::Element(int i, int j) const {
   return InternalElement(i - start_, j - start_);
 }
+
+DoubleVector &Matrix::operator[](int i) { return p_[i]; }
 
 double Trace(const Matrix &a) {
 #ifdef DEBUG
@@ -257,11 +241,8 @@ double Trace(const Matrix &a) {
 
 // Helper function for submatrix definition.
 vector<int> ExcludeDesignatedElement(int elemnum, int to_exclude) {
-  // Initialize vector to all ones.
-  vector<int> vec;
-  for (int k = 0; k < elemnum; k++) {
-    vec.push_back(1);
-  }
+  // Initialize vector to all ones with fill ctor.
+  vector<int> vec(elemnum, 1);
   // We need to remove one element for each submatrix.
   vec.at(to_exclude) = 0;
   return (vec);
@@ -409,7 +390,7 @@ ostream &operator<<(ostream &out, const Matrix &a) {
 }
 
 // Add the elements of v to each row of m.
-Matrix Add(const dbl_vect::DoubleVector &v, const Matrix &m) {
+Matrix Add(const DoubleVector &v, const Matrix &m) {
 #ifdef DEBUG
   assert(v.size_ == m.size2_);
 #endif
@@ -426,14 +407,13 @@ Matrix Add(const dbl_vect::DoubleVector &v, const Matrix &m) {
 
 // The friend function of both DoubleVector and Matrix, which is a member of
 // neither.
-dbl_vect::DoubleVector Multiply(const dbl_vect::DoubleVector &v,
-                                const Matrix &m) {
+DoubleVector Multiply(const dbl_vect::DoubleVector &v, const Matrix &m) {
   // v is a column vector.  We multiply it by the size1_ row vectors of m, each
   // with size2_ elements.
 #ifdef DEBUG
   assert(v.size_ == m.size2_);
 #endif
-  dbl_vect::DoubleVector ans(m.size2_);
+  dbl_vect::DoubleVector ans(m.size1_);
   int i, j;
 
   // Iterate over the row vectors in m.
