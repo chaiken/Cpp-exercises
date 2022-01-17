@@ -87,7 +87,8 @@ Matrix::Matrix(int d1, int d2, int offset)
   // behavior).
   p_ = new double *[size1_];
 #ifdef DEBUG
-  assert(d1 > 0 && d2 > 0);
+  // Both vectors and empy matrices are conformant matrices.
+  assert(d1 >= 0 && d2 >= 0);
   assert(p_ != 0);
 #endif
   for (int i = 0; i < size1_; i++) {
