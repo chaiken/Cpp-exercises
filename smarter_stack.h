@@ -2,6 +2,7 @@
 
 #include <exception>
 #include <iostream>
+#include <memory>
 #include <stdexcept>
 #include <typeinfo>
 #include <vector>
@@ -72,58 +73,14 @@ public:
     }
     } */
 
-  // An empty stack of a given size.
-  SmarterStack(int size) : size_(size), top_(-1) {
-    if (size <= 0) {
-      const std::length_error le(
-          "SmarterStack depth must be greater than zero.");
-      throw SmarterStackException(le);
-    }
-    data_ = new double[size];
-    if (nullptr == data_) {
-      throw std::bad_alloc();
-    }
-  }
-
-  // Ctor with array of doubles.  Allow for stack to be partially full by
-  // passing size as a separate parameter.
-  SmarterStack(int size, const double *data) : size_(size), top_(size - 1) {
-    data_ = new double[size];
-    if (nullptr == data_) {
-      throw std::bad_alloc();
-    }
-    int i = 0;
-    while (i < size) {
-      data_[i] = data[i];
-      i++;
-    }
-  }
-
-  // Ctor with vector of doubles.
-  SmarterStack(const ::std::vector<double> data)
-      : size_(data.size()), top_(data.size() - 1) {
-    data_ = new double[data.size()];
-    if (nullptr == data_) {
-      throw std::bad_alloc();
-    }
-    // Could use a vector iterator, but still have to iterate i.
-    for (int i = 0; i < static_cast<int>(data.size()); i++) {
-      data_[i] = data.at(i);
-    }
-  }
-  // Copy ctor.
-  SmarterStack(const SmarterStack &st) : size_(st.size_), top_(st.size_ - 1) {
-    data_ = new double[size_];
-    if (nullptr == data_) {
-      throw std::bad_alloc();
-    }
-    for (int i = 0; i < size_; i++) {
-      data_[i] = st.data_[i];
-    }
-  }
-
-  ~SmarterStack() { delete[] data_; }
-
+  // Make explicit to avoid confusion with subsequence operator.
+  explicit SmarterStack(int size);
+  // Allow for stack to be partially full by passing size as a separate
+  // parameter.
+  SmarterStack(int size, const double *data);
+  SmarterStack(const ::std::vector<double> data);
+  SmarterStack(const SmarterStack &st) = delete;
+  SmarterStack(SmarterStack &&st) = default;
   void Push(double datum);
   double Pop();
   void Reverse();
@@ -152,7 +109,7 @@ private:
   int size_;
   // Index of topmost element in data_ == size_-1.
   int top_;
-  double *data_;
+  std::unique_ptr<double[]> data_;
 };
 
 ::std::ostream &operator<<(::std::ostream &out, const SmarterStack &st);

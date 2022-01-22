@@ -23,6 +23,33 @@ bool is_increasing(const SmarterStack &stack) {
 
 } // namespace
 
+SmarterStack::SmarterStack(int size) : size_(size), top_(-1) {
+  if (size <= 0) {
+    const std::length_error le("SmarterStack depth must be greater than zero.");
+    throw SmarterStackException(le);
+  }
+  data_ = std::unique_ptr<double[]>(new double[size]);
+}
+
+SmarterStack::SmarterStack(int size, const double *data)
+    : size_(size), top_(size - 1) {
+  data_ = std::unique_ptr<double[]>(new double[size]);
+  int i = 0;
+  while (i < size) {
+    data_[i] = data[i];
+    i++;
+  }
+}
+
+SmarterStack::SmarterStack(const ::std::vector<double> data)
+    : size_(data.size()), top_(data.size() - 1) {
+  data_ = std::unique_ptr<double[]>(new double[data.size()]);
+  // Could use a vector iterator, but still have to iterate i.
+  for (int i = 0; i < static_cast<int>(data.size()); i++) {
+    data_[i] = data.at(i);
+  }
+}
+
 ostream &operator<<(ostream &out, const SmarterStack &stack) {
   for (int i = 0; i <= stack.top_; i++) {
     out << (stack.data_[i]);
@@ -131,10 +158,6 @@ void SmarterStack::Reverse() {
     Pop();
     i++;
   }
-  if ((!temp.full()) || (!empty())) {
-    logic_error le("SmarterStack has changed depth?");
-    throw SmarterStackException(le);
-  }
   while (!temp.empty()) {
     Push(temp.Pop());
   }
@@ -144,11 +167,6 @@ void PrintIncreasingSubsequences(ostream &out, const SmarterStack &st) {
   int from = 0, to = 0;
   // depth() returns number of elements, which equals highest populated index+1.
   while ((to < st.depth())) {
-    if (from > to) {
-      invalid_argument iae("SmarterStack: beginning of range must be less "
-                           "than or equal to the end");
-      throw SmarterStackException(iae);
-    }
     // A single-element stack is defined increasing.
     if (!is_increasing(st(from, to))) {
       out << "(";
