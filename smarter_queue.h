@@ -1,10 +1,8 @@
 #ifndef SMARTER_QUEUE_H
 #define SMARTER_QUEUE_H
 
-#include <cassert>
-#include <cerrno>
-
 #include <iostream>
+#include <memory>
 #include <vector>
 
 namespace smarter_queue {
@@ -15,9 +13,8 @@ public:
       : size_(0), reader_cursor_(0), writer_cursor_(0), data_(nullptr) {}
   // Vector constructor.
   SmarterQueue(const ::std::vector<double> &vec)
-      : size_(vec.size()), reader_cursor_(0), writer_cursor_(vec.size()) {
-    data_ = new double[vec.size()];
-    assert(data_ != nullptr);
+      : size_(vec.size()), reader_cursor_(0), writer_cursor_(vec.size()),
+        data_(std::unique_ptr<double[]>(new double[vec.size()])) {
     int i = 0;
     for (auto x : vec) {
       data_[i] = x;
@@ -26,29 +23,21 @@ public:
   }
   // Empty queue of defined length.
   SmarterQueue(int length)
-      : size_(length), reader_cursor_(0), writer_cursor_(0) {
-    data_ = new double[size_];
-    assert(nullptr != data_);
+      : size_(length), reader_cursor_(0), writer_cursor_(0),
+        data_(std::unique_ptr<double[]>(new double[size_])) {
     int i = 0;
     while (i < size_) {
       data_[i] = 0.0;
       i++;
     }
   }
-  // Copy constructor.
-  SmarterQueue(const SmarterQueue &sq)
-      : size_(sq.size_), reader_cursor_(0), writer_cursor_(sq.size_) {
-    data_ = new double[sq.size_];
-    assert(nullptr != data_);
-    for (int i = 0; i < size_; i++) {
-      data_[i] = sq.data_[i];
-    }
-  }
-  ~SmarterQueue() { delete[] data_; }
+  SmarterQueue(const SmarterQueue &sq) = delete;
+  SmarterQueue(SmarterQueue &&sq) = default;
   bool is_empty() const { return reader_cursor_ == writer_cursor_; }
   bool is_full() const {
     return ((writer_cursor_ == size_) && (0 == reader_cursor_));
   }
+  int size() const { return (writer_cursor_ - reader_cursor_); }
   // subsequence overload of the function operator.
   // Number of elements in the new SmarterQueue is (end - begin + 1) since both
   // bounds are included.
@@ -59,13 +48,16 @@ public:
   friend ::std::ostream &operator<<(::std::ostream &out,
                                     const SmarterQueue &sq);
   void Push(double dat);
+  // A modifying reader which increments the offset.
   double Pop();
+  // A non-modifying reader with a caller-managed offset.
+  double Peek(const int offset) const;
 
 private:
   int size_;
   int reader_cursor_;
   int writer_cursor_;
-  double *data_;
+  std::unique_ptr<double[]> data_;
 };
 
 ::std::ostream &operator<<(::std::ostream &out, const SmarterQueue &sq);

@@ -1,5 +1,8 @@
 #include "smarter_queue.h"
 
+#include <cassert>
+#include <cerrno>
+
 using namespace std;
 
 namespace smarter_queue {
@@ -58,6 +61,17 @@ double SmarterQueue::Pop() {
   return data_[reader_cursor_++];
 }
 
+double SmarterQueue::Peek(const int offset) const {
+  if (is_empty() || (offset < 0)) {
+    assert_perror(ENODATA);
+  }
+  const int index = reader_cursor_ + offset;
+  if (size_ <= index) {
+    assert_perror(ERANGE);
+  }
+  return data_[index];
+}
+
 // Pass the argument by value to avoid const-conversion with the iterator.
 bool SequenceIsIncreasing(vector<double> vec) {
   if (vec.empty() || (1 == vec.size())) {
@@ -74,14 +88,16 @@ bool SequenceIsIncreasing(vector<double> vec) {
 }
 
 void FindIncreasingSubsequences(ostream &out, const SmarterQueue &sq) {
-  // Get mutable copy.
-  SmarterQueue sq1(sq);
+  if (sq.is_empty()) {
+    return;
+  }
+  int offset = 0;
   out << "(";
   vector<double> vec;
-  while (!sq1.is_empty()) {
+  while (offset < sq.size()) {
     double save;
     // Save the increasing subsequences in a vector.
-    vec.push_back(sq1.Pop());
+    vec.push_back(sq.Peek(offset));
     if (!SequenceIsIncreasing(vec)) {
       // Putting decreasing element back on FIFO Queue doesn't work, since
       // reader and writer are at different ends by design.
@@ -96,6 +112,7 @@ void FindIncreasingSubsequences(ostream &out, const SmarterQueue &sq) {
       vec.clear();
       vec.push_back(save);
     }
+    offset++;
   }
   // Make sure last element gets printed.
   if (!vec.empty()) {
