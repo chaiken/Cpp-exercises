@@ -15,10 +15,7 @@ class NewClock {
 public:
   NewClock(int start = 0) {
     const duration<int> dur(start);
-    time_point<system_clock, duration<int>> *tp =
-        new time_point<system_clock, duration<int>>(dur);
-    assert(nullptr != tp);
-    time_.reset(tp);
+    time_.reset(new time_point<system_clock, duration<int>>(dur));
   }
   //  ~NewClock() { delete time_; }
   void operator++(int seconds);
