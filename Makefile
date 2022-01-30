@@ -257,3 +257,15 @@ test_all:
 valgrind_all: 
 	make clean
 	valgrind_all_tests.sh $(TEST_LIST)
+
+# https://clang.llvm.org/extra/clang-tidy/
+# https://stackoverflow.com/questions/47583057/configure-clang-check-for-c-standard-libraries
+# Without "-x c++", .h files are considered as C.
+# Without header_filter, gtest.h is analyzed.
+CLANG_TIDY_OUTPUT=clang-tidy-output.txt
+CLANG_TIDY_OPTIONS=--warnings-as-errors --header_filter=./*.h
+CLANG_TIDY_CLANG_OPTIONS=-std=c++17 -x c++ -I ~/gitsrc/googletest/googletest/include/
+CLANG_TIDY_CHECKS=bugprone,core,cplusplus,deadcode,modernize,performance,readability,security,unix,apiModeling.StdCLibraryFunctions,apiModeling.google.GTest
+clang_tidy_all:
+	/bin/rm -f $(CLANG_TIDY_OUTPUT)
+	clang-tidy $(CLANG_TIDY_OPTIONS) -checks=$(CLANG_TIDY_CHECKS)  *lib.cc *lib_test.cc *.h  -- $(CLANG_TIDY_CLANG_OPTIONS)  > $(CLANG_TIDY_OUTPUT)
