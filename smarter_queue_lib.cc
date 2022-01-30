@@ -14,16 +14,17 @@ ostream &operator<<(ostream &out, const SmarterQueue &sq) {
   return out;
 }
 
-SmarterQueue SmarterQueue::operator()(int begin, int end) {
+pair<int, SmarterQueue> SmarterQueue::operator()(int begin, int end) {
+  pair<int, SmarterQueue> result;
   if ((begin < 0) || (end > (size_ - 1)) || (begin > end)) {
     cerr << "Limits are out of bounds." << endl;
-    assert_perror(EINVAL);
+    return make_pair<int, SmarterQueue>(ERANGE, SmarterQueue());
   }
   vector<double> vec;
   for (int i = begin; i <= end; i++) {
     vec.push_back(data_[i]);
   }
-  return vec;
+  return make_pair<int, SmarterQueue>(0, SmarterQueue(vec));
 }
 
 bool operator==(const SmarterQueue &sq1, const SmarterQueue &sq2) {
@@ -54,22 +55,22 @@ void SmarterQueue::Push(double dat) {
   data_[writer_cursor_++] = dat;
 }
 
-double SmarterQueue::Pop() {
+pair<int, double> SmarterQueue::Pop() {
   if (is_empty()) {
-    assert_perror(ENODATA);
+    return pair<int, double>(ENODATA, 0.0);
   }
-  return data_[reader_cursor_++];
+  return pair<int, double>(0, data_[reader_cursor_++]);
 }
 
-double SmarterQueue::Peek(const int offset) const {
-  if (is_empty() || (offset < 0)) {
-    assert_perror(ENODATA);
+pair<int, double> SmarterQueue::Peek(const int offset) const {
+  if (is_empty()) {
+    return pair<int, double>(ENODATA, 0.0);
   }
   const int index = reader_cursor_ + offset;
-  if (size_ <= index) {
-    assert_perror(ERANGE);
+  if ((size_ <= index) || (offset < 0)) {
+    return pair<int, double>(ERANGE, 0.0);
   }
-  return data_[index];
+  return pair<int, double>(0, data_[index]);
 }
 
 // Pass the argument by value to avoid const-conversion with the iterator.
@@ -87,9 +88,9 @@ bool SequenceIsIncreasing(vector<double> vec) {
   return true;
 }
 
-void FindIncreasingSubsequences(ostream &out, const SmarterQueue &sq) {
+int FindIncreasingSubsequences(ostream &out, const SmarterQueue &sq) {
   if (sq.is_empty()) {
-    return;
+    return 0;
   }
   int offset = 0;
   out << "(";
@@ -97,7 +98,11 @@ void FindIncreasingSubsequences(ostream &out, const SmarterQueue &sq) {
   while (offset < sq.size()) {
     double save;
     // Save the increasing subsequences in a vector.
-    vec.push_back(sq.Peek(offset));
+    int retval = 0;
+    if ((retval = sq.Peek(offset).first) != 0) {
+      return retval;
+    }
+    vec.push_back(sq.Peek(offset).second);
     if (!SequenceIsIncreasing(vec)) {
       // Putting decreasing element back on FIFO Queue doesn't work, since
       // reader and writer are at different ends by design.
@@ -119,6 +124,7 @@ void FindIncreasingSubsequences(ostream &out, const SmarterQueue &sq) {
     out << vec;
     out << ")";
   }
+  return 0;
 }
 
 } // namespace smarter_queue

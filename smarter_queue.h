@@ -41,7 +41,8 @@ public:
   // subsequence overload of the function operator.
   // Number of elements in the new SmarterQueue is (end - begin + 1) since both
   // bounds are included.
-  SmarterQueue operator()(int begin, int end);
+  // First returned value is an error code which is C-errno upon failure.
+  std::pair<int, SmarterQueue> operator()(int begin, int end);
   friend bool operator==(const SmarterQueue &sq1, const SmarterQueue &sq2);
   // Must be a friend rather than class-member operator<< can take only one
   // argument. and needs access to private data.
@@ -49,9 +50,11 @@ public:
                                     const SmarterQueue &sq);
   void Push(double dat);
   // A modifying reader which increments the offset.
-  double Pop();
+  // First returned value is an error code which is C-errno upon failure.
+  std::pair<int, double> Pop();
   // A non-modifying reader with a caller-managed offset.
-  double Peek(const int offset) const;
+  // First returned value is an error code which is C-errno upon failure.
+  std::pair<int, double> Peek(const int offset) const;
 
 private:
   int size_;
@@ -63,7 +66,8 @@ private:
 ::std::ostream &operator<<(::std::ostream &out, const SmarterQueue &sq);
 bool operator==(const SmarterQueue &sq1, const SmarterQueue &sq2);
 bool SequenceIsIncreasing(::std::vector<double> vec);
-void FindIncreasingSubsequences(::std::ostream &out, const SmarterQueue &sq);
+// The returned value is an error code which is C-errno upon failure.
+int FindIncreasingSubsequences(::std::ostream &out, const SmarterQueue &sq);
 
 } // namespace smarter_queue
 
