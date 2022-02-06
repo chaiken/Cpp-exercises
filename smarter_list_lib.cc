@@ -1,25 +1,119 @@
 #include "smarter_list.h"
 
 #include <cassert>
-
-#include <iostream>
-// #include <memory>
+#include <errno.h>
 
 using namespace std;
 
 namespace smarter_list {
 
-// Callers of the function must check that the return value is not null and
-// refrain from calling the function again if it is.
-const ListNode *SmarterList::operator++() const {
-  assert(nullptr != head_);
-  static ListNode *current = head_;
-  current = cursor_->next;
-  cursor_ = current;
-  return (cursor_);
+// The explicit definition is needed because the compiler always pick this ctor
+// rather than the default when no arguments are provided.  Is this due somehow
+// to Most Vexing Parse?
+ListNode::ListNode(const ListNode *ln) {
+  if (ln) {
+    name.assign(ln->name);
+  }
 }
 
-ostream &operator<<(ostream &out, SmarterList &sl) {
+bool operator==(const ListNode &a, const ListNode &b) {
+  return (a.name == b.name);
+}
+
+bool operator!=(ListNode &a, ListNode &b) { return !(a == b); }
+
+void SmarterList::Prepend(unique_ptr<ListNode> ln) {
+  // The default ListNode ctor initializes the name string to empty.  Therefore
+  // it's necessary to define a ListNode with an empty name and a nullptr next
+  // pointer as empty and then write over it.
+  if (!head_ || head_->empty()) {
+    ln->next = unique_ptr<ListNode>();
+  } else {
+    ln->next = move(head_);
+  }
+  head_ = move(ln);
+}
+
+void SmarterList::Reverse() {
+  if (empty() || !head_->next) {
+    return;
+  }
+  unique_ptr<ListNode> cursor = move(head_);
+  unique_ptr<ListNode> cursor_next;
+  while (cursor) {
+    cursor_next = move(cursor->next);
+    Prepend(move(cursor));
+    cursor = move(cursor_next);
+  }
+}
+
+SmarterList::SmarterList(::std::vector<::std::string> strvec) {
+  // Explicitly initializing with a nullptr
+  //     head_ = std::make_unique<ListNode>(nullptr);
+  // results in a runtime error.
+  head_ = std::make_unique<ListNode>();
+  for (auto it = strvec.begin(); it != strvec.end(); it++) {
+    Prepend(std::make_unique<ListNode>(*it));
+  }
+  Reverse();
+  cursor_ = head_.get();
+}
+
+// Callers of the function must check that the return value is not null and
+// refrain from calling the function again if it is.
+ListNode *SmarterList::operator++() const {
+  if (!empty() && cursor_) {
+    cursor_ = cursor_->next.get();
+  } else {
+    cursor_ = nullptr;
+  }
+  return cursor_;
+}
+
+ListNode *SmarterList::operator--() const {
+  if (!cursor_) {
+    return nullptr;
+  }
+  if (empty() || (*cursor_ == *(head_.get()))) {
+    cursor_ = nullptr;
+    return nullptr;
+  }
+  ListNode *previous = head_.get();
+  while (previous && previous->next.get() != cursor_) {
+    previous = previous->next.get();
+  }
+  cursor_ = previous;
+  return cursor_;
+}
+
+bool operator==(const SmarterList &a, const SmarterList &b) {
+  if ((!a.empty() && b.empty()) || (!b.empty() && a.empty())) {
+    return false;
+  }
+  a.reset();
+  b.reset();
+  while (nullptr != a.current()) {
+    if (nullptr == b.current()) {
+      return false;
+    }
+    if (*a.current() != *b.current()) {
+      return false;
+    }
+    ++a;
+    ++b;
+  }
+  // b has one more ListNode.
+  if (nullptr != b.current()) {
+    return false;
+  }
+  return true;
+}
+
+bool operator!=(const SmarterList &a, const SmarterList &b) {
+  return !(a == b);
+}
+
+ostream &operator<<(ostream &out, const SmarterList &sl) {
   sl.reset();
   for (const ListNode *ln = sl.begin(); ln != nullptr; ln = ++sl) {
     out << ln->name << ", ";
@@ -28,69 +122,43 @@ ostream &operator<<(ostream &out, SmarterList &sl) {
   return out;
 }
 
-ListNode &SmarterList::operator[](int i) {
-  assert(i >= 0);
-  if (nullptr == head_) {
-    assert_perror(ENODATA);
+// Note that the ListNodes returned in the pairs must be moved even though they
+// are anonymous and not available outside the pairs. Failed with error about
+// deleted ListNode copy ctor when the default move ctor was used.
+pair<int, ListNode> SmarterList::operator[](const int i) {
+  if (empty() || (i < 0)) {
+    // While moving the empyt ListNode makes the function compile, trying to
+    // access it causes a runtime error. The problem is that the compiler
+    // chooses ListNode(smarter_list::ListNode const*) over the default ctor.
+    return make_pair(ENODATA, move(ListNode()));
   }
-  ListNode *ln = head_;
   int j = 0;
-  while ((nullptr != ln) && (j < i)) {
-    ln = ln->next;
+  // Without resetting the cursor_ to head_, the behavior is unpredictable. This
+  // is puzzling, as the ctors initialized the value of cursor_.
+  reset();
+  while (j != i) {
+    this->operator++();
     j++;
+    if (nullptr == current()) {
+      return make_pair(ENODATA, move(ListNode()));
+    }
   }
-  return *ln;
+  return make_pair(0, move(ListNode(current()->name)));
 }
 
-SmarterList &SmarterList::operator+(const ListNode &ln) {
-  // Does this violate RAII?   If so, what is an RAII way to accomplish the same
-  // thing?  The two lines below result in SEGV.
-  // unique_ptr<ListNode> newln = make_unique<ListNode>(ln);
-  // cursor_->next = newln.get();
-  //
-  // clang-format off
-  // The more obvious
-  // ListNode *newln = new ListNode(ln);
-  // results in
-  // smarter_list_lib.cc:50:33: warning: implicitly-declared ‘smarter_list::ListNode::ListNode(const smarter_list::ListNode&)’ is deprecated [-Wdeprecated-copy]
-  //   ListNode *newln = &ListNode(ln);
-  // smarter_list.h:16:13: note: because ‘smarter_list::ListNode’ has user-provided ‘smarter_list::ListNode& smarter_list::ListNode::operator=(const smarter_list::ListNode&)’
-  //   ListNode &operator=(const ListNode &ln) {
-  // clang-format on
-  ListNode *newln = new ListNode();
-  *newln = ln;
+// It's also possible to make the input non-const and move() it, but the next
+// data member will get overwritten anyway.
+// Would be better called Postpend().
+void SmarterList::operator+(const ListNode &ln) {
+  if (nullptr == head_) {
+    Prepend(std::make_unique<ListNode>(ListNode(ln.name)));
+    return;
+  }
   // No need to reset(), as we want the last node anyway.
-  if (nullptr != head_) {
-    while (nullptr != cursor_->next) {
-      cursor_ = cursor_->next;
-    }
-    cursor_->next = newln;
-  } else {
-    head_ = newln;
+  while (nullptr != cursor_->next) {
+    cursor_ = cursor_->next.get();
   }
-  // Should be processed by copy constructor.  That seems inefficient, but how
-  // else to do it?
-  return *this;
-}
-
-SmarterList &SmarterList::operator--() {
-  if (!empty()) {
-    // In case the list contains only one element, we need to initialize save.
-    ListNode *save = head_;
-    save->next = head_->next;
-    // No need to reset(), as it's okay if cursor_ is at list end.
-    while (nullptr != cursor_->next) {
-      save = cursor_;
-      cursor_ = cursor_->next;
-    }
-    // Does this violate RAII?   If so, what is an RAII way to accomplish the
-    // same thing?
-    delete cursor_;
-    save->next = nullptr;
-    // So cursor_ is not left NULL for next caller.
-    reset();
-  }
-  return *this;
+  cursor_->next = std::make_unique<ListNode>(ListNode(ln.name));
 }
 
 } // namespace smarter_list

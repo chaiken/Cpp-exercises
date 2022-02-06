@@ -1,106 +1,68 @@
 #ifndef SMARTER_LIST_H
 #define SMARTER_LIST_H
 
-#include <cassert>
-#include <vector>
-
 #include <iostream>
+#include <memory>
+#include <vector>
 
 namespace smarter_list {
 
-class ListNode {
-public:
-  ListNode() : name(""), next(nullptr) {}
-  ListNode(::std::string namestr) : name(namestr), next(nullptr) {}
-  ListNode(const ListNode *ln) : name(ln->name), next(nullptr) {}
-  ListNode &operator=(const ListNode &ln) {
-    name = ln.name;
-    next = ln.next;
-    return *this;
-  }
-  ::std::string name;
-  ListNode *next;
+struct ListNode {
+  // This declaration is needed.
+  ListNode() = default;
+  ListNode(::std::string namestr) : name(namestr) {}
+  ListNode(const ListNode *ln);
+  // Default did not move next pointer.
+  ListNode(ListNode &&ln) : name(ln.name), next(std::move(ln.next)) {}
+  ListNode &operator=(ListNode &&ln) = default;
+  bool empty() const { return (name.empty() && !next); }
+
+  std::string name;
+  std::unique_ptr<ListNode> next;
 };
+
+bool operator==(const ListNode &a, const ListNode &b);
+bool operator!=(const ListNode &a, const ListNode &b);
 
 class SmarterList {
 public:
-  SmarterList() : head_(nullptr) {}
-  // String vector constructor.
-  SmarterList(::std::vector<::std::string> strvec) {
-    assert(!strvec.empty());
-    head_ = nullptr;
-    ListNode *previous = nullptr;
-    for (auto it = strvec.begin(); it != strvec.end(); it++) {
-      ListNode *node = new ListNode(*it);
-      // mark as "unlikely()"?
-      if (it == strvec.begin()) {
-        head_ = node;
-      } else {
-        previous->next = node;
-      }
-      previous = node;
-    }
-    cursor_ = head_;
-    assert(nullptr != head_);
-    assert(nullptr != head_->next);
+  SmarterList() : head_(std::unique_ptr<ListNode>()), cursor_(nullptr) {}
+  SmarterList(ListNode &ln)
+      : head_(std::make_unique<ListNode>(std::move(ln))), cursor_(head_.get()) {
   }
-  // Copy constructor.  The constructor could save the node number and provide
-  // that for bounds checking of the index operator[], but that's not a common
-  // list idiom.
-  SmarterList(const SmarterList &sl) : head_(nullptr) {
-    if (nullptr != sl.head_) {
-      head_ = new ListNode(sl.head_);
-      assert(nullptr != head_);
-      head_->next = sl.head_->next;
+  SmarterList(const SmarterList &sl) = delete;
+  SmarterList(SmarterList &&sl) = default;
+  SmarterList(::std::vector<::std::string> strvec);
 
-      ListNode *current = head_;
-      // Only changes cursor_, which is mutable.
-      sl.reset();
-      while (sl.cursor_->next) {
-        ListNode *ln = new ListNode(sl.cursor_->next);
-        assert(nullptr != ln);
-        current->next = ln;
-        current = current->next;
-        // Only changes cursor_, which is mutable.
-        ++sl;
-      }
-    }
-    cursor_ = head_;
-  }
-  ~SmarterList() {
-    if (nullptr != head_) {
-      ListNode *node = head_, *next = head_;
-      while (nullptr != node) {
-        next = node->next;
-        delete node;
-        node = next;
-      }
-      head_ = nullptr;
-    }
-  }
+  void Reverse();
   // Reset the list cursor to the head.
   // Only changes cursor_, which is mutable.
-  void reset() const { cursor_ = head_; }
+  void reset() const { cursor_ = head_.get(); }
+  ListNode *current() const { return cursor_; }
   // Retrieve the list head.
-  ListNode *begin() {
+  ListNode *begin() const {
     reset();
-    assert(nullptr != head_);
     return cursor_;
   }
-  bool empty() { return (nullptr == head_); }
-  SmarterList &operator+(const ListNode &ln);
-  SmarterList &operator--();
-  ListNode &operator[](int i);
+  bool empty() const { return (nullptr == head_); }
+  void operator+(const ListNode &ln);
+  std::pair<int, ListNode> operator[](const int i);
 
-  // Only changes cursor_, which is mutable.
-  const ListNode *operator++() const;
-  friend ::std::ostream &operator<<(::std::ostream &out, SmarterList &sl);
+  // These operators change only cursor_.
+  ListNode *operator++() const;
+  ListNode *operator--() const;
+  friend ::std::ostream &operator<<(::std::ostream &out, const SmarterList &sl);
 
 private:
-  ListNode *head_;
+  std::unique_ptr<ListNode> head_;
+  // Mutable cursor_ provides a "view" of the list without changing the
+  // contents.
   mutable ListNode *cursor_;
+  void Prepend(std::unique_ptr<ListNode> ln);
 };
 
+bool operator==(const SmarterList &a, const SmarterList &b);
+bool operator!=(const SmarterList &a, const SmarterList &b);
 ::std::ostream &operator<<(::std::ostream &out, const SmarterList &sl);
 
 } // namespace smarter_list
