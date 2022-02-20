@@ -12,9 +12,8 @@ namespace template_stack {
 // Array of R-value references constructor.
 template <typename T>
 TemplateStack<T>::TemplateStack(T(&&input)[], int val)
-    : max_len_(val), top_(val - 1), data_(new T[val]) {
+    : max_len_(val), top_(val - 1), data_(std::unique_ptr<T[]>(new T[val])) {
   ::std::cout << "R-value reference array ctor" << ::std::endl;
-  assert(0 != data_);
   int i = 0;
   // Still copying, not in the spirit of a move constructor.
   while (i < val) {
@@ -33,7 +32,7 @@ TemplateStack<T>::TemplateStack(TemplateStack &&ts)
 
 template <typename T>
 TemplateStack<T>::TemplateStack(T input[], int len)
-    : max_len_(len), top_(len - 1), data_(new T[len]) {
+    : max_len_(len), top_(len - 1), data_(std::unique_ptr<T[]>(new T[len])) {
   ::std::cout << "Array-copy ctor" << ::std::endl;
   // AddressSanitizer: attempting free on address which was not malloc()-ed:
   // 0x7ffc2a53f3d0 in thread T0

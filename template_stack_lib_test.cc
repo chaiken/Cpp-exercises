@@ -20,39 +20,32 @@ constexpr char alphalist2[] = {'z', 'y', 'x', 'w', 'v', 'u', 't', 's', 'r',
                                'q', 'p', 'o', 'n', 'm', 'l', 'k', 'j', 'i',
                                'h', 'g', 'f', 'e', 'd', 'c', 'b', 'a'};
 
-class CharStackTest : public ::testing::Test {
-public:
-  CharStackTest() { charstack1 = new TemplateStack<char>(); }
-  ~CharStackTest() { delete charstack1; }
-
-  TemplateStack<char> *charstack1;
-};
-
-TEST_F(CharStackTest, DefaultCtorTest) {
-  EXPECT_TRUE(charstack1->empty());
+TEST(CharStackTest, DefaultCtorTest) {
+  TemplateStack<char> charstack;
+  EXPECT_TRUE(charstack.empty());
   for (char c : alphalist) {
-    if (!charstack1->full()) {
-      charstack1->push(c);
-      EXPECT_EQ(c, charstack1->top_of());
+    if (!charstack.full()) {
+      charstack.push(c);
+      EXPECT_EQ(c, charstack.top_of());
     }
   }
-  EXPECT_FALSE(charstack1->full());
-  EXPECT_FALSE(charstack1->empty());
-  cout << *charstack1 << endl;
+  EXPECT_FALSE(charstack.full());
+  EXPECT_FALSE(charstack.empty());
+  cout << charstack << endl;
   //  int i = 0;
   for (char c : alphalist2) {
-    if (!charstack1->empty()) {
+    if (!charstack.empty()) {
       // operator[] overload not found: why?
       // error: no match for ‘operator==’ (operand types are ‘const char’ and
       // ‘const template_stack::TemplateStack<char>’)
-      // EXPECT_EQ(c, charstack1[i++]);
-      EXPECT_EQ(c, charstack1->pop());
+      // EXPECT_EQ(c, charstack[i++]);
+      EXPECT_EQ(c, charstack.pop());
     }
   }
-  EXPECT_TRUE(charstack1->empty());
+  EXPECT_TRUE(charstack.empty());
 }
 
-TEST_F(CharStackTest, RValRefArrayCtorTest) {
+TEST(CharStackTest, RValRefArrayCtorTest) {
   TemplateStack<char> charstack2({'a', 'b', 'c', 'd', 'e'}, 5);
   ostringstream out;
   out << charstack2;
@@ -73,7 +66,7 @@ TEST_F(CharStackTest, RValRefArrayCtorTest) {
   EXPECT_TRUE(charstack3.empty());
 }
 
-TEST_F(CharStackTest, MoveCtorTest) {
+TEST(CharStackTest, MoveCtorTest) {
   TemplateStack<char> charstack2({'a', 'b', 'c', 'd', 'e'}, 5);
   TemplateStack<char> charstack3(move(charstack2));
   int i = 4;
@@ -104,7 +97,7 @@ TEST(StringStackTest, ReverseTest) {
 // $1 = {max_len_ = 0x5, top_ = 0x4, data_ = 0x5555555db600 "abcdeU"}
 // (gdb) p charstack4
 // $2 = {max_len_ = 0x5, top_ = 0x4, data_ = 0x5555555db600 "abcdeU"}
-TEST_F(CharStackTest, MoveAssignment) {
+TEST(CharStackTest, MoveAssignment) {
   TemplateStack<char> charstack2({'a', 'b', 'c', 'd', 'e'}, 5);
   TemplateStack<char> charstack3({'a', 'b', 'c', 'd', 'e'}, 5);
   // This initialization is a work-around for the Most Vexing Parse, which
@@ -128,7 +121,7 @@ TEST_F(CharStackTest, MoveAssignment) {
 ==14045==ERROR: AddressSanitizer: attempting free on address which was not
  malloc()-ed
 Otherwise the test passes.
-TEST_F(CharStackTest, ArrayCtor) {
+TEST(CharStackTest, ArrayCtor) {
   char newarray[5];
   for (int i = 0;
     i < 5; i++) { newarray[i] = alphalist[i];
@@ -146,41 +139,28 @@ TEST_F(CharStackTest, ArrayCtor) {
 clang-format on
 */
 
-class ComplexStackTest : public ::testing::Test {
-public:
-  ComplexStackTest() : tsc(new TemplateStack<Complex>()) {}
-  ~ComplexStackTest() {
-    delete compvec;
-    delete tsc;
-  }
+const vector<Complex> compvec{{
+    {0.0, 0.0},
+    {1.0, 1.0},
+    {2.0, 2.0},
+    {3.0, 3.0},
+    {4.0, 4.0},
+}};
 
-  // Should match the Complex ctor that takes a two-element array as its
-  // parameter.
-  vector<Complex> *compvec = new vector<Complex>({{
-      {0.0, 0.0},
-      {1.0, 1.0},
-      {2.0, 2.0},
-      {3.0, 3.0},
-      {4.0, 4.0},
-  }});
-  TemplateStack<Complex> *tsc;
-};
-
-TEST_F(ComplexStackTest, DefaultCtorTest) {
-  EXPECT_TRUE(tsc->empty());
-  for (vector<Complex>::iterator it = compvec->begin(); it != compvec->end();
-       it++) {
-    tsc->push(*it);
+TEST(ComplexStackTest, DefaultCtorTest) {
+  TemplateStack<Complex> tsc;
+  EXPECT_TRUE(tsc.empty());
+  for (auto it = compvec.cbegin(); it != compvec.cend(); it++) {
+    tsc.push(*it);
   }
-  EXPECT_FALSE(tsc->empty());
-  cout << *tsc << endl;
-  for (vector<Complex>::reverse_iterator it = compvec->rbegin();
-       it != compvec->rend(); it++) {
-    EXPECT_EQ(*it, tsc->pop());
+  EXPECT_FALSE(tsc.empty());
+  cout << tsc << endl;
+  for (auto it = compvec.crbegin(); it != compvec.crend(); it++) {
+    EXPECT_EQ(*it, tsc.pop());
   }
 }
 
-TEST_F(ComplexStackTest, ReverseTest) {
+TEST(ComplexStackTest, ReverseTest) {
   // Won't work due to most vexing parse.
   //  Complex *carr[5](), *carr1[5]();
   Complex carr[] = {Complex(0, 0), Complex(1, 1), Complex(2, 2), Complex(3, 3),
@@ -201,29 +181,27 @@ TEST_F(ComplexStackTest, ReverseTest) {
   }
 }
 
-TEST_F(ComplexStackTest, MoveCtor) {
+TEST(ComplexStackTest, MoveCtor) {
   Complex carr[] = {Complex(0, 0), Complex(1, 1), Complex(2, 2), Complex(3, 3),
                     Complex(4, 4)};
   TemplateStack<Complex> ts1(carr, 5);
   TemplateStack<Complex> ts2(carr, 5);
   TemplateStack<Complex> ts3(move(ts1));
   int i = 0;
-  for (vector<Complex>::iterator it = compvec->begin(); it != compvec->end();
-       it++, i++) {
+  for (auto it = compvec.cbegin(); it != compvec.cend(); it++, i++) {
     EXPECT_EQ((*it), ts3[i]);
   }
 }
 
-TEST_F(ComplexStackTest, MoveAssignment) {
+TEST(ComplexStackTest, MoveAssignment) {
   Complex carr[] = {Complex(0, 0), Complex(1, 1), Complex(2, 2), Complex(3, 3),
                     Complex(4, 4)};
   TemplateStack<Complex> ts1(carr, 5);
   TemplateStack<Complex> ts2(carr, 5);
-  *tsc = move(ts1);
+  TemplateStack<Complex> tsc = move(ts1);
   int i = 0;
-  for (vector<Complex>::iterator it = compvec->begin(); it != compvec->end();
-       it++, i++) {
-    EXPECT_EQ((*it), (*tsc)[i]);
+  for (auto it = compvec.cbegin(); it != compvec.cend(); it++, i++) {
+    EXPECT_EQ((*it), tsc[i]);
   }
 }
 

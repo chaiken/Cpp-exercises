@@ -1,8 +1,8 @@
 #ifndef TEMPLATE_STACK_H
 #define TEMPLATE_STACK_H
 
-#include <cassert>
 #include <iostream>
+#include <memory>
 #include <string>
 
 namespace template_stack {
@@ -20,11 +20,12 @@ private:
   enum { EMPTY = -1 };
   int max_len_;
   int top_;
-  T *data_;
+  std::unique_ptr<T[]> data_;
 
 public:
   TemplateStack()
-      : max_len_(kDefaultSize), top_(EMPTY), data_(new T[kDefaultSize]) {
+      : max_len_(kDefaultSize), top_(EMPTY),
+        data_(std::unique_ptr<T[]>(new T[kDefaultSize])) {
     ::std::cout << "Default ctor" << ::std::endl;
   }
   // Move constructor.
@@ -41,8 +42,7 @@ public:
   // malloc()-ed".
   template <int N>
   constexpr TemplateStack(T (&arr)[N])
-      : max_len_(N), top_(N - 1), data_(&arr[0]){};
-  ~TemplateStack() { delete[] data_; }
+      : max_len_(N), top_(N - 1), data_(std::make_unique<T[]>(&arr[0])){};
   void reset() { top_ = EMPTY; }
   void push(T x) { data_[++top_] = x; }
   T pop() { return data_[top_--]; }
@@ -74,7 +74,6 @@ public:
   friend ::std::ostream &operator<<(::std::ostream &out,
                                     const TemplateStack<T> &ts) {
     int i = ts.top_;
-    assert(0 != ts.data_);
     while (i >= 0) {
       out << ts.data_[i];
       if (0 != i) {
