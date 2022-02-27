@@ -105,8 +105,8 @@ dyn_string: dyn_string_lib.cc dyn_string.h dyn_string.cc
 notqsort: notqsort.cc notqsort_lib.cc notqsort.h
 	$(CC) $(CFLAGS) $(LDFLAGS) notqsort_lib.cc notqsort.cc -o $@
 
-dbl_vector_time: dbl_vector_lib.cc dbl_vector_time.cc dbl_vector.h
-	$(CC) $(CXXFLAGS) $(LDFLAGS) dbl_vector_lib.cc dbl_vector_time.cc -o $@
+#dbl_vector_time: dbl_vector_lib.cc dbl_vector_time.cc dbl_vector.h
+#	$(CC) $(CXXFLAGS) $(LDFLAGS) dbl_vector_lib.cc dbl_vector_time.cc -o $@
 
 slist_main: slist_main.cc slist_lib.cc slist.h
 	$(CC) $(CXXFLAGS) $(LDFLAGS) slist_main.cc slist_lib.cc -o $@
@@ -120,12 +120,12 @@ matrix_lib_test-coverage matrix_lib_test-valgrind matrix_lib_test: dbl_vector.h 
 matrix_lib_test_debug: matrix_lib.cc matrix_lib_test.cc matrix.h dbl_vector.h dbl_vector_lib.cc $(GTEST_HEADERS)
 	$(CC) $(CXXFLAGS) -DDEBUG $(LDFLAGS) -lm matrix_lib.cc matrix_lib_test.cc dbl_vector_lib.cc  $(GTESTLIBS) -o $@
 
-term_vector_lib.o: term_vector_lib.cc term_vector.h term_lib.cc term.h term_impl.h
+term_vector_lib.o: term_vector_lib.cc term_vector.h term_lib.cc term.h
 	$(CC) $(CXXFLAGS)  $(LDFLAGS) $^ $(GTESTLIBS) -o $@
 
-polynomial_lib_test-coverage polynomial_lib_test-valgrind polynomial_lib_test: term_lib.cc term_vector_lib.cc term.h term_impl.h term_vector.h
+polynomial_lib_test-coverage polynomial_lib_test-valgrind polynomial_lib_test: term_lib.cc term_vector_lib.cc term.h  term_vector.h
 
-polynomial_lib_test_debug: polynomial_lib.cc polynomial_lib_test.cc polynomial.h polynomial_impl.h term_lib.cc term_vector_lib.cc term.h term_impl.h term_vector.h $(GTEST_HEADERS)
+polynomial_lib_test_debug: polynomial_lib.cc polynomial_lib_test.cc polynomial.h term_lib.cc term_vector_lib.cc term.h term_vector.h $(GTEST_HEADERS)
 	$(CC) $(CXXFLAGS) -DDEBUG $(LDFLAGS) polynomial_lib.cc polynomial_lib_test.cc term_lib.cc term_vector_lib.cc  $(GTESTLIBS) -o $@
 
 complex_vector_lib_test-coverage complex_vector_lib_test-valgrind complex_vector_lib_test: complex_lib.o complex_vector.h complex.h
@@ -155,16 +155,16 @@ const_template_stack_lib_test-coverage: const_template_stack_lib_test.cc complex
 macro-vs-template: macro-vs-template.cc macro-vs-template.h complex_lib.cc complex.h
 	$(CC) $(CXXFLAGS-NOTEST) $(LDFLAGS-NOTEST) macro-vs-template.cc complex_lib.cc -o $@
 
-template_cycle_lib_test-coverage template_cycle_lib_test-valgrind template_cycle_lib_test: polynomial_lib.cc polynomial.h polynomial_impl.h term_lib.cc term.h term_impl.h term_vector_lib.cc term_vector.h $(GTESTLIBS)
+template_cycle_lib_test-coverage template_cycle_lib_test-valgrind template_cycle_lib_test: polynomial_lib.cc polynomial.h term_lib.cc term.h term_vector_lib.cc term_vector.h $(GTESTLIBS)
 
 template_rotate_lib_test-coverage template_rotate_lib_test-valgrind template_rotate_lib_test: complex.h complex_lib.cc $(GTESTLIBS)
 
-template_vector_lib_test-coverage template_vector_lib_test-valgrind template_vector_lib_test: complex.h complex_lib.cc polynomial.h polynomial_impl.h polynomial_lib.cc term.h term_impl.h term_vector.h term_lib.cc term_vector_lib.cc $(GTESTLIBS)
+template_vector_lib_test-coverage template_vector_lib_test-valgrind template_vector_lib_test: complex.h complex_lib.cc polynomial.h  polynomial_lib.cc term.h term_vector.h term_lib.cc term_vector_lib.cc $(GTESTLIBS)
 
-template_vector_lib_test_debug: template_vector.h template_vector_impl.h template_vector_lib_test.cc complex.h complex_lib.cc polynomial.h polynomial_impl.h polynomial_lib.cc term.h term_impl.h term_vector.h term_lib.cc term_vector_lib.cc  $(GTEST_HEADERS)
+template_vector_lib_test_debug: template_vector.h template_vector_lib_test.cc complex.h complex_lib.cc polynomial.h polynomial_lib.cc term.h term_vector.h term_lib.cc term_vector_lib.cc  $(GTEST_HEADERS)
 	$(CC) $(CXXFLAGS) -DDEBUG="DEBUG" $(LDFLAGS) template_vector_lib_test.cc complex_lib.cc polynomial_lib.cc term_lib.cc term_vector_lib.cc $(GTESTLIBS) -o $@
 
-template_vector_main: template_vector.h template_vector_impl.h term.h term_impl.h term_vector.h term_lib.cc term_vector_lib.cc template_vector_main.cc
+template_vector_main: template_vector.h term.h term_vector.h term_lib.cc term_vector_lib.cc template_vector_main.cc
 	$(CC) $(CXXFLAGS) $(LDFLAGS) template_vector_main.cc term_lib.cc term_vector_lib.cc -o $@
 
 # template_%_lib.cc is not a prerequisite of the generic template_%_lib_test
@@ -172,9 +172,9 @@ template_vector_main: template_vector.h template_vector_impl.h term.h term_impl.
 template_list_lib_test-coverage template_list_lib_test-valgrind template_list_lib_test: template_list_lib.cc complex.h complex_lib.cc $(GTESTLIBS)
 
 # Test name does not match template_%_test pattern.
-reverse_list_lib_test: reverse_list.h reverse_list_impl.h reverse_list_lib_test.cc
+reverse_list_lib_test: reverse_list.h reverse_list_lib_test.cc
 	$(CC) $(CXXFLAGS) $(LDFLAGS) reverse_list_lib_test.cc $(GTESTLIBS) -o $@
-reverse_list_lib_test-valgrind: reverse_list.h reverse_list_impl.h reverse_list_lib_test.cc
+reverse_list_lib_test-valgrind: reverse_list.h reverse_list_lib_test.cc
 	$(CC) $(CXXFLAGS-NOSANITIZE) $(LDFLAGS-NOSANITIZE) reverse_list_lib_test.cc $(GTESTLIBS) -o $@
 reverse_list_lib_test-coverage:
 	$(CC) $(CXXFLAGS-NOSANITIZE) $(COVERAGE_EXTRA_FLAGS) $(LDFLAGS-NOSANITIZE) reverse_list_lib_test.cc $(GTESTLIBS) -o $@
@@ -183,11 +183,11 @@ inheritance_casting_main: student_inheritance.h student_inheritance_lib.cc inher
 	$(CC) $(CXXFLAGS) $(LDFLAGS) student_inheritance_lib.cc inheritance_casting_main.cc -o $@
 
 # Test name does not match template_%_test pattern.
-one_index_vector_lib_test: one_index_vector.h one_index_vector_impl.h one_index_vector_lib_test.cc
+one_index_vector_lib_test: one_index_vector.h one_index_vector_lib_test.cc
 	$(CC) $(CXXFLAGS) $(LDFLAGS) one_index_vector_lib_test.cc $(GTESTLIBS) -o $@
-one_index_vector_lib_test-valgrind: one_index_vector.h one_index_vector_impl.h one_index_vector_lib_test.cc
+one_index_vector_lib_test-valgrind: one_index_vector.h  one_index_vector_lib_test.cc
 	$(CC) $(CXXFLAGS-NOSANITIZE) $(LDFLAGS-NOSANITIZE) one_index_vector_lib_test.cc $(GTESTLIBS) -o $@
-one_index_vector_lib_test-coverage: one_index_vector.h one_index_vector_impl.h one_index_vector_lib_test.cc
+one_index_vector_lib_test-coverage: one_index_vector.h one_index_vector_lib_test.cc
 	$(CC) $(CXXFLAGS-NOSANITIZE) $(COVERAGE_EXTRA_FLAGS) $(LDFLAGS-NOSANITIZE) one_index_vector_lib_test.cc $(GTESTLIBS) -o $@
 
 override_vs_overload_main: override_vs_overload.h override_vs_overload_main.cc
@@ -196,14 +196,14 @@ override_vs_overload_main: override_vs_overload.h override_vs_overload_main.cc
 multiple_inheritance_lib_test-coverage multiple_inheritance_lib_test-valgrind multiple_inheritance_lib_test: student_inheritance.h student_inheritance_lib.cc
 
 # Test name does not match template_%_test pattern.
-array_size_deduction_test: array_size_deduction_test.cc array_size_deduction_impl.h
+array_size_deduction_test: array_size_deduction_test.cc
 	$(CC) $(CXXFLAGS) $(LDFLAGS)  array_size_deduction_test.cc $(GTESTLIBS) -o $@
-array_size_deduction_test-valgrind: array_size_deduction_test.cc array_size_deduction_impl.h
+array_size_deduction_test-valgrind: array_size_deduction_test.cc
 	$(CC) $(CXXFLAGS-NOSANITIZE) $(LDFLAGS-NOSANITIZE)  array_size_deduction_test.cc $(GTESTLIBS) -o $@
-array_size_deduction_test-coverage: array_size_deduction_test.cc array_size_deduction_impl.h
+array_size_deduction_test-coverage: array_size_deduction_test.cc
 	$(CC) $(CXXFLAGS-NOSANITIZE) $(COVERAGE_EXTRA_FLAGS) $(LDFLAGS-NOSANITIZE)  array_size_deduction_test.cc $(GTESTLIBS) -o $@
 
-BINARY_LIST = calc_num_digits gcd gcd_lib_test reverse_char_stack_lib_test dyn_string_lib_test dyn_string notqsort notqsort_lib_test dbl_vector_lib_test dbl_vector_time slist_main slist_lib_test slist2_lib_test matrix_lib_test matrix_lib_test_debug term_lib_test polynomial_lib_test polynomial_lib_test_debug reference_count_string_lib_test rational_lib_test complex_lib_test complex_vector_lib_test reference_count_string_timer reference_count_string_timer_debug smarter_stack_lib_test smarter_queue_lib_test smarter_list_lib_test new_clock_lib_test template_stack_lib_test const_template_stack_lib_test macro-vs-template template_cycle_lib_test template_rotate_lib_test template_vector_lib_test template_vector_lib_test_debug template_vector_main template_list_lib_test template_largest_lib_test template_integrate_lib_test reverse_list_lib_test student_inheritance_lib_test one_index_vector_lib_test override_vs_overload_main multiple_inheritance_lib_test array_size_deduction_test address-of-function-parameter
+BINARY_LIST = calc_num_digits gcd gcd_lib_test reverse_char_stack_lib_test dyn_string_lib_test dyn_string notqsort notqsort_lib_test dbl_vector_lib_test slist_main slist_lib_test slist2_lib_test matrix_lib_test matrix_lib_test_debug term_lib_test polynomial_lib_test polynomial_lib_test_debug reference_count_string_lib_test rational_lib_test complex_lib_test complex_vector_lib_test reference_count_string_timer reference_count_string_timer_debug smarter_stack_lib_test smarter_queue_lib_test smarter_list_lib_test new_clock_lib_test template_stack_lib_test const_template_stack_lib_test macro-vs-template template_cycle_lib_test template_rotate_lib_test template_vector_lib_test template_vector_lib_test_debug template_vector_main template_list_lib_test template_largest_lib_test template_integrate_lib_test reverse_list_lib_test student_inheritance_lib_test one_index_vector_lib_test override_vs_overload_main multiple_inheritance_lib_test array_size_deduction_test address-of-function-parameter
 
 # Same list as above, but with main binaries and _debug targets removed.
 # Removed const_template_stack_lib_test.
