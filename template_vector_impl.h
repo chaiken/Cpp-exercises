@@ -3,41 +3,27 @@
 #include <stdexcept>
 #include <type_traits>
 
-namespace template_vect {
-template <typename T> T &TemplateVector<T>::operator[](int i) {
-  if ((i > ub()) || (i < 0)) {
-    throw std::out_of_range{"TemplateVector::operator[]"};
-  }
-  return p_[i];
-}
+using namespace std;
 
-template <typename T> const T &TemplateVector<T>::operator[](int i) const {
-  if ((i > ub()) || (i < 0)) {
-    throw std::out_of_range{"TemplateVector::operator[]"};
-  }
-  return p_[i];
-}
+namespace template_vect {
 
 template <typename T> TemplateVector<T>::TemplateVector(int n) : size_(n) {
-  ::std::cout << "Default ctor" << ::std::endl;
+  cout << "Default ctor" << ::endl;
   if (n <= 0) {
-    throw std::length_error{"TemplateVector default constructor: illegal size"};
+    throw length_error{"TemplateVector default constructor: illegal size"};
   }
-  p_ = new T[n];
-  if (nullptr == p_) {
-    throw std::bad_alloc{};
-  }
+  p_ = unique_ptr<T[]>(new T[n]);
 }
 
 // First size_t is size of array paramter arr; second is size of the copy,
-// https://stackoverflow.com/questions/13081837/reference-to-an-array-in-c++
+// The array parameter is preserved.
 template <typename T>
-TemplateVector<T>::TemplateVector(const T (&arr)[], size_t sz1, size_t sz2)
+TemplateVector<T>::TemplateVector(const T arr[], size_t sz1, size_t sz2)
     : size_(sz2) {
 #ifdef DEBUG
-  ::std::cout << "Array ctor" << ::std::endl;
+  cout << "Array ctor" << ::endl;
+  cout << "Input array size is: " << sz1 << endl;
 #endif
-  std::cerr << "sz1 is: " << sz1 << std::endl;
   // clang-format off
   // https://en.cppreference.com/w/c/language/sizeof
   //
@@ -54,29 +40,39 @@ TemplateVector<T>::TemplateVector(const T (&arr)[], size_t sz1, size_t sz2)
   //  if ((size_ <= 0) || (size_ > (sizeof(v)/sizeof(v[0])))) {
   // clang-format on
   // sz1 can be anything, as the compiler has no way of checking it.
-  if ((size_ <= 0) || (size_ > sz1)) {
-    throw std::length_error{"TemplateVector array constructor: illegal size"};
+  if ((size_ <= 0) || (size_ > sz1) || (sz1 <= 0)) {
+    throw length_error{"TemplateVector array constructor: illegal size"};
   }
-  p_ = new T[size_];
-  if (nullptr == p_) {
-    throw std::bad_alloc{};
-  }
+  p_ = unique_ptr<T[]>(new T[size_]);
   for (size_t i = 0u; i < sz2; i++) {
     p_[i] = arr[i];
   }
 }
 
+// Consumes the passed-in array.
 template <typename T>
-TemplateVector<T>::TemplateVector(const ::std::vector<T> &vec)
-    : size_(vec.size()) {
-  ::std::cout << "::std::vector ctor" << ::std::endl;
-  p_ = new T[size_];
-  if (nullptr == p_) {
-    throw std::bad_alloc{};
+TemplateVector<T>::TemplateVector(T arr[], size_t sz1, size_t sz2)
+    : size_(sz2) {
+  if ((size_ <= 0) || (size_ > sz1) || (sz1 <= 0)) {
+    throw length_error{"TemplateVector array constructor: illegal size"};
   }
+  p_ = unique_ptr<T[]>(new T[size_]);
+  for (size_t i = 0u; i < sz2; i++) {
+    if constexpr (is_copy_assignable<T>::value) {
+      p_[i] = arr[i];
+    } else {
+      std::swap(p_[i], arr[i]);
+    }
+  }
+}
+
+template <typename T>
+TemplateVector<T>::TemplateVector(const vector<T> &vec) : size_(vec.size()) {
+  cout << "vector ctor" << ::endl;
+  p_ = unique_ptr<T[]>(new T[size_]);
   // clang-format off
   // error: conversion from ‘__normal_iterator<const double*,[...]>’ to non-scalar type ‘__normal_iterator<double*,[...]>’ requested
-  //  for (typename ::std::vector<T>::iterator it = vec.cbegin(); it != vec.cend(); it++, i++) {
+  //  for (typename vector<T>::iterator it = vec.cbegin(); it != vec.cend(); it++, i++) {
   // clang-format on
   int i = 0;
   for (T x : vec) {
@@ -85,49 +81,54 @@ TemplateVector<T>::TemplateVector(const ::std::vector<T> &vec)
   }
 }
 
-// Putting this code in the template_vector_lib.cc caused a linker failure.
 template <typename T>
 TemplateVector<T>::TemplateVector(TemplateVector &&vec) : size_(vec.size_) {
   ::std::cout << "Move ctor" << ::std::endl;
-  // This move() is not needed, as vec is already an R-value reference.
-  //  p_ = ::std::move(vec.p_);
-  p_ = vec.p_;
-  vec.p_ = nullptr;
-  // With this setting, the public functions cannot detect that the
+  p_ = std::move(vec.p_);
+  // With this setting, the public functions can detect that the
   // TemplateVector is empty.
   vec.size_ = 0u;
+  vec.p_.reset();
 }
 
-template <typename T>
-TemplateVector<T> &TemplateVector<T>::operator=(TemplateVector &&v) {
-  ::std::cout << "move assignment operator" << ::std::endl;
-  size_ = v.size_;
-  ::std::swap(v.p_, p_);
-  return *this;
+template <typename T> T &TemplateVector<T>::operator[](int i) {
+  if ((i > ub()) || (i < 0)) {
+    throw out_of_range{"TemplateVector::operator[]"};
+  }
+  return p_[i];
 }
 
-// I wanted to make an operator==() instead, but couldn't figure out how to use
-// two template parameters within the class.
+template <typename T> const T &TemplateVector<T>::operator[](int i) const {
+  if ((i > ub()) || (i < 0)) {
+    throw out_of_range{"TemplateVector::operator[]"};
+  }
+  return p_[i];
+}
+
+// A class-member operator==() makes no sense, as it does not use the template
+// parameter.   The function is therefore static, as it does not depend on a
+// particular template instantation.
 // clang-format off
 // ‘bool template_vect::operator=(const template_vect::TemplateVector<U>&, const
 // template_vect::TemplateVector<V>&)’ must be a nonstatic member function
 // clang-format on
 template <typename U, typename V>
-bool operator==(const TemplateVector<U> &tv1, const TemplateVector<V> &tv2) {
+static bool operator==(const TemplateVector<U> &tv1,
+                       const TemplateVector<V> &tv2) {
   // error: expected primary-expression before ‘(’ token
-  // bool ans = ::std::is_same<U,V>(U, V)::value;
-  constexpr bool ans = ::std::is_same<U, V>::value;
+  // bool ans = is_same<U,V>(U, V)::value;
+  constexpr bool ans = is_same<U, V>::value;
   if (!ans) {
-    ::std::cerr << "Types don't match." << ::std::endl;
+    cerr << "Types don't match." << ::endl;
     return false;
   }
   if (tv1.ub() != tv2.ub()) {
-    ::std::cerr << "Sizes don't match." << ::std::endl;
+    cerr << "Sizes don't match." << ::endl;
     return false;
   }
   for (int i = 0; i <= tv1.ub(); i++) {
     if (tv1[i] != tv2[i]) {
-      ::std::cerr << "Element " << i << " doesn't match." << ::std::endl;
+      cerr << "Element " << i << " doesn't match." << ::endl;
       return false;
     }
   }
@@ -149,18 +150,18 @@ static void tvassign(TemplateVector<U> &uvec, TemplateVector<V> &vvec) {
   if (uvec == vvec) {
     return;
   }
-  ::std::cout << "assignment with conversion function" << ::std::endl;
-  constexpr bool ans1 = ::std::is_same<U, V>::value;
+  cout << "assignment with conversion function" << ::endl;
+  constexpr bool ans1 = is_same<U, V>::value;
   if (!ans1) {
-    ::std::cout << "Types don't match." << ::std::endl;
+    cout << "Types don't match." << ::endl;
   }
-  // Order matters: from is first.
-  constexpr bool ans2 = ::std::is_convertible<U, V>::value;
+  // Order matters: from-type is first.
+  constexpr bool ans2 = is_convertible<U, V>::value;
   if (!ans2) {
     // Apparently not reached, as compilation fails.
     throw assignment_error{"Types are not convertible."};
   } else {
-    ::std::cout << "Types are convertible." << ::std::endl;
+    cout << "Types are convertible." << ::endl;
   }
   if (uvec.size_ != vvec.size_) {
     throw assignment_error{
@@ -170,7 +171,7 @@ static void tvassign(TemplateVector<U> &uvec, TemplateVector<V> &vvec) {
   // In file included from template_vector_lib_test.cc:1:
   // template_vector.h:48:16: note:   deduced conflicting types for parameter
   // ‘_Tp’ (‘char*’ and ‘int* const’)
-  // ::std::swap(static_cast<V *>(uvec.p_), static_cast<U* >(vvec.p_));
+  // swap(static_cast<V *>(uvec.p_), static_cast<U* >(vvec.p_));
   for (int i = 0; i <= vvec.ub(); i++) {
     uvec[i] = static_cast<U>(vvec[i]);
   }
@@ -187,7 +188,7 @@ void tvswap(TemplateVector<U> &uvec, TemplateVector<V> &vvec) {
     return;
   }
   // Create a TemplateVector to hold the values of U.
-  ::std::vector<U> temp;
+  vector<U> temp;
   int i = 0;
   for (U *tvit = uvec.begin(); tvit != uvec.end(); tvit++, i++) {
     temp.push_back(*tvit);
@@ -199,37 +200,39 @@ void tvswap(TemplateVector<U> &uvec, TemplateVector<V> &vvec) {
 }
 
 // "Newton-Raphson" interval-bisecting in-place sort function.
+// Arrange in increasing order.
 template <typename T> void tvsort(TemplateVector<T> &tv) {
   static int index = 0;
 #ifdef DEBUG
   static int depth = 0;
-  ::std::cout << "Depth: " << depth << " index: " << index << ::std::endl;
+  cout << "Depth: " << depth << " index: " << index << ::endl;
 #endif
   // Done when this loop hits ub().  <ub() makes ub()+1 safe.
   while (index < tv.ub()) {
-    // Arrange in increasing order.
+    // If neighboring elements are out of order, check swap with remote element.
     if (tv[index + 1] < tv[index]) {
       // Try swapping the 0th element with the middle one, the 1st element with
       // the element 3/4 of the way through, the 2nd element with that 1/4 way
       // through . . .
       int candidate = (tv.ub() - index * (-1 ^ index)) / 2.0;
+      // Not trivial due to integer math.
       candidate -= (candidate / tv.ub()) * tv.ub();
       // Here is the forward sorting.   The reverse is separate, below.
       // First try to place in the middle of the half of the TemplaceVector that
       // remains unsorted.
       if ((candidate > index) && (tv[candidate] < tv[index])) {
-        ::std::swap(tv[candidate], tv[index]);
+        swap(tv[candidate], tv[index]);
 #ifdef DEBUG
-        ::std::cout << "Reordering index = " << index << " with " << candidate
-                    << ::std::endl;
-        ::std::cout << tv << ::std::endl;
+        cout << "Reordering index = " << index << " with " << candidate
+             << ::endl;
+        cout << tv << ::endl;
 #endif
       } else {
-        ::std::swap(tv[index], tv[index + 1]);
+        // Remote element is already ordered, so just swap with neighbor.
+        swap(tv[index], tv[index + 1]);
 #ifdef DEBUG
-        ::std::cout << "Reordering index = " << index << " with neighbor."
-                    << ::std::endl;
-        ::std::cout << tv << ::std::endl;
+        cout << "Reordering index = " << index << " with neighbor." << ::endl;
+        cout << tv << ::endl;
 #endif
       }
       // Now recheck previous order.  index=ub()-1 and index=0 are fully checked
@@ -237,7 +240,7 @@ template <typename T> void tvsort(TemplateVector<T> &tv) {
       if ((index < (tv.ub() - 1)) && (index > 0)) {
 #ifdef DEBUG
         depth++;
-        ::std::cout << "Reversing; depth " << depth << ::std::endl;
+        cout << "Reversing; depth " << depth << ::endl;
 #endif
         index--;
         tvsort(tv);
@@ -246,11 +249,10 @@ template <typename T> void tvsort(TemplateVector<T> &tv) {
       depth--;
 #endif
       index++;
-    } else {
-      // already ordered, so keep going.
+    } else { // Adjacent elements are already ordered, so proceed to next ones.
       index++;
     }
-  }
+  } // while loop
 }
 
 } // namespace template_vect

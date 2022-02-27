@@ -3,6 +3,7 @@
 
 #include <functional>
 #include <iostream>
+#include <memory>
 #include <vector>
 
 namespace template_vect {
@@ -14,19 +15,20 @@ public:
   // which can be smaller.  The first could be a template parameter, but then
   // the class definition and all ctors would require it.  Two parameters also
   //  would complicate assignment operators.
-  TemplateVector(const T (&arr)[], size_t sz1, size_t sz2);
+  TemplateVector(const T arr[], size_t sz1, size_t sz2);
+  TemplateVector(T arr[], size_t sz1, size_t sz2);
   TemplateVector(const ::std::vector<T> &v);
+  TemplateVector(const TemplateVector<T> &v) = delete;
   TemplateVector(TemplateVector &&v);
-  ~TemplateVector() { delete[] p_; }
+  TemplateVector &operator=(TemplateVector &&v) = default;
   int ub() const { return (size_ - 1); }
   T &operator[](int i);
   const T &operator[](int i) const;
-  TemplateVector &operator=(TemplateVector &&v);
   typedef T *iterator;
   iterator begin() const { return &p_[0]; }
   iterator end() const { return &p_[size_]; }
-  iterator operator++() { return &p_[cursor_++]; };
-  iterator operator--() { return &p_[cursor_--]; };
+  iterator operator++() const { return &p_[cursor_++]; };
+  iterator operator--() const { return &p_[cursor_--]; };
   // The function is not found by the linker if not placed in the header.
   // See comment in template_stack.h.
   friend ::std::ostream &operator<<(::std::ostream &out,
@@ -50,9 +52,11 @@ public:
                          const TemplateVector<V> &tv2);
 
 private:
-  T *p_;
+  std::unique_ptr<T[]> p_;
   size_t size_;
-  int cursor_ = 0;
+  // Making cursor_ mutable allows the iterators to be const, thus providing a
+  // way to view the container without the possibility of modifying it.
+  mutable int cursor_ = 0;
 };
 
 // http://www.cplusplus.com/reference/stdexcept/invalid_argument/
