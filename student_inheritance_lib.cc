@@ -1,5 +1,6 @@
 #include "student_inheritance.h"
 
+#include <cassert>
 #include <typeinfo>
 
 namespace student_inheritance {

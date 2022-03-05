@@ -13,16 +13,11 @@ const struct grad_student_extra angela_extra(
 
 class StudentInheritanceTest : public ::testing::Test {
 public:
-  StudentInheritanceTest() {
-    marvin = new Student(marvin_details);
-    angela = new GradStudent(angela_details, angela_extra);
-  }
-  ~StudentInheritanceTest() {
-    delete marvin;
-    delete angela;
-  }
-  const Student *marvin;
-  const GradStudent *angela;
+  StudentInheritanceTest()
+      : marvin(Student(marvin_details)),
+        angela(GradStudent(angela_details, angela_extra)) {}
+  const Student marvin;
+  const GradStudent angela;
 };
 
 // Why do the move ctor and assignment operators fail to move() objects created
@@ -30,19 +25,19 @@ public:
 // the test?
 // clang-format off
 // error: use of deleted function ‘student_inheritance::Student::Student(const student_inheritance::Student&)’
-// Student a(*marvin);
+// Student a(marvin);
 // error: use of deleted function ‘student_inheritance::Student& student_inheritance::Student::operator=(const student_inheritance::Student&)’
-// a = *marvin;
+// a = marvin;
 // error: use of deleted function ‘student_inheritance::GradStudent::GradStudent(const student_inheritance::GradStudent&)’
-// GradStudent b(std::move(*angela));
+// GradStudent b(std::move(angela));
 // clang-format on
 
 TEST_F(StudentInheritanceTest, MoveCtor) {
   Student a(marvin_details);
   Student b(std::move(a));
-  EXPECT_EQ(b.gpa(), marvin->gpa());
-  EXPECT_EQ(b.year(), marvin->year());
-  EXPECT_EQ(b.name(), marvin->name());
+  EXPECT_EQ(b.gpa(), marvin.gpa());
+  EXPECT_EQ(b.year(), marvin.year());
+  EXPECT_EQ(b.name(), marvin.name());
 }
 
 TEST_F(StudentInheritanceTest, MoveAssignment) {
@@ -50,9 +45,9 @@ TEST_F(StudentInheritanceTest, MoveAssignment) {
                              "Convex Eigenfunctions of a Reflected Closure");
   GradStudent a(angela_details, another);
   GradStudent b = std::move(a);
-  EXPECT_EQ(b.gpa(), angela->gpa());
-  EXPECT_EQ(b.year(), angela->year());
-  EXPECT_EQ(b.name(), angela->name());
+  EXPECT_EQ(b.gpa(), angela.gpa());
+  EXPECT_EQ(b.year(), angela.year());
+  EXPECT_EQ(b.name(), angela.name());
   EXPECT_EQ(b.dept(), another.dept);
   EXPECT_EQ(b.support(), another.support);
   EXPECT_NE(b.support(), Support::kRA);
@@ -61,13 +56,13 @@ TEST_F(StudentInheritanceTest, MoveAssignment) {
 
 TEST_F(StudentInheritanceTest, StudentPrinting) {
   ::std::ostringstream oss;
-  oss << *marvin;
+  oss << marvin;
   EXPECT_EQ(oss.str(), "Name: Marvin, 123, Junior, 4.2\n");
 }
 
 TEST_F(StudentInheritanceTest, GradStudentPrinting) {
   ::std::ostringstream oss;
-  student_inheritance::operator<<(oss, *angela);
+  student_inheritance::operator<<(oss, angela);
   EXPECT_EQ(oss.str(), "Name: Angela, 124, Grad, 2.4\n, Physics, Support: "
                        "Research assistant, Thesis: Anistropic "
                        "Superconductivity in Graphite Intercalation Compounds");
@@ -75,13 +70,13 @@ TEST_F(StudentInheritanceTest, GradStudentPrinting) {
 
 TEST_F(StudentInheritanceTest, StudentPrintFunction) {
   ::std::ostringstream oss;
-  marvin->print(oss);
+  marvin.print(oss);
   EXPECT_EQ(oss.str(), "Name: Marvin, 123, Junior, 4.2\n");
 }
 
 TEST_F(StudentInheritanceTest, GradStudentPrintFunction) {
   ::std::ostringstream oss;
-  angela->print(oss);
+  angela.print(oss);
   EXPECT_EQ(oss.str(),
             "Student::gpa_ is not protected inside this member-function "
             "wrapper: 2.4\nName: Angela, 124, Grad, 2.4\n, Physics, Support: "

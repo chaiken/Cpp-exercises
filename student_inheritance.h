@@ -1,7 +1,6 @@
 #ifndef STUDENT_INHERITANCE_H
 #define STUDENT_INHERITANCE_H
 
-#include <cassert>
 #include <cstring>
 
 #include <iostream>

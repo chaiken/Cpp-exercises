@@ -109,18 +109,16 @@ private:
 public:
   // See https://stackoverflow.com/questions/4810516/c-redirecting-stdout
   // and async_logger_lib_test_improved.cc.
-  PersonPrintTest()
-      : oldCoutStreamBuf(cout.rdbuf()), strCout(new ostringstream) {
-    cout.rdbuf(strCout->rdbuf());
+  PersonPrintTest() : oldCoutStreamBuf(cout.rdbuf()) {
+    cout.rdbuf(strCout.rdbuf());
   }
   ~PersonPrintTest() {
     cout.rdbuf(oldCoutStreamBuf);
 #ifdef DEBUG
-    cout << "At test end, output is " << endl << strCout->str() << endl;
+    cout << "At test end, output is " << endl << strCout.str() << endl;
 #endif
-    delete strCout;
   }
-  ostringstream *strCout;
+  ostringstream strCout;
 };
 
 TEST_F(PersonPrintTest, PersonExtractionOperator) {
@@ -133,16 +131,16 @@ TEST_F(PersonPrintTest, PersonExtractionOperator) {
   // cout << jane;
   jane.operator<<(cout);
   EXPECT_NE(string::npos,
-            strCout->str().find("Name: Jane Alsop, Address: Leadville "
-                                "CO, Gender: Female, Birthday: May "
-                                "28, 1948"));
+            strCout.str().find("Name: Jane Alsop, Address: Leadville "
+                               "CO, Gender: Female, Birthday: May "
+                               "28, 1948"));
 }
 
 TEST_F(PersonPrintTest, StudentExtractionOperator) {
   Student jane(ad, bd);
   jane.operator<<(cout);
   EXPECT_NE(string::npos,
-            strCout->str().find(
+            strCout.str().find(
                 "Name: Jane Alsop, Address: Leadville CO, Gender: Female, "
                 "Birthday: May "
                 "28, 1948, Student id: 123, Study Year: Junior, GPA: 4.2"));
@@ -152,7 +150,7 @@ TEST_F(PersonPrintTest, WorkerExtractionOperator) {
   Worker jane(ad, cd);
   jane.operator<<(cout);
   EXPECT_NE(string::npos,
-            strCout->str().find(
+            strCout.str().find(
                 "Name: Jane Alsop, Address: Leadville CO, Gender: Female, "
                 "Birthday: May 28, 1948, Badge number: 1234, Work Status: "
                 "Full-time, Start Date: Dec 10, 1999"));
@@ -162,7 +160,7 @@ TEST_F(PersonPrintTest, StudentWorkerExtractionOperator) {
   StudentWorker jane(ad, bd, cd);
   jane.operator<<(cout);
   EXPECT_NE(string::npos,
-            strCout->str().find(
+            strCout.str().find(
                 "Name: Jane Alsop, Address: Leadville CO, Gender: Female, "
                 "Birthday: May 28, 1948, Student id: 123, Study Year: Junior, "
                 "GPA: 4.2, Badge number: 1234, Work Status: Full-time, Start "
@@ -536,54 +534,54 @@ TEST(FileIODeathTest, NoNewline) {
 TEST_F(PersonPrintTest, ListPrinting) {
   ClearLists();
   PopulateLists(string(TESTDIR) + "multiple_inheritance_test_data.txt", &pa);
-  strCout->str().clear();
+  strCout.str().clear();
   PrintList(pa[GetPersonIndex(PersonType::Person)]);
   EXPECT_NE(
       string::npos,
-      strCout->str().find("Name: Bob Johannson, Address: Leadville CO, Gender: "
-                          "Male, Birthday: Jan 28, 1948, Badge number: 1234, "
-                          "Work Status: Retired, Start Date: Mar 10, 1999\n"));
+      strCout.str().find("Name: Bob Johannson, Address: Leadville CO, Gender: "
+                         "Male, Birthday: Jan 28, 1948, Badge number: 1234, "
+                         "Work Status: Retired, Start Date: Mar 10, 1999\n"));
   EXPECT_NE(
       string::npos,
-      strCout->str().find(
+      strCout.str().find(
           "Name: Torsten Paul, Address: Leadville CO, Gender: Male, Birthday: "
           "Feb 28, 1948, Student id: 123, Study Year: Junior, GPA: 4.2, Badge "
           "number: 1234, Work Status: Full-time, Start Date: Mar 10, 1999\n"));
   EXPECT_NE(string::npos,
-            strCout->str().find("Name: Jane Alsop, Address: Leadville CO, "
-                                "Gender: Female, Birthday: Mar 28, 1948\n"));
+            strCout.str().find("Name: Jane Alsop, Address: Leadville CO, "
+                               "Gender: Female, Birthday: Mar 28, 1948\n"));
   EXPECT_NE(string::npos,
-            strCout->str().find("Name: Bobby Fuller, Address: Leadville CO, "
-                                "Gender: Male, Birthday: Apr 28, 1948\n"));
+            strCout.str().find("Name: Bobby Fuller, Address: Leadville CO, "
+                               "Gender: Male, Birthday: Apr 28, 1948\n"));
   EXPECT_NE(
       string::npos,
-      strCout->str().find(
+      strCout.str().find(
           "Name: Dirk Hast, Address: Leadville CO, Gender: Male, Birthday: May "
           "28, 1948, Student id: 123, Study Year: Junior, GPA: 4.2\n"));
   EXPECT_NE(string::npos,
-            strCout->str().find(
+            strCout.str().find(
                 "Name: Jewlia Behme, Address: Leadville CO, Gender: Female, "
                 "Birthday: Jun 28, 1948, Student id: 123, Study Year: Junior, "
                 "GPA: 4.2, Badge number: 1234, Work Status: Part-time, Start "
                 "Date: Mar 10, 1999\n"));
   EXPECT_NE(string::npos,
-            strCout->str().find(
+            strCout.str().find(
                 "Name: Carla Goldberg, Address: Leadville CO, Gender: Female, "
                 "Birthday: Jul 28, 1948, Badge number: 1234, Work Status: "
                 "Full-time, Start Date: Mar 10, 1999\n"));
-  EXPECT_NE(string::npos, strCout->str().find(
+  EXPECT_NE(string::npos, strCout.str().find(
                               "Name: Billie Goldberg, Address: Leadville CO, "
                               "Gender: Female, Birthday: Aug 28, 1948, Student "
                               "id: 123, Study Year: Junior, GPA: 4.2\n"));
   EXPECT_NE(string::npos,
-            strCout->str().find(
+            strCout.str().find(
                 "Name: Davidlohr Morton, Address: Leadville CO, Gender: Male, "
                 "Birthday: Sep 28, 1948, Student id: 123, Study Year: Junior, "
                 "GPA: 4.2, Badge number: 1234, Work Status: Student, Start "
                 "Date: Mar 10, 1999\n"));
   EXPECT_NE(
       string::npos,
-      strCout->str().find(
+      strCout.str().find(
           "Name: Ben Bueno, Address: Leadville CO, Gender: Male, Birthday: Oct "
           "28, 1948, Student id: 123, Study Year: Junior, GPA: 4.2\n"));
 }
