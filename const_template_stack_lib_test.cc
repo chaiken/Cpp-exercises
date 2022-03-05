@@ -18,33 +18,28 @@ constexpr char alphalist2[] = {'z', 'y', 'x', 'w', 'v', 'u', 't', 's', 'r',
                                'q', 'p', 'o', 'n', 'm', 'l', 'k', 'j', 'i',
                                'h', 'g', 'f', 'e', 'd', 'c', 'b', 'a'};
 
-class CharStackTest : public ::testing::Test {
-public:
-  CharStackTest() { charstack1 = new TemplateStack<char>(); }
-  ~CharStackTest() { delete charstack1; }
-
-  TemplateStack<char> *charstack1;
-};
-
-TEST_F(CharStackTest, DefaultCtorTest) {
-  EXPECT_EQ(kDefaultSize, charstack1->size());
+// CONSTSIZE is defined in the Makefile.  That's the only point of this
+// otherwise duplicate code.
+TEST(CharStackTest, DefaultCtorTest) {
+  TemplateStack<char> charstack;
+  EXPECT_EQ(kDefaultSize, charstack.size());
   EXPECT_EQ(CONSTSIZE, kDefaultSize);
-  EXPECT_TRUE(charstack1->empty());
+  EXPECT_TRUE(charstack.empty());
   for (char c : alphalist) {
-    if (!charstack1->full()) {
-      charstack1->push(c);
-      EXPECT_EQ(c, charstack1->top_of());
+    if (!charstack.full()) {
+      charstack.push(c);
+      EXPECT_EQ(c, charstack.top_of());
     }
   }
-  EXPECT_TRUE(charstack1->full());
-  EXPECT_FALSE(charstack1->empty());
-  cout << *charstack1 << endl;
+  EXPECT_TRUE(charstack.full());
+  EXPECT_FALSE(charstack.empty());
+  cout << charstack << endl;
   int i = CONSTSIZE;
   while (i > 0) {
-    EXPECT_EQ(alphalist[i - 1], charstack1->pop());
+    EXPECT_EQ(alphalist[i - 1], charstack.pop());
     i--;
   }
-  EXPECT_TRUE(charstack1->empty());
+  EXPECT_TRUE(charstack.empty());
 }
 
 } // namespace testing
