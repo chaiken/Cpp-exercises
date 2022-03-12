@@ -1,4 +1,6 @@
 #include <iostream>
+#include <memory>
+#include <sstream>
 
 namespace slist {
 
@@ -6,46 +8,39 @@ class SingleLinkListElem;
 
 class SingleLinkList {
 public:
-  SingleLinkList() : h_(0) {}
+  SingleLinkList() {}
   SingleLinkList(const char *s);
-  ~SingleLinkList() {
-    ::std::cout << "Destructor." << ::std::endl;
-    Release();
-  }
+  SingleLinkList(const SingleLinkList &) = delete;
+  SingleLinkList(SingleLinkList &&sl) = default;
   size_t Length() const;
   void Prepend(char c);
   void Delete();
-  SingleLinkListElem *first() const { return h_; }
-  void Print() const;
-  void Release();
+  SingleLinkListElem *First() const { return h_.get(); }
+  SingleLinkListElem *Last() const;
   unsigned Count(char c) const;
   void Append(SingleLinkList &sll);
   // Stack interface
-  void reset() { Release(); }
   void push(char c) { Prepend(c); }
   char Pop();
-  //  char top_of() { return first()->data_; }
   bool empty() { return (h_ == 0); }
+  friend std::ostringstream &operator<<(std::ostringstream &out,
+                                        const SingleLinkList &sll);
 
 private:
-  SingleLinkListElem *Tail() const;
-
-  SingleLinkListElem *h_;
+  std::unique_ptr<SingleLinkListElem> h_;
 };
 
-class SingleLinkListElem {
-public:
-  SingleLinkListElem(char c) : data_(c), next_(nullptr) {}
-  SingleLinkListElem(char c, SingleLinkList *slle)
-      : data_(c), next_(slle->first()) {}
+std::ostringstream &operator<<(std::ostringstream &out,
+                               const SingleLinkList &sll);
 
-  // Why doesn't this work?
-  // friend size_t SingleLinkList::Length() const;
-  friend class SingleLinkList;
-
-private:
-  char data_;
-  SingleLinkListElem *next_;
+struct SingleLinkListElem {
+  SingleLinkListElem(char c) : data(c), next(nullptr) {}
+  SingleLinkListElem(char c, SingleLinkList *sll)
+      : data(c), next(sll->First()) {}
+  SingleLinkListElem(const SingleLinkListElem &e) = delete;
+  SingleLinkListElem(SingleLinkListElem &&e) = default;
+  char data;
+  std::unique_ptr<SingleLinkListElem> next;
 };
 
 } // namespace slist

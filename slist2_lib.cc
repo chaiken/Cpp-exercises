@@ -10,99 +10,90 @@ using namespace std;
 namespace slist {
 
 SingleLinkList::SingleLinkList(const char *s) {
-  h_ = 0;
-  const size_t len = strlen(s);
-  assert(len > 0u);
-  int i = static_cast<int>(len);
-  while (i > 0) {
-    Prepend(s[i - 1]);
-    i--;
+  size_t ctr = strlen(s);
+  while (ctr > 0) {
+    Prepend(s[ctr - 1]);
+    ctr--;
   }
 }
 
 size_t SingleLinkList::Length() const {
   size_t ans = 0u;
-  SingleLinkListElem *elem = h_;
+  SingleLinkListElem *elem = First();
   while (0 != elem) {
-    // Friend class accesses private data.
-    elem = elem->next_;
+    elem = elem->next.get();
     ans++;
   }
   return ans;
 }
 
 void SingleLinkList::Prepend(char c) {
-  SingleLinkListElem *temp = new SingleLinkListElem(c, this);
-  assert(0 != temp);
-  h_ = temp;
+  std::unique_ptr<SingleLinkListElem> temp(new SingleLinkListElem(c));
+  temp->next = move(h_);
+  h_ = move(temp);
+}
+
+ostringstream &operator<<(ostringstream &out, const SingleLinkList &sll) {
+  SingleLinkListElem *temp = sll.First();
+  while (temp != 0) {
+    out << temp->data << " -> ";
+    temp = temp->next.get();
+  }
+  out << string("0\n###");
+  return out;
 }
 
 void SingleLinkList::Delete() {
   if (0 == h_) {
     return;
   }
-  SingleLinkListElem *temp = h_;
-  h_ = h_->next_;
-  delete temp;
-}
-
-void SingleLinkList::Print() const {
-  SingleLinkListElem *temp = h_;
-  while (temp != 0) {
-    cout << temp->data_ << " -> ";
-    temp = temp->next_;
-  }
-  cout << "0\n###" << endl;
-}
-
-void SingleLinkList::Release() {
-  while (h_ != 0) {
-    Delete();
-  }
+  unique_ptr<SingleLinkListElem> temp = move(h_);
+  h_ = move(temp->next);
+  temp.reset();
 }
 
 unsigned SingleLinkList::Count(char c) const {
   unsigned count = 0u;
-  SingleLinkListElem *elem = h_;
+  SingleLinkListElem *elem = First();
   while (0 != elem) {
-    if (c == elem->data_) {
+    if (c == elem->data) {
       count++;
     }
-    elem = elem->next_;
+    elem = elem->next.get();
   }
   return count;
 }
 
-SingleLinkListElem *SingleLinkList::Tail() const {
+SingleLinkListElem *SingleLinkList::Last() const {
   // Without this check, we dereference NULL in the loop's test.
   if (0 == h_) {
-    return h_;
+    return nullptr;
   }
-  SingleLinkListElem *elem = h_;
-  while (0 != elem->next_) {
-    elem = elem->next_;
+  SingleLinkListElem *elem = h_.get();
+  while (0 != elem->next) {
+    elem = elem->next.get();
   }
   return elem;
 }
 
 void SingleLinkList::Append(SingleLinkList &sll) {
-  SingleLinkListElem *elem = Tail();
-  while (0 != sll.first()) {
-    SingleLinkListElem *newelem = new SingleLinkListElem(sll.first()->data_);
-    assert(0 != newelem);
+  SingleLinkListElem *elem = Last();
+  // If the list to be appended is not empty.
+  if (0 != sll.First()) {
+    unique_ptr<SingleLinkListElem> newelem =
+        make_unique<SingleLinkListElem>(sll.First()->data);
+    newelem->next = move(sll.First()->next);
+    // If the appended-to list is not empty.
     if (0 != elem) {
-      elem->next_ = newelem;
+      elem->next = move(newelem);
     } else {
-      h_ = newelem;
+      h_ = std::move(newelem);
     }
-    elem = newelem;
-    elem->next_ = 0;
-    sll.Delete();
   }
 }
 
 char SingleLinkList::Pop() {
-  char c = first()->data_;
+  char c = First()->data;
   Delete();
   return c;
 }

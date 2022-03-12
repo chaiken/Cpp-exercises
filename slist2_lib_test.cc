@@ -5,6 +5,20 @@
 using namespace std;
 using namespace slist;
 
+TEST(SingleLinkListTest, StringConstructorWorks) {
+  SingleLinkList sll("abc");
+  ostringstream out;
+  out << sll;
+  cout << out.str() << endl;
+  EXPECT_NE(string::npos, out.str().find("a -> b -> c -> 0\n###"));
+  ASSERT_EQ('a', sll.Pop());
+}
+
+TEST(SingleLinkListTest, LengthWorks) {
+  SingleLinkList sll("abc");
+  ASSERT_EQ(3u, sll.Length());
+}
+
 TEST(SingleLinkListTest, PopWorks) {
   SingleLinkList sll("abc");
   ASSERT_EQ(3u, sll.Length());
@@ -12,23 +26,13 @@ TEST(SingleLinkListTest, PopWorks) {
   ASSERT_EQ(2u, sll.Length());
 }
 
-TEST(SingleLinkListTest, StringConstructorWorks) {
-  SingleLinkList sll("abc");
-  sll.Print();
-  ASSERT_EQ('a', sll.Pop());
-}
-
 TEST(SingleLinkListTest, PrependWorks) {
   SingleLinkList s1;
   s1.Prepend('a');
   s1.Prepend('b');
-  ASSERT_EQ('b', s1.Pop());
-  ASSERT_EQ('a', s1.Pop());
-}
-
-TEST(SingleLinkListTest, LengthWorks) {
-  SingleLinkList sll("abc");
-  ASSERT_EQ(3u, sll.Length());
+  EXPECT_EQ('a', s1.Last()->data);
+  EXPECT_EQ('b', s1.Pop());
+  EXPECT_EQ('a', s1.Pop());
 }
 
 TEST(SingleLinkListTest, EmptyListHasZeroLength) {
@@ -45,11 +49,6 @@ TEST(SingleLinkListTest, DeleteWorks) {
   EXPECT_TRUE(sll2.empty());
   sll2.Delete();
   EXPECT_TRUE(sll2.empty());
-}
-
-TEST(SingleLinkListTest, EmptyStringHasZeroLength) {
-  SingleLinkList sll;
-  ASSERT_EQ(0u, sll.Length());
 }
 
 TEST(SingleLinkListTest, CountWorks) {
@@ -74,7 +73,8 @@ TEST(SingleLinkListTest, AppendWorks) {
   unsigned sum = sll1.Length() + sll2.Length();
   sll1.Append(sll2);
   ASSERT_EQ(sum, sll1.Length());
-  ASSERT_EQ('a', sll1.Pop());
+  EXPECT_EQ('a', sll1.Pop());
+  EXPECT_EQ('f', sll1.Last()->data);
 }
 
 TEST(SingleLinkListTest, EmptyAppendHasNoEffect) {
@@ -85,17 +85,10 @@ TEST(SingleLinkListTest, EmptyAppendHasNoEffect) {
   ASSERT_EQ(len, sll1.Length());
 }
 
-TEST(SingleLinkListTest, AppendToEmptyListIsCopyConstructor) {
+TEST(SingleLinkListTest, AppendToEmptyList) {
   SingleLinkList sll1("abc");
   SingleLinkList sll2;
   sll2.Append(sll1);
   ASSERT_EQ(3u, sll2.Length());
   ASSERT_EQ('a', sll2.Pop());
 }
-
-// Cannot think of any way to test without accessing private data.
-// Therefore, change Tail() to be a private function.
-// TEST(SingleLinkListTest, TailWorks) {
-//  SingleLinkList sll("abc");
-//  ASSERT_EQ('c', sll.Tail().Pop());
-//}
