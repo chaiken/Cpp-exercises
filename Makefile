@@ -189,6 +189,7 @@ one_index_vector_lib_test-valgrind: one_index_vector.h  one_index_vector_lib_tes
 	$(CC) $(CXXFLAGS-NOSANITIZE) $(LDFLAGS-NOSANITIZE) one_index_vector_lib_test.cc $(GTESTLIBS) -o $@
 one_index_vector_lib_test-coverage: one_index_vector.h one_index_vector_lib_test.cc
 	$(CC) $(CXXFLAGS-NOSANITIZE) $(COVERAGE_EXTRA_FLAGS) $(LDFLAGS-NOSANITIZE) one_index_vector_lib_test.cc $(GTESTLIBS) -o $@
+	run_lcov.sh $@
 
 override_vs_overload_main: override_vs_overload.h override_vs_overload_main.cc
 	$(CC) $(CXXFLAGS) $(LDFLAGS) override_vs_overload_main.cc -o $@

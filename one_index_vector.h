@@ -1,7 +1,6 @@
 #ifndef ONE_INDEX_VECTOR_H
 #define ONE_INDEX_VECTOR_H
 
-#include <cassert>
 #include <climits>
 
 #include <iostream>
@@ -9,8 +8,7 @@
 
 namespace one_index_vector {
 
-template <typename T> class OneIndexVector : public ::std::vector<T> {
-public:
+template <typename T> struct OneIndexVector : public ::std::vector<T> {
   // Storage allocation is performed by the base class, so none is needed here.
   OneIndexVector() : std::vector<T>() {}
   OneIndexVector(size_t n) : std::vector<T>(n) {}
@@ -24,7 +22,6 @@ public:
   OneIndexVector(::std::vector<T> &&vec);
   OneIndexVector(const ::std::vector<T> &vec) = delete;
   OneIndexVector &operator=(std::vector<T> &&vec);
-  ~OneIndexVector() {}
 
   // ULONG_MAX is what std::vector::size() returns for a default-constructed
   // vector.
@@ -32,14 +29,22 @@ public:
     return ((0 == std::vector<T>::size()) ||
             (ULONG_MAX == std::vector<T>::size()));
   }
+
+  // Return an error indication or the expected value in a pair.
+  std::pair<bool, T &> make_result(bool b, T &res, size_t idx = 0) {
+    if (!b) {
+      std::cerr << "Index " << idx << " out of range." << std::endl;
+      return std::pair<bool, T &>(false, res);
+    }
+    return std::pair<bool, T &>(true, res);
+  }
   // Only the member functions that know about indices need to be overridden.
   // std:vector's element access functions work for indices 0 to size()-1.
-  T &at(size_t n) {
+  std::pair<bool, T &> at(size_t n) {
     if ((n < 1u) || (n > std::vector<T>::size())) {
-      std::cerr << "Index " << n << " out of range." << std::endl;
-      assert_perror(EINVAL);
+      return make_result(false, *(std::vector<T>::end()), n);
     }
-    return std::vector<T>::at(n - 1);
+    return make_result(true, std::vector<T>::at(n - 1));
   }
   // https://en.cppreference.com/w/cpp/language/override
   // clang-format off
@@ -54,26 +59,23 @@ public:
    */
   // clang-format on
 
-  const T &at(size_t n) const {
+  std::pair<bool, const T &> at(size_t n) const {
     if ((n < 1u) || (n > std::vector<T>::size())) {
-      std::cerr << "Index " << n << " out of range." << std::endl;
-      assert_perror(EINVAL);
+      return make_result(false, *(std::vector<T>::end()), n);
     }
-    return std::vector<T>::at(n - 1);
+    return make_result(true, std::vector<T>::at(n - 1));
   }
-  T &operator[](size_t n) {
+  std::pair<bool, T &> operator[](size_t n) {
     if ((n < 1u) || (n > std::vector<T>::size())) {
-      std::cerr << "Index " << n << " out of range." << std::endl;
-      assert_perror(EINVAL);
+      return make_result(false, *(std::vector<T>::end()), n);
     }
-    return std::vector<T>::operator[](n - 1);
+    return make_result(true, std::vector<T>::operator[](n - 1));
   }
-  const T &operator[](size_t n) const {
+  std::pair<bool, const T &> operator[](size_t n) const {
     if ((n < 1u) || (n > std::vector<T>::size())) {
-      std::cerr << "Index " << n << " out of range." << std::endl;
-      assert_perror(EINVAL);
+      return make_result(false, *(std::vector<T>::end()), n);
     }
-    return std::vector<T>::operator[](n - 1);
+    return make_result(true, std::vector<T>::operator[](n - 1));
   }
 };
 
