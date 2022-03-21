@@ -1,37 +1,38 @@
 #include <iostream>
+#include <memory>
 #include <sstream>
 
 namespace slist {
 
 struct slistelem {
+  slistelem(const char ch) : data(ch) {}
+
   char data;
-  slistelem *next;
+  std::unique_ptr<slistelem> next;
 };
 
 class SingleLinkList {
 public:
-  SingleLinkList() : h_(0) {}
   SingleLinkList(const char *s);
-  ~SingleLinkList() { Release(); }
+  SingleLinkList(const SingleLinkList &s) = delete;
+  SingleLinkList(SingleLinkList &&s) = default;
   size_t Length() const;
   void Prepend(char c);
   void Delete();
-  slistelem *first() const { return h_; }
+  slistelem *first() const { return h_.get(); }
   friend std::ostream &operator<<(std::ostream &out, const SingleLinkList &sll);
   void Print(slistelem *cursor) const;
-  void Release();
-  unsigned Count(char c) const;
+  size_t Count(char c) const;
   slistelem *Tail() const;
   void Append(SingleLinkList &&sll);
   // Stack interface
-  void reset() { Release(); }
   void push(char c) { Prepend(c); }
   char Pop();
   char top_of() { return first()->data; }
-  bool empty() { return (h_ == 0); }
+  bool empty() { return (!h_); }
 
 private:
-  slistelem *h_;
+  std::unique_ptr<slistelem> h_;
 };
 
 std::ostream &operator<<(std::ostream &out, const SingleLinkList &sll);

@@ -11,21 +11,23 @@ TEST(SingleLinkListTest, StringConstructorWorks) {
   ASSERT_EQ('a', sll.first()->data);
 }
 
-TEST(SingleLinkListDeathTest, EmptyString) {
-  EXPECT_EXIT(SingleLinkList(""), testing::KilledBySignal(SIGABRT),
-              "Provide at least one character to create a list.");
+TEST(SingleLinkListTest, EmptyString) {
+  SingleLinkList sll("");
+  ASSERT_TRUE(sll.empty());
 }
 
 // Make sure that deleting an empty list has no effect rather than triggering an
 // error.
 TEST(SingleLinkListTest, DeleteEmptyList) {
   SingleLinkList sll("a");
+  ASSERT_FALSE(sll.empty());
   sll.Pop();
+  ASSERT_TRUE(sll.empty());
   sll.Delete();
 }
 
 TEST(SingleLinkListTest, PrependWorks) {
-  SingleLinkList s1;
+  SingleLinkList s1{""};
   s1.Prepend('a');
   s1.Prepend('b');
   ASSERT_EQ('b', s1.first()->data);
@@ -45,7 +47,7 @@ TEST(SingleLinkListTest, DeleteWorks) {
 }
 
 TEST(SingleLinkListTest, EmptyStringHasZeroLength) {
-  SingleLinkList sll;
+  SingleLinkList sll{""};
   ASSERT_EQ(0u, sll.Length());
 }
 
@@ -61,34 +63,34 @@ TEST(SingleLinkListTest, CountWorks) {
 }
 
 TEST(SingleLinkListTest, EmpyStringHasCountZero) {
-  SingleLinkList sll;
+  SingleLinkList sll{""};
   ASSERT_EQ(0u, sll.Count('g'));
 }
 
 TEST(SingleLinkListTest, TailWorks) {
   SingleLinkList sll("abc");
   ASSERT_EQ('c', sll.Tail()->data);
-  ASSERT_EQ(0, sll.Tail()->next);
+  ASSERT_EQ(nullptr, sll.Tail()->next);
 }
 
 TEST(SingleLinkListTest, AppendWorks) {
   SingleLinkList sll1("abc");
   SingleLinkList sll2("def");
-  unsigned sum = sll1.Length() + sll2.Length();
+  size_t sum = sll1.Length() + sll2.Length();
   sll1.Append(move(sll2));
   ASSERT_EQ(sum, sll1.Length());
   ASSERT_EQ('f', sll1.Tail()->data);
   ASSERT_EQ('a', sll1.first()->data);
 }
 
-TEST(SingleLinkListDeathTest, AppendEmpty) {
+TEST(SingleLinkListTest, AppendEmpty) {
   SingleLinkList sll("def");
   SingleLinkList sll1("def");
   while (!sll.empty()) {
-    sll.Pop();
+    sll.Delete();
   }
-  EXPECT_EXIT(sll1.Append(move(sll)), testing::KilledBySignal(SIGABRT),
-              "Will not append zero-length string.\n");
+  sll1.Append(move(sll));
+  EXPECT_EQ(3u, sll1.Length());
 }
 
 TEST(SingleLinkListTest, PopWorks) {

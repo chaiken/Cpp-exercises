@@ -1,7 +1,6 @@
 
 #include "slist.h"
 
-#include <cassert>
 #include <cstring>
 #include <iostream>
 
@@ -10,30 +9,28 @@ using namespace std;
 namespace slist {
 
 SingleLinkList::SingleLinkList(const char *s) {
-  h_ = 0;
   size_t len = strlen(s);
   if (0u == len) {
     cerr << "Provide at least one character to create a list." << endl;
-    assert_perror(EINVAL);
-  }
-  int i = static_cast<int>(len);
-  while (i > 0) {
-    slistelem *elem = new slistelem;
-    elem->data = s[i - 1];
-    elem->next = h_;
-    h_ = elem;
-    i--;
+  } else {
+    int i = static_cast<int>(len);
+    while (i > 0) {
+      unique_ptr<slistelem> elem{(new slistelem(s[i - 1]))};
+      elem->next = move(h_);
+      h_ = move(elem);
+      i--;
+    }
   }
 }
 
-unsigned SingleLinkList::Count(char c) const {
+size_t SingleLinkList::Count(char c) const {
   slistelem *cursor = first();
-  unsigned result = 0u;
-  while (cursor != 0) {
+  size_t result = 0u;
+  while (cursor) {
     if (c == cursor->data) {
       result++;
     }
-    cursor = cursor->next;
+    cursor = cursor->next.get();
   }
   return result;
 }
@@ -41,65 +38,55 @@ unsigned SingleLinkList::Count(char c) const {
 size_t SingleLinkList::Length() const {
   size_t len = 0u;
   slistelem *cursor = first();
-  while (cursor != 0) {
+  while (cursor) {
     len++;
-    cursor = cursor->next;
+    cursor = cursor->next.get();
   }
   return len;
 }
 
 void SingleLinkList::Prepend(char c) {
-  slistelem *temp = new slistelem;
-  assert(temp != 0);
-  temp->next = h_;
-  temp->data = c;
-  h_ = temp;
+  unique_ptr<slistelem> temp{new slistelem(c)};
+  temp->next = move(h_);
+  h_ = move(temp);
 }
 
 slistelem *SingleLinkList::Tail() const {
-  slistelem *save = 0, *tail = h_;
-  while (0 != tail) {
+  slistelem *save, *tail = h_.get();
+  while (tail) {
     save = tail;
-    tail = tail->next;
+    tail = tail->next.get();
   }
   return save;
 }
 
 void SingleLinkList::Append(SingleLinkList &&sll) {
-  if (0u == sll.Length()) {
-    cerr << "Will not append zero-length string." << endl;
-    assert_perror(EINVAL);
+  if (sll.empty()) {
+    return;
   }
   slistelem *tail = Tail();
-  while (0 != sll.first()) {
-    // Copy the appended list's data.
-    slistelem *elem = new slistelem;
-    assert(0 != elem);
-    elem->data = sll.first()->data;
-    // Done with this element.
+  while (sll.first()) {
+    unique_ptr<slistelem> elem{new slistelem(sll.first()->data)};
     sll.Delete();
-    // Place the new element at the end of this list.
-    tail->next = elem;
-    elem->next = 0;
-    // The end of this list is now the new element.
-    tail = elem;
+    tail->next = move(elem);
+    tail = tail->next.get();
   }
 }
 
 void SingleLinkList::Delete() {
-  if (0 == h_) {
+  if (!h_) {
     return;
   }
-  slistelem *temp = h_;
-  h_ = h_->next;
-  delete temp;
+  unique_ptr<slistelem> temp = move(h_);
+  h_ = move(temp->next);
+  temp.reset();
 }
 
 ostream &operator<<(ostream &out, const SingleLinkList &sll) {
-  slistelem *temp = sll.first();
-  while (temp != 0) {
-    out << temp->data << " -> ";
-    temp = temp->next;
+  slistelem *cursor = sll.first();
+  while (cursor) {
+    out << cursor->data << " -> ";
+    cursor = cursor->next.get();
   }
   out << "0" << endl;
   return out;
@@ -109,18 +96,12 @@ ostream &operator<<(ostream &out, const SingleLinkList &sll) {
 // Not possible to make this function an extraction operator since it does not
 // need an object parameter and cannot return an ostream reference.
 void SingleLinkList::Print(slistelem *cursor) const {
-  if (0 == cursor) {
+  if (!cursor) {
     cout << "0" << endl;
     return;
   }
   cout << cursor->data << " -> ";
-  Print(cursor->next);
-}
-
-void SingleLinkList::Release() {
-  while (h_ != 0) {
-    Delete();
-  }
+  Print(cursor->next.get());
 }
 
 // Stack interface
