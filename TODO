@@ -8,12 +8,14 @@
 
 4. Try microbenchmarking tools (https://www.bfilipek.com/2016/01/micro-benchmarking-libraries-for-c.html)
 
-5. Migrate ACCU- and BPF-related code to a new Github repo (done).
+5. Migrate ACCU- and BPF-related code to a new Github repo (Status: done).
 
-6. Get rid of operator new in favor of RAII.
+6. Get rid of operator new in favor of RAII. (Status: done except for two exceptions.  One is count_number_of_Aa.cc, which is someone else's code.  The other is reference_count_string, where the whole point of the exercise was implement essentially std::shared_ptr behavior with std::shared_ptr.)
 
-7. Replace raw pointers with smart pointers.
+7. Replace raw pointers with smart pointers. (Status: done, except as noted in item 6.)
 
-8. After getting rid of operator new, check all tests for memory leaks with valgrind.
+8. After getting rid of operator new, check all tests for memory leaks with valgrind.  (Status: done.)
 
 9. Make move() constructors standards-compliant; avoid undefined behavior.
+
+10. Add a makedeps facility to the Makefile so that any change to headers (notably gtest.h) will trigger recompilation.
