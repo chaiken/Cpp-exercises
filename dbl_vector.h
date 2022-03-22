@@ -73,10 +73,9 @@ public:
   double &Iterate();
   int ub() const { return (size_ - 1); }
   double SumElements() const;
-  DoubleVector Add(const DoubleVector &);
   double DotProduct(const DoubleVector &v) const;
   double Amplitude() const;
-  void Scale(const double scale);
+  DoubleVector operator*(const double scale);
   double &operator[](int i);
   double *begin() const { return &p_[0]; }
   // http://www.cplusplus.com/reference/iterator/end/

@@ -30,16 +30,9 @@ TEST_F(DoubleVectorTest, AmplitudeWorks) {
   ASSERT_EQ(sqrt(val), a.Amplitude());
 }
 
-TEST_F(DoubleVectorTest, ScaleWorks) {
-  b.Scale(4.0);
-  ASSERT_EQ(a.SumElements(), b.SumElements());
-}
-
-TEST_F(DoubleVectorTest, AddWorks) {
-  int sum = a.SumElements() + b.SumElements();
-  DoubleVector c(std::move(b));
-  DoubleVector d = c.Add(a);
-  ASSERT_EQ(sum, d.SumElements());
+TEST_F(DoubleVectorTest, MultiplicationWorks) {
+  DoubleVector c{b * 4.0};
+  ASSERT_EQ(a.SumElements(), c.SumElements());
 }
 
 TEST_F(DoubleVectorTest, SubscriptWorks) {
@@ -103,16 +96,6 @@ TEST(DoubleVectorSimpleTest, CArrayConstructorWorks) {
   double vec[] = {0, 10, 20, 30, 40};
   DoubleVector b(vec, 5);
   ASSERT_EQ(100, b.SumElements());
-}
-
-TEST(DoubleVectorSimpleTest, AddWorks) {
-  DoubleVector a({0, 1, 2, 3, 4}), b({0, -1, -2, -3, -4});
-  ASSERT_EQ(10, a.SumElements());
-  ASSERT_EQ(-10, b.SumElements());
-  DoubleVector c(std::move(b.Add(a)));
-  ASSERT_EQ(4, c.ub());
-  ASSERT_EQ(0, Max(c));
-  ASSERT_EQ(0, c.SumElements());
 }
 
 // Initializing c and then assigning its value to the return value of SumVectors

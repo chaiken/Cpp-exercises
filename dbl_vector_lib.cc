@@ -69,24 +69,14 @@ double DoubleVector::Amplitude() const {
   return sqrt(sum);
 }
 
-void DoubleVector::Scale(const double scale) {
+DoubleVector DoubleVector::operator*(const double scale) {
   int i = 0;
+  vector<double> output;
   while (i <= ub()) {
-    p_[i] *= scale;
+    output.push_back(p_[i] * scale);
     i++;
   }
-  return;
-}
-
-DoubleVector DoubleVector::Add(const DoubleVector &a) {
-#ifdef DEBUG
-  assert(ub() == a.ub());
-#endif
-  vector<double> sum;
-  for (int i = 0; i <= ub(); i++) {
-    sum.push_back(p_[i] + a.p_[i]);
-  }
-  return sum;
+  return output;
 }
 
 double &DoubleVector::operator[](int i) {
@@ -120,7 +110,7 @@ DoubleVector SumVectors(DoubleVector &&a, DoubleVector &&b) {
 #ifdef DEBUG
   assert(a.ub() == b.ub());
 #endif
-  DoubleVector c(a.Add(b));
+  DoubleVector c(a + b);
   return c;
 }
 
