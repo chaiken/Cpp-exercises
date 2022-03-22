@@ -4,31 +4,36 @@
 using namespace std;
 
 unsigned gcd(unsigned a, unsigned b) {
-  unsigned lesser = (a < b) ? a : b;
-  unsigned greater = (a > b) ? a : b;
-  unsigned r = 1;
+  unsigned divisor = (a < b) ? a : b;
+  unsigned dividend = (a > b) ? a : b;
+  unsigned remainder = 1;
 
-  while (lesser > 0) {
-    r = greater % lesser;
-    if (r)
-      lesser = r;
-    else
+  while (divisor > 1) {
+    remainder = dividend % divisor;
+    if (remainder) {
+      dividend = divisor;
+      divisor = remainder;
+      gcd(divisor, dividend);
+    } else {
       break;
+    }
   }
-  return lesser;
+  return divisor;
 }
 
 unsigned gcd2(unsigned a, unsigned b) {
-  unsigned lesser = (a < b) ? a : b;
-  unsigned greater = (a > b) ? a : b;
-  unsigned r = 1;
+  unsigned divisor = (a < b) ? a : b;
+  unsigned dividend = (a > b) ? a : b;
+  unsigned remainder = 1;
 
-  while (lesser > 0) {
-    r = greater % lesser;
-    if (r)
-      lesser = r;
-    else
+  while (divisor > 0) {
+    remainder = dividend % divisor;
+    if (remainder) {
+      dividend = divisor;
+      divisor = remainder;
+    } else {
       break;
+    }
   }
-  return lesser;
+  return divisor;
 }
