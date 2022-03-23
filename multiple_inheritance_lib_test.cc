@@ -10,7 +10,7 @@ using namespace std;
 namespace people_roles {
 namespace local_testing {
 
-constexpr char TESTDIR[] = "/home/alison/gitsrc/Cpp-Exercises/test_files/";
+constexpr char TESTDIR[] = "/home/alison/gitsrc/Cpp-exercises/test_files/";
 
 const struct person_details ad(1948, 5, 28, "Jane", "Alsop", "Leadville CO",
                                "F");
