@@ -31,6 +31,8 @@ CXXFLAGS-NOSANITIZE= -std=c++17 -pthread -ggdb -Wall -Wextra -Werror -g -O0 -fno
 # Set Google Test's header directory as a system directory, such that
 # the compiler doesn't generate warnings in Google Test headers.
 CPPFLAGS += -isystem $(GTEST_DIR)/include
+# https://developers.redhat.com/blog/2020/03/26/static-analysis-in-gcc-10#what_are_the_new_warnings_
+#CPPFLAGS += -fanalyzer -fdiagnostics-path-format=separate-events
 USDT_FLAGS= -I$(USDT_HEADERS)
 
 LDFLAGS= -ggdb -g -fsanitize=address -L$(GTESTLIBPATH)
@@ -43,6 +45,7 @@ THREADFLAGS= -D_REENTRANT -lpthread
 DEADCODESTRIP := -Wl,-static -fvtable-gc -fdata-sections -ffunction-sections -Wl,--gc-sections -Wl,-s
 # gcc and clang won't automatically link .cc files against the standard library.
 CC=/usr/bin/g++
+#CC=/usr/local/bin/g++
 #CC=/usr/bin/clang
 LIBWR=-Llibwr -lwr
 

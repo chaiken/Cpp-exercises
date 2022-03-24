@@ -4,7 +4,7 @@
 
 2. Create a Makefile target that runs all the tests. (Status: done)
 
-3. Analyze source with clang-tidy and/or "gcc -fanalyzer" (https://linuxplumbersconf.org/event/7/contributions/721/)
+3. Analyze source with clang-tidy and/or "gcc -fanalyzer" (https://linuxplumbersconf.org/event/7/contributions/721/).   As of 3/22, "gcc -fanalyzer" is unusably buggy with C++; see https://gcc.gnu.org/bugzilla/showdependencytree.cgi?id=97110.
 
 4. Try microbenchmarking tools (https://www.bfilipek.com/2016/01/micro-benchmarking-libraries-for-c.html)
 
