@@ -142,7 +142,7 @@ slist_main: slist_main.cc slist_lib.cc slist.h
 # causes both .cc's and .o's to be included in the link list, triggering ODR failures.
 # Listing the headers as prerequisites means that the target will be recompiled if the
 # header are changed.
-matrix_lib_test-coverage matrix_lib_test-valgrind matrix_lib_test: dbl_vector.h dbl_vector_lib.cc
+matrix_lib_test-coverage matrix_lib_test-valgrind matrix_lib_test-clangtidy matrix_lib_test: dbl_vector.h dbl_vector_lib.cc
 
 matrix_lib_test_debug: matrix_lib.cc matrix_lib_test.cc matrix.h dbl_vector.h dbl_vector_lib.cc $(GTEST_HEADERS)
 	$(CXX) $(CXXFLAGS) -DDEBUG $(LDFLAGS) -lm matrix_lib.cc matrix_lib_test.cc dbl_vector_lib.cc  $(GTESTLIBS) -o $@
@@ -150,12 +150,12 @@ matrix_lib_test_debug: matrix_lib.cc matrix_lib_test.cc matrix.h dbl_vector.h db
 term_vector_lib.o: term_vector_lib.cc term_vector.h term_lib.cc term.h
 	$(CXX) $(CXXFLAGS)  $(LDFLAGS) $^ $(GTESTLIBS) -o $@
 
-polynomial_lib_test-coverage polynomial_lib_test-valgrind polynomial_lib_test: term_lib.cc term_vector_lib.cc term.h  term_vector.h
+polynomial_lib_test-coverage polynomial_lib_test-valgrind polynomial_lib_test-clangtidy polynomial_lib_test: term_lib.cc term_vector_lib.cc term.h  term_vector.h
 
 polynomial_lib_test_debug: polynomial_lib.cc polynomial_lib_test.cc polynomial.h term_lib.cc term_vector_lib.cc term.h term_vector.h $(GTEST_HEADERS)
 	$(CXX) $(CXXFLAGS) -DDEBUG $(LDFLAGS) polynomial_lib.cc polynomial_lib_test.cc term_lib.cc term_vector_lib.cc  $(GTESTLIBS) -o $@
 
-complex_vector_lib_test-coverage complex_vector_lib_test-valgrind complex_vector_lib_test: complex_lib.o complex_vector.h complex.h
+complex_vector_lib_test-coverage complex_vector_lib_test-valgrind complex_vector_lib_test-clangtidy complex_vector_lib_test: complex_lib.cc complex_vector.h complex.h
 
 reference_count_string_timer-valgrind reference_count_string_timer: reference_count_string_timer.cc reference_count_string_lib.cc reference_count_string.h $(GTESTLIBS)
 
@@ -169,6 +169,7 @@ reference_count_string_timer_debug: reference_count_string_timer.cc reference_co
 
 # Since the generic pattern rule for template_%_lib_test include %_lib_test.o
 # and template_%.h, listing them here violates the ODR.
+template_stack_lib_test-clangtidy: complex_lib.cc complex.h
 template_stack_lib_test-coverage template_stack_lib_test-valgrind template_stack_lib_test: complex_lib.cc complex.h $(GTESTLIBS)
 
 # Needs a static rule due to CONSTSIZE
