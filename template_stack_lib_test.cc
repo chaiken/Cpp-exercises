@@ -46,7 +46,8 @@ TEST(CharStackTest, DefaultCtorTest) {
 }
 
 TEST(CharStackTest, RValRefArrayCtorTest) {
-  TemplateStack<char> charstack2({'a', 'b', 'c', 'd', 'e'}, 5);
+  char arr[5]{'a', 'b', 'c', 'd', 'e'};
+  TemplateStack<char> charstack2(arr, 5);
   ostringstream out;
   out << charstack2;
   EXPECT_EQ("e, d, c, b, a", out.str());
@@ -61,13 +62,14 @@ TEST(CharStackTest, RValRefArrayCtorTest) {
     i--;
   }
   EXPECT_TRUE(charstack2.empty());
-  TemplateStack<char> charstack3({'a', 'b', 'c', 'd', 'e'}, 5);
+  TemplateStack<char> charstack3(arr, 5);
   charstack3.reset();
   EXPECT_TRUE(charstack3.empty());
 }
 
 TEST(CharStackTest, MoveCtorTest) {
-  TemplateStack<char> charstack2({'a', 'b', 'c', 'd', 'e'}, 5);
+  char arr[5]{'a', 'b', 'c', 'd', 'e'};
+  TemplateStack<char> charstack2(arr, 5);
   TemplateStack<char> charstack3(move(charstack2));
   int i = 4;
   while (!charstack3.empty()) {
@@ -98,12 +100,14 @@ TEST(StringStackTest, ReverseTest) {
 // (gdb) p charstack4
 // $2 = {max_len_ = 0x5, top_ = 0x4, data_ = 0x5555555db600 "abcdeU"}
 TEST(CharStackTest, MoveAssignment) {
-  TemplateStack<char> charstack2({'a', 'b', 'c', 'd', 'e'}, 5);
-  TemplateStack<char> charstack3({'a', 'b', 'c', 'd', 'e'}, 5);
+  char arr[5]{'a', 'b', 'c', 'd', 'e'};
+  TemplateStack<char> charstack2(arr, 5);
+  TemplateStack<char> charstack3(arr, 5);
   // This initialization is a work-around for the Most Vexing Parse, which
   // TemplateStack<char> charstack4();
   // triggers.   There appears to be no way to call the default constructor.
-  TemplateStack<char> charstack4({'f', 'f', 'f', 'f', 'f'}, 5);
+  char arr2[5]{'f', 'f', 'f', 'f', 'f'};
+  TemplateStack<char> charstack4(arr2, 5);
   EXPECT_NE(charstack4.top_of(), charstack3.top_of());
   EXPECT_NE(charstack4[0], charstack3[0]);
   charstack4 = move(charstack2);
