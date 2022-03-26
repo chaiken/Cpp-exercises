@@ -296,22 +296,23 @@ TEST_F(PolynomialTest, EqualityEmptyTest) {
 }
 
 TEST_F(PolynomialTest, EqualityTestOneTerm) {
-  const Term aterm(1, 1.0);
+  const Term aterm(3, 3.0);
   Polynomial another(aterm);
+  EXPECT_NE(testpoly, another);
+  EXPECT_NE(another, testpoly);
   // Should implicitly call the term ctor of Polynomial.
   EXPECT_NE(testpoly, aterm);
-  EXPECT_NE(testpoly, another);
 }
 
 TEST_F(PolynomialTest, EqualityTestOneShorter) {
-  std::array<int, 2> expon2 = {1, 2};
-  std::array<double, 2> coeffs2 = {1.0, 2.0};
+  std::array<int, 2> expon2 = {3, 2};
+  std::array<double, 2> coeffs2 = {3.0, 2.0};
   Polynomial another(coeffs2, expon2);
   EXPECT_NE(testpoly, another);
-  std::array<int, 2> expon3 = {2, 3};
-  std::array<double, 2> coeffs3 = {2.0, 3.0};
+  std::array<int, 8> expon3 = {2, 3, 4, 5, 6, 7, 8, 9};
+  std::array<double, 8> coeffs3 = {2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0};
   Polynomial yetanother(coeffs3, expon3);
-  EXPECT_NE(testpoly, yetanother);
+  EXPECT_NE(yetanother, testpoly);
 }
 
 TEST_F(PolynomialTest, EqualityTestEqualLength) {

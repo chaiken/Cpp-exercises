@@ -231,6 +231,16 @@ bool operator==(const Polynomial &a, const Polynomial &b) {
     if ((!ap) && (!bp)) {
       return true;
     }
+    // Following lines placate clang-tidy without NOLINTNEXTLINE, but they are
+    // unreachable. The reason is that (*(a.h_.get()) == *(b.h_.get())) calls
+    // Term's operator==(), which checks equality of term->next pointers.  If
+    // both pointers are NULL, the function has already returned. If only one is
+    // NULL, then the equality check is false, and code does not enter the loop
+    // where ap and bp are defined.
+    //    if ((!ap) || (!bp)) {
+    //      return false;
+    //    }
+    // NOLINTNEXTLINE(clang-analyzer-core.NonNullParamChecker)
     while (*ap == *bp) {
       ap = ap->next.get();
       bp = bp->next.get();
@@ -238,6 +248,9 @@ bool operator==(const Polynomial &a, const Polynomial &b) {
       if ((!ap) && (!bp)) {
         return true;
       }
+      // if ((!ap) || (!bp)) {
+      //  return false;
+      // }
     }
   }
   return false;
