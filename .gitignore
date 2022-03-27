@@ -43,3 +43,5 @@
 *.css
 *.pdf
 *.txt
+
+.gdb_history
