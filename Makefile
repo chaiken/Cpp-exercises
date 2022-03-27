@@ -53,11 +53,14 @@ LIBWR=-Llibwr -lwr
 #  file, so the template_%_impl.h header must be explicited included in the
 # compilation.  It needs the template_%.h file which includes it in order to
 # compile.
-template_%_lib_test:  template_%_lib_test.o template_%.h $(GTESTHEADERS)
+template_%_lib_test:  template_%_lib_test.cc template_%.h $(GTESTHEADERS)
 	$(CXX) $(CXXFLAGS)  $(LDFLAGS) $^ $(GTESTLIBS) -o $@
 
+#%_lib_test:  %_lib_test.cc %_lib.cc %.h $(GTESTHEADERS)
+#	$(CXX) $(CXXFLAGS)  $(LDFLAGS) $^ $(GTESTLIBS) -o $@
+
 # Compile tests without template class or functions.
-%_test:  %.o %_test.o  $(GTESTHEADERS)
+%_test:  %.cc %_test.cc  $(GTESTHEADERS)
 	$(CXX) $(CXXFLAGS)  $(LDFLAGS) $^ $(GTESTLIBS) -o $@
 
 # “–coverage” is a synonym for-fprofile-arcs, -ftest-coverage(compiling) and
@@ -71,7 +74,7 @@ COVERAGE_EXTRA_FLAGS = --coverage
 
 template_%_lib_test-coverage: CXXFLAGS = $(CXXFLAGS-NOSANITIZE) $(COVERAGE_EXTRA_FLAGS)
 template_%_lib_test-coverage: LDFLAGS = $(LDFLAGS-NOSANITIZE)
-template_%_lib_test-coverage:  template_%_lib_test.o template_%.h $(GTESTHEADERS)
+template_%_lib_test-coverage:  template_%_lib_test.cc template_%.h $(GTESTHEADERS)
 	$(CXX) $(CXXFLAGS)  $(LDFLAGS) $^ $(GTESTLIBS) -o $@
 	run_lcov.sh $@
 
@@ -86,41 +89,42 @@ template_%_lib_test-coverage:  template_%_lib_test.o template_%.h $(GTESTHEADERS
 # pattern-specific variable value for each pattern individually."
 %_test-valgrind template_%_lib_test-valgrind : CXXFLAGS = $(CXXFLAGS-NOSANITIZE) -O0
 %_test-valgrind template_%_lib_test-valgrind :  LDFLAGS = $(LDFLAGS-NOSANITIZE)
-%_test-valgrind: %_test.o %.o $(GTESTHEADERS)
+%_test-valgrind: %_test.cc %.cc $(GTESTHEADERS)
 	$(CXX) $(CXXFLAGS-NOSANITIZE) $(LDFLAGS-NOSANITIZE) $^ $(GTESTLIBS) -o $@
 
-template_%_lib_test-valgrind: template_%_lib_test.o template_%.h $(GTESTHEADERS)
+template_%_lib_test-valgrind: template_%_lib_test.cc template_%.h $(GTESTHEADERS)
 	$(CXX) $(CXXFLAGS-NOSANITIZE) $(LDFLAGS-NOSANITIZE) $^ $(GTESTLIBS) -o $@
 
 # https://clang.llvm.org/extra/clang-tidy/
 # https://stackoverflow.com/questions/47583057/configure-clang-check-for-c-standard-libraries
 # Without "-x c++", .h files are considered as C.
 # Without header_filter, gtest.h is analyzed.
+CLANG_TIDY_BINARY=/usr/bin/clang-tidy
 CLANG_TIDY_OPTIONS=--warnings-as-errors --header_filter=.*
 CLANG_TIDY_CLANG_OPTIONS=-std=c++17 -x c++ -I ~/gitsrc/googletest/googletest/include/
 CLANG_TIDY_CHECKS=bugprone,core,cplusplus,cppcoreguidelines,deadcode,modernize,performance,readability,security,unix,apiModeling.StdCLibraryFunctions,apiModeling.google.GTest
 
 # Has matching lib.cc file.
 %_lib_test-clangtidy: %_lib_test.cc %_lib.cc %.h
-	clang-tidy $(CLANG_TIDY_OPTIONS) -checks=$(CLANG_TIDY_CHECKS) $^ -- $(CLANG_TIDY_CLANG_OPTIONS)
+	$(CLANG_TIDY_BINARY) $(CLANG_TIDY_OPTIONS) -checks=$(CLANG_TIDY_CHECKS) $^ -- $(CLANG_TIDY_CLANG_OPTIONS)
 
 # No lib.cc file.
 %_lib_test-clangtidy: %_lib_test.cc %.h
-	clang-tidy $(CLANG_TIDY_OPTIONS) -checks=$(CLANG_TIDY_CHECKS) $^ -- $(CLANG_TIDY_CLANG_OPTIONS)
+	$(CLANG_TIDY_BINARY) $(CLANG_TIDY_OPTIONS) -checks=$(CLANG_TIDY_CHECKS) $^ -- $(CLANG_TIDY_CLANG_OPTIONS)
 
 # Has matching lib.cc file.
 template_%_lib_test-clangtidy: template_%_lib.cc template_%_lib_test.cc template_%.h
-	clang-tidy $(CLANG_TIDY_OPTIONS) -checks=$(CLANG_TIDY_CHECKS) $^ -- $(CLANG_TIDY_CLANG_OPTIONS)
+	$(CLANG_TIDY_BINARY) $(CLANG_TIDY_OPTIONS) -checks=$(CLANG_TIDY_CHECKS) $^ -- $(CLANG_TIDY_CLANG_OPTIONS)
 
 # No lib.cc file.
 template_%_lib_test-clangtidy: template_%_lib_test.cc template_%.h
-	clang-tidy $(CLANG_TIDY_OPTIONS) -checks=$(CLANG_TIDY_CHECKS) $^ -- $(CLANG_TIDY_CLANG_OPTIONS)
+	$(CLANG_TIDY_BINARY) $(CLANG_TIDY_OPTIONS) -checks=$(CLANG_TIDY_CHECKS) $^ -- $(CLANG_TIDY_CLANG_OPTIONS)
 
 #binaries without tests
 calc_num_digits: calc_num_digits.cc
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) calc_num_digits.cc -lm -o $@
 
-libcalcfuncs: num_digits.o num_digits.h
+libcalcfuncs: num_digits.cc num_digits.h
 	ar rvs libcalcfuncs.a num_digits.o
 
 gcd: gcd.cc gcd_lib.cc gcd_lib.h
@@ -167,7 +171,7 @@ reference_count_string_timer_debug: reference_count_string_timer.cc reference_co
 #generic_stack_lib_test: generic_stack_lib.cc generic_stack.h generic_stack_lib_test.cc $(GTEST_HEADERS)
 #      $(CXX) $(CXXFLAGS) $(LDFLAGS) generic_stack_lib.cc generic_stack_lib_test.cc  $(GTESTLIBS) -o $@
 
-# Since the generic pattern rule for template_%_lib_test include %_lib_test.o
+# Since the generic pattern rule for template_%_lib_test include %_lib_test.cc
 # and template_%.h, listing them here violates the ODR.
 template_stack_lib_test-clangtidy: complex_lib.cc complex.h
 template_stack_lib_test-coverage template_stack_lib_test-valgrind template_stack_lib_test: complex_lib.cc complex.h $(GTESTLIBS)
@@ -179,18 +183,24 @@ const_template_stack_lib_test-valgrind: const_template_stack_lib_test.cc complex
 	$(CXX) $(CXXFLAGS-NOSANITIZE) $(LDFLAGS-NOSANITIZE) const_template_stack_lib_test.cc -DCONSTSIZE=20 $(GTESTLIBS) -o $@
 const_template_stack_lib_test-coverage: const_template_stack_lib_test.cc complex_lib.cc template_stack.h complex.h $(GTESTLIBS)
 	$(CXX) $(CXXFLAGS-NOSANITIZE) $(COVERAGE_EXTRA_FLAGS) $(LDFLAGS-NOSANITIZE) const_template_stack_lib_test.cc -DCONSTSIZE=20 $(GTESTLIBS) -o $@
+const_template_stack_lib_test-clangtidy: const_template_stack_lib_test.cc complex_lib.cc template_stack.h complex.h
+	$(CLANG_TIDY_BINARY) $(CLANG_TIDY_OPTIONS) -checks=$(CLANG_TIDY_CHECKS) $^ -- $(CLANG_TIDY_CLANG_OPTIONS)  -DCONSTSIZE=20
 
 macro-vs-template: macro-vs-template.cc macro-vs-template.h complex_lib.cc complex.h
 	$(CXX) $(CXXFLAGS-NOTEST) $(LDFLAGS-NOTEST) macro-vs-template.cc complex_lib.cc -o $@
 
 template_cycle_lib_test-coverage template_cycle_lib_test-valgrind template_cycle_lib_test: polynomial_lib.cc polynomial.h term_lib.cc term.h term_vector_lib.cc term_vector.h $(GTESTLIBS)
+template_cycle_lib_test-clangtidy: polynomial_lib.cc polynomial.h term_lib.cc term.h term_vector_lib.cc term_vector.h
 
 template_rotate_lib_test-coverage template_rotate_lib_test-valgrind template_rotate_lib_test: complex.h complex_lib.cc $(GTESTLIBS)
+template_rotate_lib_test-clangtidy: complex.h complex_lib.cc
 
 template_vector_lib_test-coverage template_vector_lib_test-valgrind template_vector_lib_test: complex.h complex_lib.cc polynomial.h  polynomial_lib.cc term.h term_vector.h term_lib.cc term_vector_lib.cc $(GTESTLIBS)
+template_vector_lib_test-clangtidy: complex.h complex_lib.cc polynomial.h  polynomial_lib.cc term.h term_vector.h term_lib.cc term_vector_lib.cc
 
 template_vector_lib_test_debug: template_vector.h template_vector_lib_test.cc complex.h complex_lib.cc polynomial.h polynomial_lib.cc term.h term_vector.h term_lib.cc term_vector_lib.cc  $(GTEST_HEADERS)
 	$(CXX) $(CXXFLAGS) -DDEBUG="DEBUG" $(LDFLAGS) template_vector_lib_test.cc complex_lib.cc polynomial_lib.cc term_lib.cc term_vector_lib.cc $(GTESTLIBS) -o $@
+template_vector_lib_test-clangtidy: template_vector.h term.h term_vector.h term_lib.cc term_vector_lib.cc template_vector_main.cc
 
 template_vector_main: template_vector.h term.h term_vector.h term_lib.cc term_vector_lib.cc template_vector_main.cc
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) template_vector_main.cc term_lib.cc term_vector_lib.cc -o $@
@@ -198,19 +208,21 @@ template_vector_main: template_vector.h term.h term_vector.h term_lib.cc term_ve
 # template_%_lib.cc is not a prerequisite of the generic template_%_lib_test
 # rule, so adding it here is not an ODR violation.
 template_list_lib_test-coverage template_list_lib_test-valgrind template_list_lib_test: template_list_lib.cc complex.h complex_lib.cc $(GTESTLIBS)
+template_list_lib_test-clangtidy: template_list_lib.cc complex.h complex_lib.cc
 
-# Test name does not match template_%_test pattern.
+# Test name does not match template_%_test pattern but has no %_lib.cc file.
 reverse_list_lib_test: reverse_list.h reverse_list_lib_test.cc
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) reverse_list_lib_test.cc $(GTESTLIBS) -o $@
 reverse_list_lib_test-valgrind: reverse_list.h reverse_list_lib_test.cc
 	$(CXX) $(CXXFLAGS-NOSANITIZE) $(LDFLAGS-NOSANITIZE) reverse_list_lib_test.cc $(GTESTLIBS) -o $@
 reverse_list_lib_test-coverage:
 	$(CXX) $(CXXFLAGS-NOSANITIZE) $(COVERAGE_EXTRA_FLAGS) $(LDFLAGS-NOSANITIZE) reverse_list_lib_test.cc $(GTESTLIBS) -o $@
+reverse_list_lib_test-clangtidy: reverse_list.h reverse_list_lib_test.cc
 
 inheritance_casting_main: student_inheritance.h student_inheritance_lib.cc inheritance_casting_main.cc
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) student_inheritance_lib.cc inheritance_casting_main.cc -o $@
 
-# Test name does not match template_%_test pattern.
+# Test name does not match template_%_test pattern but has no %_lib.cc file.
 one_index_vector_lib_test: one_index_vector.h one_index_vector_lib_test.cc
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) one_index_vector_lib_test.cc $(GTESTLIBS) -o $@
 one_index_vector_lib_test-valgrind: one_index_vector.h  one_index_vector_lib_test.cc
@@ -218,11 +230,12 @@ one_index_vector_lib_test-valgrind: one_index_vector.h  one_index_vector_lib_tes
 one_index_vector_lib_test-coverage: one_index_vector.h one_index_vector_lib_test.cc
 	$(CXX) $(CXXFLAGS-NOSANITIZE) $(COVERAGE_EXTRA_FLAGS) $(LDFLAGS-NOSANITIZE) one_index_vector_lib_test.cc $(GTESTLIBS) -o $@
 	run_lcov.sh $@
+one_index_vector_lib_test-clang-tidy: one_index_vector.h one_index_vector_lib_test.cc
 
 override_vs_overload_main: override_vs_overload.h override_vs_overload_main.cc
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) override_vs_overload_main.cc -o $@
 
-multiple_inheritance_lib_test-coverage multiple_inheritance_lib_test-valgrind multiple_inheritance_lib_test: student_inheritance.h student_inheritance_lib.cc
+multiple_inheritance_lib_test-clangtidy multiple_inheritance_lib_test-coverage multiple_inheritance_lib_test-valgrind multiple_inheritance_lib_test: student_inheritance.h student_inheritance_lib.cc
 
 # Test name does not match template_%_test pattern.
 array_size_deduction_test: array_size_deduction_test.cc
@@ -231,6 +244,7 @@ array_size_deduction_test-valgrind: array_size_deduction_test.cc
 	$(CXX) $(CXXFLAGS-NOSANITIZE) $(LDFLAGS-NOSANITIZE)  array_size_deduction_test.cc $(GTESTLIBS) -o $@
 array_size_deduction_test-coverage: array_size_deduction_test.cc
 	$(CXX) $(CXXFLAGS-NOSANITIZE) $(COVERAGE_EXTRA_FLAGS) $(LDFLAGS-NOSANITIZE)  array_size_deduction_test.cc $(GTESTLIBS) -o $@
+array_size_deduction_test-clangtidy: array_size_deduction_test.cc
 
 BINARY_LIST = calc_num_digits gcd gcd_lib_test reverse_char_stack_lib_test dyn_string_lib_test dyn_string notqsort notqsort_lib_test dbl_vector_lib_test slist_main slist_lib_test slist2_lib_test matrix_lib_test matrix_lib_test_debug term_lib_test polynomial_lib_test polynomial_lib_test_debug reference_count_string_lib_test rational_lib_test complex_lib_test complex_vector_lib_test reference_count_string_timer reference_count_string_timer_debug smarter_stack_lib_test smarter_queue_lib_test smarter_list_lib_test new_clock_lib_test template_stack_lib_test const_template_stack_lib_test macro-vs-template template_cycle_lib_test template_rotate_lib_test template_vector_lib_test template_vector_lib_test_debug template_vector_main template_list_lib_test template_largest_lib_test template_integrate_lib_test reverse_list_lib_test student_inheritance_lib_test one_index_vector_lib_test override_vs_overload_main multiple_inheritance_lib_test array_size_deduction_test address-of-function-parameter
 
@@ -287,5 +301,6 @@ valgrind_all:
 	make clean
 	valgrind_all_tests.sh $(TEST_LIST)
 
-clang_tidy_all:
-	CLANG_TIDY_OUTPUT=clang-tidy-output.txt
+clang-tidy_all:
+	make clean
+	clang-tidy_all.sh $(TEST_LIST)
