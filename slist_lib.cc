@@ -52,7 +52,7 @@ void SingleLinkList::Prepend(char c) {
 }
 
 slistelem *SingleLinkList::Tail() const {
-  slistelem *save, *tail = h_.get();
+  slistelem *save = nullptr, *tail = h_.get();
   while (tail) {
     save = tail;
     tail = tail->next.get();

@@ -1,6 +1,6 @@
-using namespace std;
-
 #include "notqsort.h"
+
+using namespace std;
 
 namespace not_qsort {
 

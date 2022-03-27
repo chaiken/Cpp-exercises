@@ -127,7 +127,7 @@ calc_num_digits: calc_num_digits.cc
 libcalcfuncs: num_digits.cc num_digits.h
 	ar rvs libcalcfuncs.a num_digits.o
 
-gcd: gcd.cc gcd_lib.cc gcd_lib.h
+gcd: gcd.cc gcd_lib.cc gcd.h
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) gcd.cc gcd_lib.cc -o $@
 
 dyn_string: dyn_string_lib.cc dyn_string.h dyn_string.cc
@@ -138,9 +138,6 @@ notqsort: notqsort.cc notqsort_lib.cc notqsort.h
 
 #dbl_vector_time: dbl_vector_lib.cc dbl_vector_time.cc dbl_vector.h
 #	$(CXX) $(CXXFLAGS) $(LDFLAGS) dbl_vector_lib.cc dbl_vector_time.cc -o $@
-
-slist_main: slist_main.cc slist_lib.cc slist.h
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) slist_main.cc slist_lib.cc -o $@
 
 # Including matrix_lib.cc and matrix_lib_test.cc rather than the corresponding .o files
 # causes both .cc's and .o's to be included in the link list, triggering ODR failures.
@@ -162,6 +159,9 @@ polynomial_lib_test_debug: polynomial_lib.cc polynomial_lib_test.cc polynomial.h
 complex_vector_lib_test-coverage complex_vector_lib_test-valgrind complex_vector_lib_test-clangtidy complex_vector_lib_test: complex_lib.cc complex_vector.h complex.h
 
 reference_count_string_timer-valgrind reference_count_string_timer: reference_count_string_timer.cc reference_count_string_lib.cc reference_count_string.h $(GTESTLIBS)
+
+reference_count_string_lib_test_debug: reference_count_string_lib_test.cc reference_count_string_lib.cc reference_count_string.h $(GTESTLIBS)
+	$(CXX) $(CXXFLAGS-NOSANITIZE)  -DDEBUG="DEBUG"  $(LDFLAGS-NOSANITIZE) reference_count_string_lib_test.cc reference_count_string_lib.cc reference_count_string.h  $(GTESTLIBS) -o $@
 
 # make DEBUG=DEBUG reference_count_string_timer for verbosity
 reference_count_string_timer_debug: reference_count_string_timer.cc reference_count_string_lib.cc reference_count_string.h
@@ -246,7 +246,7 @@ array_size_deduction_test-coverage: array_size_deduction_test.cc
 	$(CXX) $(CXXFLAGS-NOSANITIZE) $(COVERAGE_EXTRA_FLAGS) $(LDFLAGS-NOSANITIZE)  array_size_deduction_test.cc $(GTESTLIBS) -o $@
 array_size_deduction_test-clangtidy: array_size_deduction_test.cc
 
-BINARY_LIST = calc_num_digits gcd gcd_lib_test reverse_char_stack_lib_test dyn_string_lib_test dyn_string notqsort notqsort_lib_test dbl_vector_lib_test slist_main slist_lib_test slist2_lib_test matrix_lib_test matrix_lib_test_debug term_lib_test polynomial_lib_test polynomial_lib_test_debug reference_count_string_lib_test rational_lib_test complex_lib_test complex_vector_lib_test reference_count_string_timer reference_count_string_timer_debug smarter_stack_lib_test smarter_queue_lib_test smarter_list_lib_test new_clock_lib_test template_stack_lib_test const_template_stack_lib_test macro-vs-template template_cycle_lib_test template_rotate_lib_test template_vector_lib_test template_vector_lib_test_debug template_vector_main template_list_lib_test template_largest_lib_test template_integrate_lib_test reverse_list_lib_test student_inheritance_lib_test one_index_vector_lib_test override_vs_overload_main multiple_inheritance_lib_test array_size_deduction_test address-of-function-parameter
+BINARY_LIST = calc_num_digits gcd gcd_lib_test reverse_char_stack_lib_test dyn_string_lib_test dyn_string notqsort notqsort_lib_test dbl_vector_lib_test slist_lib_test slist2_lib_test matrix_lib_test matrix_lib_test_debug term_lib_test polynomial_lib_test polynomial_lib_test_debug reference_count_string_lib_test rational_lib_test complex_lib_test complex_vector_lib_test reference_count_string_timer reference_count_string_timer_debug smarter_stack_lib_test smarter_queue_lib_test smarter_list_lib_test new_clock_lib_test template_stack_lib_test const_template_stack_lib_test macro-vs-template template_cycle_lib_test template_rotate_lib_test template_vector_lib_test template_vector_lib_test_debug template_vector_main template_list_lib_test template_largest_lib_test template_integrate_lib_test reverse_list_lib_test student_inheritance_lib_test one_index_vector_lib_test override_vs_overload_main multiple_inheritance_lib_test array_size_deduction_test address-of-function-parameter
 
 # Same list as above, but with main binaries and _debug targets removed.
 # Removed const_template_stack_lib_test.

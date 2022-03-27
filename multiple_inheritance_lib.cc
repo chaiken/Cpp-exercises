@@ -205,6 +205,12 @@ void PrintList(const std::list<std::shared_ptr<Person>> &pl) {
   }
   // tn cannot be empty after this cal, as on errors typeid() will throw an
   // exception.
+  // clang-format off
+  // clang-tidy complains
+  // warning: expression with side effects will be evaluated despite being used as an operand to 'typeid' [clang-diagnostic-potentially-evaluated-expression]
+  // The warning seems daft: reading the first element from a const list has "side effects"?
+  // clang-format off
+  // NOLINTNEXTLINE
   std::string tn = typeid(*(pl.front().get())).name();
   std::cout << std::endl << "List of " << tn << std::endl;
   for (auto x : pl) {

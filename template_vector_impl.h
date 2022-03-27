@@ -1,3 +1,4 @@
+#include <climits>
 #include <exception>
 #include <iostream>
 #include <stdexcept>
@@ -13,6 +14,10 @@ template <typename T> TemplateVector<T>::TemplateVector(int n) : size_(n) {
     throw length_error{"TemplateVector default constructor: illegal size"};
   }
   p_ = unique_ptr<T[]>(new T[n]);
+  // Prevent valgrind from complaining about uninitialized memory.
+  for (int i = 0; i < n; i++) {
+    p_[i] = INT_MAX;
+  }
 }
 
 // First size_t is size of array paramter arr; second is size of the copy,

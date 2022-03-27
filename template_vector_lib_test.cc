@@ -47,7 +47,7 @@ TEST(TemplateVectorTest, ElementAccessOperator) {
   vector<double> vec1{{-3.0, -2.0, -1.0}};
   TemplateVector<double> tv1(vec1);
   int i = 0;
-  for (auto x : vec1) {
+  for (double x : vec1) {
     tv1[i++] = x;
   }
   ASSERT_THROW(tv1[-1], out_of_range);
@@ -91,9 +91,20 @@ TEST(TemplateVectorTest, ArrayCtor) {
 
 TEST(TemplateVectorTest, IllegalSubset) {
   const int anarray[] = {1, 2, 3};
-  TemplateVector tv(anarray, 3, 3);
+  TemplateVector<int> tv(anarray, 3, 3);
   int i = 0;
-  for (auto it = tv.begin(); it != tv.end(); it++, i++) {
+  // clang-format off
+  // clang-tidy asserts
+  // warning: The right operand of '==' is a garbage value  [clang-analyzer-core.UndefinedBinaryOperatorResult]
+  // /home/alison/gitsrc/Cpp-Exercises/template_vector_lib_test.cc:103:55: note: Assuming the condition is true
+  // clang-format on
+  // Why does clang-tidy flag this loop rather the many other identical ones in
+  // this file?
+  // Apparently the problem is the comparison with the end() value.
+  // clang-tidy doesn't like for (auto x : tv) any better.
+  // NOLINTNEXTLINE (clang-analyzer-core.UndefinedBinaryOperatorResult)
+  for (TemplateVector<int>::iterator it = tv.begin(); it != tv.end();
+       it++, i++) {
     EXPECT_EQ(*it, anarray[i]);
   }
   ASSERT_THROW(TemplateVector<int>(anarray, 3, 0), length_error);
@@ -128,12 +139,14 @@ TEST(TemplateVectorTest, MoveCtor) {
        tvit++, i++) {
     EXPECT_EQ(carr[i], *tvit);
   }
-  EXPECT_EQ(-1, tv.ub());
   vector<double> dv;
   TemplateVector<double> tv3(dv);
   TemplateVector<double> tv4(move(tv3));
-  EXPECT_EQ(-1, tv3.ub());
-  EXPECT_EQ(-1, tv4.ub());
+  i = 0;
+  for (TemplateVector<double>::iterator tvit2 = tv4.begin(); tvit2 != tv4.end();
+       tvit2++, i++) {
+    EXPECT_EQ(dv[i], *tvit2);
+  }
 }
 
 TEST(TemplateVectorTest, MoveAssignment) {

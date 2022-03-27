@@ -111,7 +111,6 @@ TEST(SingleLinkListTest, RecursivePrint) {
   ostringstream strCout;
   // Save stdout's default buffer pointer.
   streambuf *sbuf = cout.rdbuf();
-  sbuf = cout.rdbuf();
   cout.rdbuf(strCout.rdbuf());
   SingleLinkList sll("abc");
   sll.Print(sll.first());

@@ -45,7 +45,7 @@ private:
   //::std::function<T(T)> *fn_;
   // template_integrate_lib_test.cc:48:12: error: cannot convert ‘double
   // (*)(double)’ to ‘std::function<double(double)>*’ T *fn_(T);
-  integrated_func *fn_;
+  integrated_func *fn_ = nullptr;
 };
 
 template <typename T> T do_integrate(const ::std::vector<T> &acont) {

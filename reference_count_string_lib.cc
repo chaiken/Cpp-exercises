@@ -34,6 +34,14 @@ void Swap(CountedString &str1, CountedString &str2) {
   str2 = tmp;
 }
 
+// clang-format off
+// valgrind complains
+// Conditional jump or move depends on uninitialised value(s)
+// strcmp (vg_replace_strmem.c:847)
+// reference_counted_string::CountedString::operator==(reference_counted_string::CountedString const&) const (reference_count_string_lib.cc:38)
+// clang-format on
+// The origin of the error turned out to be that StringObject(int n) did not
+// initialize memory.
 bool CountedString::operator==(const CountedString &str1) const {
   return (0 == strcmp(str_->s_, str1.str_->s_));
 }

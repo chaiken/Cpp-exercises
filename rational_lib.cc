@@ -23,7 +23,7 @@ int min_absv(int i, int j) {
 
 int GCD(int i, int j) {
   if ((0 == i) || (0 == j)) {
-    return 0;
+    return 1;
   }
   if (i == j) {
     return i;

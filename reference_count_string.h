@@ -6,25 +6,21 @@
 namespace reference_counted_string {
 
 // The ctor increments ref_cnt_, but the dtor does not decrement it.
-class StringObject {
-public:
-  StringObject() : len_(0), ref_cnt_(1) {
-    s_ = new char[1];
+struct StringObject {
+  StringObject() : len_(0), ref_cnt_(1), s_(new char[1]) {
     assert(s_ != 0);
-    s_[0] = 0;
+    s_[0] = '\0';
   }
-  StringObject(int n) : len_(n), ref_cnt_(1) {
-    s_ = new char[len_ + 1];
-    for (int i = 0; i <= n; i++) {
-      s_[i] = '\0';
-    }
+  StringObject(int n) : len_(n), ref_cnt_(1), s_(new char[len_ + 1]) {
     assert(s_ != 0);
+    s_[0] = '\0';
   }
-  StringObject(const char *p) : ref_cnt_(1) {
-    len_ = strlen(p);
-    s_ = new char[len_ + 1];
+  StringObject(const char *p)
+      : len_(strlen(p)), ref_cnt_(1), s_(new char[len_ + 1]) {
     assert(s_ != 0);
-    strcpy(s_, p);
+    strncpy(s_, p, len_);
+    s_[len_] = '\0';
+    std::cout << s_ << std::endl;
   }
   ~StringObject() {
 #ifdef DEBUG
@@ -101,7 +97,7 @@ public:
   friend void operator<<(std::ostream &out, const CountedString &cs);
 
 private:
-  StringObject *str_;
+  StringObject *str_ = nullptr;
 };
 
 void operator<<(std::ostream &out, const CountedString &cs);
