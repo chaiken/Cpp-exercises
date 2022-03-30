@@ -13,13 +13,15 @@ namespace local_testing {
 
 TEST(ReverseCharStackTest, StringConstructor) {
   CharStack stack(kTestString);
-  EXPECT_EQ(".gnol ylbanosaernu toN", pop_all(stack));
+  pair<string, result> res{pop_all(stack)};
+  EXPECT_EQ(result::kSuccess, res.second);
+  EXPECT_EQ(".gnol ylbanosaernu toN", res.first);
 }
 
 TEST(ReverseCharStackTest, CopyConstructor) {
   CharStack stack1(kTestString);
   CharStack stack2(stack1);
-  EXPECT_EQ(".gnol ylbanosaernu toN", pop_all(stack2));
+  EXPECT_EQ(".gnol ylbanosaernu toN", pop_all(stack2).first);
 }
 
 TEST(ReverseCharStackTest, Reset) {
@@ -31,46 +33,41 @@ TEST(ReverseCharStackTest, Reset) {
 
 TEST(ReverseCharStackTest, PushMultiple) {
   CharStack stack;
-  stack.PushMultiple(kTestString.length(), kTestString.c_str());
-  EXPECT_EQ(".gnol ylbanosaernu toN", pop_all(stack));
+  result res = stack.PushMultiple(kTestString.length(), kTestString.c_str());
+  EXPECT_EQ(result::kSuccess, res);
+  EXPECT_EQ(".gnol ylbanosaernu toN", pop_all(stack).first);
 }
 
-TEST(ReverseCharStackDeathTest, PushFull) {
+TEST(ReverseCharStackTest, PushFull) {
   int i = 0;
   CharStack stack;
   while (i++ <= kFull) {
     stack.Push('a');
   }
-  EXPECT_EXIT(stack.Push('a'), testing::KilledBySignal(SIGABRT),
-              "Unexpected error: Value too large for defined data type.");
+  EXPECT_EQ(result::kFailure, stack.Push('a'));
 }
 
-TEST(ReverseCharStackDeathTest, PushTooFew) {
+TEST(ReverseCharStackTest, PushTooFew) {
   CharStack stack;
   const char str[2] = "a";
-  EXPECT_EXIT(stack.PushMultiple(100, str), testing::KilledBySignal(SIGABRT),
-              "provided string 'a' is too short.");
+  EXPECT_EQ(result::kFailure, stack.PushMultiple(100, str));
 }
 
-TEST(ReverseCharStackDeathTest, PushTooMany) {
+TEST(ReverseCharStackTest, PushTooMany) {
   CharStack stack;
   string too_long = kTestString + kTestString + kTestString;
-  EXPECT_EXIT(stack.PushMultiple(100, too_long.c_str()),
-              testing::KilledBySignal(SIGABRT),
-              "Unexpected error: No message of desired type.");
+  EXPECT_EQ(result::kFailure, stack.PushMultiple(100, too_long.c_str()));
 }
 
-TEST(ReverseCharStackDeathTest, PopEmpty) {
+TEST(ReverseCharStackTest, PopEmpty) {
   CharStack stack;
-  EXPECT_EXIT(stack.Pop(), testing::KilledBySignal(SIGABRT),
-              "Unexpected error: No data available.");
+  EXPECT_EQ(result::kFailure, stack.Pop().second);
 }
 
-TEST(ReverseCharStackDeathTest, PopTooMany) {
+TEST(ReverseCharStackTest, PopTooMany) {
   CharStack stack(kTestString);
   char out[5];
-  EXPECT_EXIT(stack.PopMultiple(100, out), testing::KilledBySignal(SIGABRT),
-              "Unexpected error: No message of desired type.");
+  EXPECT_EQ(result::kFailure, stack.PopMultiple(100, out));
 }
 
 TEST(ReverseCharStackTest, ExtractionOperator) {
@@ -91,7 +88,7 @@ TEST(ReverseCharStackTest, EmptyStack) {
   // Apparently a rdbuf() call operator makes this version work?
   cout.rdbuf(strCout.rdbuf());
   CharStack st;
-  st.Reverse();
+  EXPECT_EQ(result::kSuccess, st.Reverse());
   // error: lvalue required as left operand of assignment
   // cout.rdbuf() = oldCoutStreamBuf;
   cout.rdbuf(oldCoutStreamBuf);
@@ -101,17 +98,19 @@ TEST(ReverseCharStackTest, EmptyStack) {
 
 TEST(ReverseCharStackTest, BasicReversal) {
   CharStack stack(kTestString);
-  stack.Reverse();
-  EXPECT_EQ(kTestString, pop_all(stack));
+  EXPECT_EQ(result::kSuccess, stack.Reverse());
+  pair<string, result> res = pop_all(stack);
+  EXPECT_EQ(result::kSuccess, res.second);
+  EXPECT_EQ(kTestString, res.first);
 }
 
 TEST(ReverseCharStackTest, PopMultiple) {
   CharStack stack(kTestString);
-  stack.Reverse();
+  EXPECT_EQ(result::kSuccess, stack.Reverse());
 
-  char str[50];
-  stack.PopMultiple(6u, str);
-  str[7] = '\0';
+  char str[8] = {'\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0'};
+  EXPECT_EQ(result::kSuccess, stack.PopMultiple(6u, str));
+  EXPECT_EQ(6u, strlen(str));
 
   const string &str2 = kTestString.substr(0, 6);
   EXPECT_EQ(0, strcmp(str2.c_str(), str));
