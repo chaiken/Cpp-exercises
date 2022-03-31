@@ -25,7 +25,7 @@ public:
   Matrix(int d1, int d2, std::vector<double> &inputs, int offset = 0);
   Matrix(const Matrix &a, transform t);
   // square sub-matrix constructor
-  Matrix(const Matrix &a, ::std::vector<int> rows, ::std::vector<int> cols);
+  Matrix(const Matrix &a, std::vector<int> rows, std::vector<int> cols);
   Matrix(const Matrix &m) = delete;
   Matrix(Matrix &&m) = default;
   int numrows() const { return size1_; }
@@ -65,7 +65,7 @@ public:
   double &predecessor();
   void reset();
   double &item();
-  friend ::std::ostream &operator<<(::std::ostream &out, const Matrix &a);
+  friend std::ostream &operator<<(std::ostream &out, const Matrix &a);
 
 private:
   int RowIndex(int offset = 0);
@@ -82,11 +82,12 @@ double Trace(const Matrix &a);
 // The characteristic polynomial is the sum of terms consisting of the diagonal
 // elements of the matrix minus lambda times the subdeterminant that multiples
 // that element.
-::std::array<::std::complex<double>, 2>
-GetQuadraticRoots(const ::std::vector<double> coeffs);
-::std::vector<double> GetCharacteristicPolynomialCoefficients(const Matrix &a);
-double Determinant(const Matrix &a, double sum);
-::std::ostream &operator<<(::std::ostream &out, const Matrix &a);
+std::array<std::complex<double>, 2>
+GetQuadraticRoots(const std::vector<double> coeffs);
+std::pair<std::vector<double>, bool>
+GetCharacteristicPolynomialCoefficients(const Matrix &a);
+std::pair<double, bool> Determinant(const Matrix &a, double sum);
+std::ostream &operator<<(std::ostream &out, const Matrix &a);
 double Max(Matrix &m);
 
 // https://stackoverflow.com/questions/16718166/friend-function-declaration-definition-inside-a-namespace

@@ -453,7 +453,9 @@ TEST(MatrixLibSimpleTest, TrivialDeterminantTest) {
 #ifdef DEBUG
   cout << tensor2;
 #endif
-  ASSERT_EQ(-2, Determinant(tensor2, 0.0));
+  pair<double, bool> res = Determinant(tensor2, 0.0);
+  ASSERT_EQ(true, res.second);
+  EXPECT_EQ(-2, res.first);
 }
 
 TEST(MatrixLibSimpleTest, TrivialDeterminantTestOffset) {
@@ -465,7 +467,16 @@ TEST(MatrixLibSimpleTest, TrivialDeterminantTestOffset) {
 #ifdef DEBUG
   cout << tensor2;
 #endif
-  ASSERT_EQ(-2, Determinant(tensor2, 0.0));
+  pair<double, bool> res = Determinant(tensor2, 0.0);
+  ASSERT_EQ(true, res.second);
+  EXPECT_EQ(-2, res.first);
+}
+
+TEST_F(MatrixLibTest, DeterminantEmptyMatrix) {
+  Matrix tensor(0, 0, 0);
+  pair<double, bool> res = Determinant(tensor, 0.0);
+  ASSERT_EQ(true, res.second);
+  EXPECT_EQ(1, res.first);
 }
 
 TEST_F(MatrixLibTest, DeterminantTest) {
@@ -473,7 +484,9 @@ TEST_F(MatrixLibTest, DeterminantTest) {
 #ifdef DEBUG
   cout << tensor2;
 #endif
-  ASSERT_EQ(0, Determinant(tensor2, 0.0));
+  pair<double, bool> res = Determinant(tensor2, 0.0);
+  ASSERT_EQ(true, res.second);
+  EXPECT_EQ(0, res.first);
 }
 
 TEST_F(MatrixLibTest, DeterminantTestOffset) {
@@ -481,7 +494,9 @@ TEST_F(MatrixLibTest, DeterminantTestOffset) {
 #ifdef DEBUG
   cout << tensor2;
 #endif
-  ASSERT_EQ(0, Determinant(tensor2, 0.0));
+  pair<double, bool> res = Determinant(tensor2, 0.0);
+  ASSERT_EQ(true, res.second);
+  EXPECT_EQ(0, res.first);
 }
 
 TEST(MatrixLibSimpleTest, NonZeroDeterminantTest) {
@@ -497,9 +512,13 @@ TEST(MatrixLibSimpleTest, NonZeroDeterminantTest) {
 #ifdef DEBUG
   cout << tensor;
 #endif
-  EXPECT_EQ(144, Determinant(tensor, 0.0));
+  pair<double, bool> res = Determinant(tensor, 0.0);
+  ASSERT_EQ(true, res.second);
+  EXPECT_EQ(144, res.first);
   Matrix tensor2(tensor, transpose);
-  EXPECT_EQ(144, Determinant(tensor2, 0.0));
+  res = Determinant(tensor2, 0.0);
+  ASSERT_EQ(true, res.second);
+  EXPECT_EQ(144, res.first);
 }
 
 TEST(MatrixLibSimpleTest, NonZeroDeterminantTestOffset) {
@@ -515,9 +534,13 @@ TEST(MatrixLibSimpleTest, NonZeroDeterminantTestOffset) {
 #ifdef DEBUG
   cout << tensor;
 #endif
-  EXPECT_EQ(144, Determinant(tensor, 0.0));
+  pair<double, bool> res = Determinant(tensor, 0.0);
+  ASSERT_EQ(true, res.second);
+  EXPECT_EQ(144, res.first);
   Matrix tensor2(tensor, transpose);
-  EXPECT_EQ(144, Determinant(tensor2, 0.0));
+  res = Determinant(tensor2, 0.0);
+  ASSERT_EQ(true, res.second);
+  EXPECT_EQ(144, res.first);
 }
 
 // https://en.wikipedia.org/wiki/Eigenvalues_and_eigenvectors#Two-dimensional_matrix_example
@@ -537,10 +560,12 @@ TEST(MatrixLibSimpleTest, TrivialCharacteristicPolynomialTest) {
 #ifdef DEBUG
   cout << tensor2;
 #endif
-  vector<double> coeffs = GetCharacteristicPolynomialCoefficients(tensor2);
-  ASSERT_EQ(1, coeffs.at(0));
-  ASSERT_EQ(-4, coeffs.at(1));
-  ASSERT_EQ(3, coeffs.at(2));
+  pair<vector<double>, bool> res{
+      GetCharacteristicPolynomialCoefficients(tensor2)};
+  ASSERT_EQ(true, res.second);
+  EXPECT_EQ(1, res.first.at(0));
+  EXPECT_EQ(-4, res.first.at(1));
+  EXPECT_EQ(3, res.first.at(2));
 }
 
 TEST(MatrixLibSimpleTest, TrivialCharacteristicPolynomialTestOffset) {
@@ -549,10 +574,12 @@ TEST(MatrixLibSimpleTest, TrivialCharacteristicPolynomialTestOffset) {
 #ifdef DEBUG
   cout << tensor2;
 #endif
-  vector<double> coeffs = GetCharacteristicPolynomialCoefficients(tensor2);
-  ASSERT_EQ(1, coeffs.at(0));
-  ASSERT_EQ(-4, coeffs.at(1));
-  ASSERT_EQ(3, coeffs.at(2));
+  pair<vector<double>, bool> res{
+      GetCharacteristicPolynomialCoefficients(tensor2)};
+  ASSERT_EQ(true, res.second);
+  EXPECT_EQ(1, res.first.at(0));
+  EXPECT_EQ(-4, res.first.at(1));
+  EXPECT_EQ(3, res.first.at(2));
 }
 
 // A 2x2 matrix with elements (a,b) in first row and (c,d) in second has
@@ -565,13 +592,15 @@ TEST(MatrixLibSimpleTest, TrivialQuadraticRootsTest) {
 #ifdef DEBUG
   cout << tensor2;
 #endif
-  vector<double> coeffs = GetCharacteristicPolynomialCoefficients(tensor2);
-  EXPECT_EQ(1.0, coeffs.at(0));
-  EXPECT_EQ(-4.0, coeffs.at(1));
-  EXPECT_EQ(3.0, coeffs.at(2));
-  array<complex<double>, 2> roots = GetQuadraticRoots(coeffs);
-  ASSERT_EQ(3, roots[0].real());
-  ASSERT_EQ(1, roots[1].real());
+  pair<vector<double>, bool> res =
+      GetCharacteristicPolynomialCoefficients(tensor2);
+  ASSERT_EQ(true, res.second);
+  EXPECT_EQ(1.0, res.first.at(0));
+  EXPECT_EQ(-4.0, res.first.at(1));
+  EXPECT_EQ(3.0, res.first.at(2));
+  array<complex<double>, 2> roots = GetQuadraticRoots(res.first);
+  EXPECT_EQ(3, roots[0].real());
+  EXPECT_EQ(1, roots[1].real());
   EXPECT_EQ(0, roots[0].imag());
   EXPECT_EQ(0, roots[1].imag());
 }
@@ -582,14 +611,16 @@ TEST(MatrixLibSimpleTest, TrivialQuadraticRootsTestOffset) {
 #ifdef DEBUG
   cout << tensor2;
 #endif
-  vector<double> coeffs = GetCharacteristicPolynomialCoefficients(tensor2);
-  EXPECT_EQ(3u, coeffs.size());
-  EXPECT_EQ(1.0, coeffs.at(0));
-  EXPECT_EQ(-4.0, coeffs.at(1));
-  EXPECT_EQ(3.0, coeffs.at(2));
-  array<complex<double>, 2> roots = GetQuadraticRoots(coeffs);
-  ASSERT_EQ(3, roots[0].real());
-  ASSERT_EQ(1, roots[1].real());
+  pair<vector<double>, bool> res =
+      GetCharacteristicPolynomialCoefficients(tensor2);
+  ASSERT_EQ(true, res.second);
+  EXPECT_EQ(3u, res.first.size());
+  EXPECT_EQ(1.0, res.first.at(0));
+  EXPECT_EQ(-4.0, res.first.at(1));
+  EXPECT_EQ(3.0, res.first.at(2));
+  array<complex<double>, 2> roots = GetQuadraticRoots(res.first);
+  EXPECT_EQ(3, roots[0].real());
+  EXPECT_EQ(1, roots[1].real());
   EXPECT_EQ(0, roots[0].imag());
   EXPECT_EQ(0, roots[1].imag());
 }
@@ -599,11 +630,13 @@ TEST(MatrixLibSimpleTest, TrivialQuadraticRootsTestOffset) {
 TEST(MatrixLibSimpleTest, NonTrivialQuadraticRootsTest) {
   vector<double> testvec3 = {1, -63, 1, 1};
   Matrix tensor2(2, 2, testvec3, 1);
-  vector<double> coeffs = GetCharacteristicPolynomialCoefficients(tensor2);
-  EXPECT_EQ(1.0, coeffs.at(0));
-  EXPECT_EQ(-2.0, coeffs.at(1));
-  EXPECT_EQ(64.0, coeffs.at(2));
-  array<complex<double>, 2> roots = GetQuadraticRoots(coeffs);
+  pair<vector<double>, bool> res =
+      GetCharacteristicPolynomialCoefficients(tensor2);
+  ASSERT_EQ(true, res.second);
+  EXPECT_EQ(1.0, res.first.at(0));
+  EXPECT_EQ(-2.0, res.first.at(1));
+  EXPECT_EQ(64.0, res.first.at(2));
+  array<complex<double>, 2> roots = GetQuadraticRoots(res.first);
   EXPECT_EQ(1.0, roots[0].real());
   EXPECT_EQ(1.0, roots[1].real());
   // Yup, this is the only way I could find to get the test to pass.
@@ -715,7 +748,8 @@ TEST(MatrixLibSimpleTest, AddVectorTest) {
   EXPECT_EQ(ans.ub2(), tensor.ub2());
   EXPECT_EQ(21.0, Trace(ans));
   EXPECT_EQ(2.0, ans.Element(0, 0));
-  EXPECT_EQ(0, Determinant(ans, 0.0));
+  pair<double, bool> res = Determinant(ans, 0.0);
+  EXPECT_EQ(0, res.first);
 }
 
 TEST(MatrixLibSimpleTest, AddVectorTestOffset) {
@@ -731,12 +765,13 @@ TEST(MatrixLibSimpleTest, AddVectorTestOffset) {
   EXPECT_EQ(ans.ub2(), tensor.ub2());
   EXPECT_EQ(21.0, Trace(ans));
   EXPECT_EQ(2.0, ans.Element(0, 0));
-  EXPECT_EQ(0, Determinant(ans, 0.0));
+  pair<double, bool> res = Determinant(ans, 0.0);
+  EXPECT_EQ(0, res.first);
 }
 
 TEST_F(MatrixLibTest, MaxTest) {
   Matrix tensor(2, 3, testvec1);
-  ASSERT_EQ(6.0, Max(tensor));
+  EXPECT_EQ(6.0, Max(tensor));
 
   Matrix tensor2(0, 0, 1);
   EXPECT_EQ(0.0, Max(tensor2));
@@ -753,34 +788,25 @@ TEST_F(MatrixLibTest, ExtractionOperator) {
   EXPECT_EQ("\nMatrix of size 2x2\n1\t2\n3\t4\n", oss.str());
 }
 
-using MatrixLibDeathTest = MatrixLibTest;
-
-TEST_F(MatrixLibDeathTest, NonSquareDeterminant) {
+TEST_F(MatrixLibTest, NonSquareDeterminant) {
   Matrix tensor(2, 3, testvec1);
-  EXPECT_EXIT(Determinant(tensor, 0.0), testing::KilledBySignal(SIGABRT),
-              "Only square matrices have determinants.");
-}
-
-TEST_F(MatrixLibDeathTest, DeterminantEmptyMatrix) {
-  Matrix tensor(0, 0, 0);
-  EXPECT_EXIT(Determinant(tensor, 0.0), testing::KilledBySignal(SIGABRT),
-              "Empty matrices have no determinant.");
+  pair<double, bool> res = Determinant(tensor, 0.0);
+  EXPECT_EQ(false, res.second);
 }
 
 /*
  clang-format off
  error: invalid cast from type ‘int’ to type ‘matrix::transform’
- TEST_F(MatrixLibDeathTest, TransformConstructorIllegalChoice) {
+ TEST_F(MatrixLibTest, TransformConstructorIllegalChoice) {
  Matrix tensor2(kLimit1, kLimit2, testvec2);
   EXPECT_EXIT(Matrix(tensor2, reinterpret_cast<transform>(transform::upper +3)),
 testing::KilledBySignal(SIGABRT), "Invalid parameter"); clang-format on
 } */
 
-TEST_F(MatrixLibDeathTest, TransformConstructorIllegalChoice) {
+TEST_F(MatrixLibTest, TransformConstructorIllegalChoice) {
   Matrix tensor2(kLimit1, kLimit2, testvec2);
-  EXPECT_EXIT(Matrix(tensor2, static_cast<transform>(11)),
-              testing::KilledBySignal(SIGABRT),
-              "Illegal constructor parameter");
+  EXPECT_THROW(Matrix(tensor2, static_cast<transform>(11)),
+               std::invalid_argument);
 }
 
 } // namespace local_testing

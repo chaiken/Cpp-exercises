@@ -2,12 +2,14 @@
 
 #include "dbl_vector.h"
 #include <cassert>
+#include <climits>
 #include <cmath>
 #include <cstdlib>
 
 #include <array>
 #include <complex>
 #include <iostream>
+#include <stdexcept>
 #include <vector>
 
 using namespace std;
@@ -146,9 +148,10 @@ Matrix::Matrix(const Matrix &a, transform t) {
           p_[i][j] = 0.0;
         }
         break;
+      // https://isocpp.org/wiki/faq/exceptions#ctors-can-throw
       default:
-        cerr << "Illegal constructor parameter." << endl;
-        assert_perror(EINVAL);
+        throw std::invalid_argument(
+            "Illegal Matrix transform constructor parameter.");
       }
     }
   }
@@ -312,7 +315,8 @@ array<complex<double>, 2> GetQuadraticRoots(const vector<double> coeffs) {
 //     trace of the matrix; the coefficient of the constant, final term is
 //     always the determinant of the full matrix;
 // Note that these values preserve consistency of units in each term.
-vector<double> GetCharacteristicPolynomialCoefficients(const Matrix &a) {
+pair<vector<double>, bool>
+GetCharacteristicPolynomialCoefficients(const Matrix &a) {
 #ifdef DEBUG
   assert(a.ub1() == a.ub2());
 #endif
@@ -321,22 +325,26 @@ vector<double> GetCharacteristicPolynomialCoefficients(const Matrix &a) {
   // characteristic polynomial (x^2 - (a+d)x + (ad-bc)).
   coeffs.push_back(pow(-1.0, a.numrows()));
   coeffs.push_back(pow(-1.0, a.numrows() - 1) * Trace(a));
-  coeffs.push_back(Determinant(a, 0.0));
+  pair<double, bool> res = Determinant(a, 0.0);
+  if (true == res.second) {
+    coeffs.push_back(res.first);
+  }
 #ifdef DEBUG
   cout << "Coefficients are " << coeffs.at(0) << '\t' << coeffs.at(1) << '\t'
        << coeffs.at(2) << endl;
 #endif
-  return coeffs;
+  return pair<vector<double>, bool>{coeffs, true};
 }
 
-double Determinant(const Matrix &a, double sum) {
+pair<double, bool> Determinant(const Matrix &a, double sum) {
   if (a.ub1() != a.ub2()) {
     cerr << "Only square matrices have determinants." << endl;
-    assert_perror(EINVAL);
+    return pair<double, bool>{INT_MAX, false};
   }
-  if ((a.numrows()) < 1) {
-    cerr << "Empty matrices have no determinant." << endl;
-    assert_perror(EINVAL);
+  // https://nhigham.com/2016/03/15/empty-matrices-in-matlab/
+  // Empty matrices have unit determinant.
+  if (0 == (a.numrows())) {
+    return pair<double, bool>{1.0, true};
   }
   if (2 == a.numrows()) {
     int val = ((a.Element(a.lb(), a.lb()) * a.Element(a.lb() + 1, a.lb() + 1)) -
@@ -345,7 +353,7 @@ double Determinant(const Matrix &a, double sum) {
     cout << "Determinant of 2x2 is " << val << endl;
 #endif
     // For a 2x2 original matrix, the value below is the final result.
-    return val;
+    return pair<double, bool>{val, true};
   } else {
     // A matrix of rank n has n-1 submatrices whose determinants must each be
     // computed.
@@ -359,8 +367,10 @@ double Determinant(const Matrix &a, double sum) {
         // column for each submatrix.
         vector<int> cols = ExcludeDesignatedElement(a.numcols(), j - a.lb());
         Matrix submatrix(a, rows, cols);
-        sum +=
-            pow(-1, j - a.lb()) * a.Element(i, j) * Determinant(submatrix, sum);
+        pair<double, bool> res{Determinant(submatrix, sum)};
+        // Don't check the return code, which is intended to safeguard against
+        // bad input, not logical errors.
+        sum += pow(-1, j - a.lb()) * a.Element(i, j) * res.first;
 #ifdef DEBUG
         cout << "Determinant: sum is " << sum << " for i " << i << ",j " << j
              << endl;
@@ -371,7 +381,7 @@ double Determinant(const Matrix &a, double sum) {
 #endif
     }
   }
-  return sum;
+  return pair<double, bool>{sum, true};
 }
 
 ostream &operator<<(ostream &out, const Matrix &a) {
