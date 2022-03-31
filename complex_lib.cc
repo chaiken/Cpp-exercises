@@ -100,15 +100,15 @@ Complex operator+(const double m, const Complex &x) { return (x + m); }
 // https://math.stackexchange.com/questions/44406/how-do-i-get-the-square-root-of-a-complex-number
 // $(r(\cos(\theta)+ i \sin(\theta)))^{1/2} = ±\sqrt{r}(\cos(\theta/2) + i
 // \sin(\theta/2))$
-Complex sqrt(const Complex &z) {
+pair<Complex, bool> sqrt(const Complex &z) {
 #ifdef DEBUG
   cout << "Complex sqrt override" << endl;
 #endif
   double coeffs[]{0.0, 0.0};
   // NaN.
   if ((0.0 == z.imag_) && (z.real_ < 0)) {
-    // gcov claims this line is untested but BadSqrt exercises it.
-    assert_perror(EINVAL);
+    cerr << "Invalid argument " << z << endl;
+    return pair<Complex, bool>{z, false};
   }
   // z = r*cos(theta) + i* r*sin(theta)
   // Without ::std:: prefix, compiler cannot decide whether the function is
@@ -119,7 +119,7 @@ Complex sqrt(const Complex &z) {
     coeffs[0] = ::std::sqrt(r) * cos(theta / 2.0);
     coeffs[1] = ::std::sqrt(r) * sin(theta / 2.0);
   }
-  return coeffs;
+  return pair<Complex, bool>{Complex(coeffs), true};
 }
 
 // error: ‘double complex::operator=(double, const complex::Complex&)’ must be a

@@ -49,7 +49,8 @@ public:
 
   double real() const { return real_; }
   double imaginary() const { return imag_; }
-  friend Complex sqrt(const Complex &z);
+  // The boolean argument is a success (true) or fail (false) indicator.
+  friend std::pair<Complex, bool> sqrt(const Complex &z);
   // std::modulus already exists.
   double ComplexModulus() const {
     return (::std::sqrt(real_ * real_ + imag_ * imag_));
@@ -82,8 +83,8 @@ private:
   double real_, imag_;
 };
 
-::std::ostream &operator<<(::std::ostream &out, Complex x);
-Complex sqrt(const Complex &z);
+std::ostream &operator<<(::std::ostream &out, Complex x);
+std::pair<Complex, bool> sqrt(const Complex &z);
 bool operator<(Complex &a, Complex &b);
 bool operator<(const Complex &a, const Complex &b);
 Complex operator+(const Complex &x, const Complex &y);

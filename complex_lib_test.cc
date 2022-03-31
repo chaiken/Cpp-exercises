@@ -14,13 +14,10 @@ namespace local_testing {
 TEST(ComplexLibTest, DoubleTest) {
   Complex first(3.0, 4.0);
   cout << first << endl;
-  ;
-  EXPECT_EQ(sqrt(25.0), first.ComplexModulus());
+  // Regular C-library sqrt.
+  EXPECT_EQ(std::sqrt(25.0), first.ComplexModulus());
   -first;
-  EXPECT_EQ(sqrt(25.0), first.ComplexModulus());
-  // overloaded << operator.
-  // It was not obvious that "<< endl" would still work, but type resolution
-  // will choose the correct match.
+  EXPECT_EQ(std::sqrt(25.0), first.ComplexModulus());
   cout << first << endl;
 }
 
@@ -115,12 +112,16 @@ TEST(ComplexLibTest, InequalityTest) {
 }
 
 TEST(ComplexLibTest, SqrtTest) {
-  EXPECT_EQ(0.0, sqrt(Complex(0.0, 0.0)));
+  pair<Complex, bool> res = sqrt(Complex(0.0, 0.0));
+  EXPECT_EQ(true, res.second);
+  EXPECT_EQ(0.0, res.first);
   double temp = 9.0 + std::sqrt(97.0);
   double denom = std::sqrt(2.0 * temp);
   // ceil() is needed because comparing doubles is fundamentally stupid.
+  res = sqrt(Complex(9.0, 4.0));
+  EXPECT_EQ(true, res.second);
   EXPECT_EQ((ceil(Complex(temp / denom, 4.0 / denom).ComplexModulus())),
-            ceil(sqrt(Complex(9.0, 4.0)).ComplexModulus()));
+            ceil(res.first.ComplexModulus()));
 }
 
 TEST(ComplexLibTest, ComparisonTest) {
@@ -140,8 +141,10 @@ TEST(ComplexLibTest, FunctionalComparisonTest) {
 }
 
 TEST(ComplexLibDeathTest, BadSqrt) {
-  EXPECT_EXIT(sqrt(Complex(-2.0, 0.0)), testing::KilledBySignal(SIGABRT),
-              "Invalid argument");
+  Complex z{-2.0, 0.0};
+  pair<Complex, bool> res = sqrt(z);
+  EXPECT_EQ(false, res.second);
+  EXPECT_EQ(z, res.first);
 }
 
 } // namespace local_testing
