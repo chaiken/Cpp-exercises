@@ -140,7 +140,7 @@ TEST(ComplexLibTest, FunctionalComparisonTest) {
   EXPECT_FALSE(a(b));
 }
 
-TEST(ComplexLibDeathTest, BadSqrt) {
+TEST(ComplexLibTest, BadSqrt) {
   Complex z{-2.0, 0.0};
   pair<Complex, bool> res = sqrt(z);
   EXPECT_EQ(false, res.second);
