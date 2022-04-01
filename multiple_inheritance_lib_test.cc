@@ -613,40 +613,34 @@ TEST(SortingTest, PersonTest) {
 TEST(PersonDeathTest, IllegalYear) {
   const struct person_details bad(2038, 14, 40, "Jane", "Alsop", "Leadville CO",
                                   "F");
-  EXPECT_EXIT(Person bp(bad), testing::KilledBySignal(SIGABRT),
-              "Invalid birth year");
+  EXPECT_THROW(Person bp(bad), RolesException);
 }
 
 TEST(PersonDeathTest, IllegalMonth) {
   const struct person_details bad(1948, 14, 40, "Jane", "Alsop", "Leadville CO",
                                   "F");
-  EXPECT_EXIT(Person bp(bad), testing::KilledBySignal(SIGABRT),
-              "Invalid month:");
+  EXPECT_THROW(Person bp(bad), RolesException);
 }
 
 TEST(PersonDeathTest, IllegalDay) {
   const struct person_details bad(1948, 3, 40, "Jane", "Alsop", "Leadville CO",
                                   "F");
-  EXPECT_EXIT(Person bp(bad), testing::KilledBySignal(SIGABRT),
-              "Invalid birth day:");
+  EXPECT_THROW(Person bp(bad), RolesException);
 }
 
 TEST(PersonDeathTest, IllegalDayinJune) {
   const struct person_details bad(1948, 6, 31, "Jane", "Alsop", "Leadville CO",
                                   "F");
-  EXPECT_EXIT(Person bp(bad), testing::KilledBySignal(SIGABRT),
-              "Invalid birth day:");
+  EXPECT_THROW(Person bp(bad), RolesException);
 }
 
 TEST(PersonDeathTest, IllegalType) {
-  EXPECT_EXIT(GetPersonIndex(static_cast<PersonType>(5u)),
-              testing::KilledBySignal(SIGABRT), "Bad PersonType");
+  EXPECT_THROW(GetPersonIndex(static_cast<PersonType>(5u)), RolesException);
 }
 
 TEST(PersonDeathTest, IllegalStudentYear) {
   const struct student_details bad(static_cast<StudyYear>(11), 123, 2.4);
-  EXPECT_EXIT(Student(ad, bad), testing::KilledBySignal(SIGABRT),
-              "Illegal year for student.");
+  EXPECT_THROW(Student(ad, bad), RolesException);
 }
 
 } // namespace local_testing

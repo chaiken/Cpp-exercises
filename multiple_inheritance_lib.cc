@@ -1,5 +1,6 @@
 #include "multiple_inheritance.h"
 
+#include <cassert>
 #include <sys/errno.h>
 
 #include <fstream>
@@ -82,8 +83,8 @@ unsigned int GetPersonIndex(PersonType pt) {
   case PersonType::StudentWorker:
     return 3u;
   default:
-    std::cerr << "Bad PersonType" << std::endl;
-    assert_perror(EINVAL);
+    std::out_of_range re("Bad PersonType");
+    throw RolesException(re);
   }
 }
 
@@ -147,8 +148,8 @@ Month LookupMonth(const unsigned int birth_month) {
   case 12:
     return Month::kDec;
   default:
-    std::cerr << "Invalid month: " << birth_month << std::endl;
-    assert_perror(EINVAL);
+    std::out_of_range re("Invalid month");
+    throw RolesException(re);
   }
 }
 
@@ -190,8 +191,8 @@ std::string FormatDate(const unsigned int day, const Month month,
   std::map<Month, std::string>::const_iterator it =
       MonthDescription.find(month);
   if ((MonthDescription.cend() == it) || (day > 31u) || (0u == day)) {
-    std::cerr << "Illegal month." << std::endl;
-    assert_perror(EINVAL);
+    std::out_of_range re("Illegal month");
+    throw RolesException(re);
   }
   std::string date =
       it->second + " " + std::to_string(day) + ", " + std::to_string(year);
@@ -378,8 +379,8 @@ std::string Person::gender() const {
   std::map<Gender, std::string>::const_iterator it =
       GenderDescription.find(gender_);
   if (GenderDescription.cend() == it) {
-    std::cerr << "Illegal gender." << std::endl;
-    assert_perror(EINVAL);
+    std::out_of_range re("Illegal gender");
+    throw RolesException(re);
   }
   return it->second;
 }
@@ -400,8 +401,8 @@ std::string Student::study_year() const {
   //    if ((StudyYearDescription.end() == idx) || (StudyYear::kGrad ==
   //    idx->first)) {
   if (StudyYearDescription.cend() == it) {
-    std::cerr << "Illegal year for student." << std::endl;
-    assert_perror(EINVAL);
+    std::out_of_range re("Illegal student year");
+    throw RolesException(re);
   }
   return it->second;
 }

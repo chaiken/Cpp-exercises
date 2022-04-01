@@ -1,9 +1,9 @@
 #ifndef MULTIPLE_INHERITANCE_H
 #define MULTIPLE_INHERITANCE_H
 
-#include <cassert>
 #include <ctime>
 
+#include <exception>
 #include <iostream>
 #include <list>
 #include <map>
@@ -11,6 +11,14 @@
 #include <type_traits>
 
 namespace people_roles {
+
+struct RolesException : public std::exception {
+  RolesException(const std::exception &e) {
+    extended_error =
+        std::string(typeid(e).name()) + ": " + std::string(e.what());
+  }
+  std::string extended_error;
+};
 
 constexpr uint32_t number_person_types = 4u;
 enum class PersonType { Person, Student, Worker, StudentWorker };
@@ -127,14 +135,16 @@ public:
     std::cout << "Person ctor" << std::endl;
 #endif
     if (YearIsInvalid(birth_year_)) {
-      std::cerr << "Invalid birth year: " << birth_year_ << std::endl;
-      assert_perror(EINVAL);
+      std::invalid_argument re{"Invalid birth year: " +
+                               std::to_string(birth_year_)};
+      throw RolesException(re);
     }
     gender_ = LookupGender(pd.gender);
     birth_month_ = LookupMonth(pd.birth_month);
     if (DayOfMonthIsInvalid(birth_day_of_month_, birth_month_)) {
-      std::cerr << "Invalid birth day: " << birth_day_of_month_ << std::endl;
-      assert_perror(EINVAL);
+      std::invalid_argument re{"Invalid birth day: " +
+                               std::to_string(birth_day_of_month_)};
+      throw RolesException(re);
     }
   }
 
@@ -195,8 +205,8 @@ public:
     //    if ((StudyYearDescription.end() == idx) || (StudyYear::kGrad ==
     //    idx->first)) {
     if (StudyYearDescription.end() == idx) {
-      std::cerr << "Illegal year for student." << std::endl;
-      assert_perror(EINVAL);
+      std::invalid_argument ia{"Illegal year for student. "};
+      throw RolesException(ia);
     }
   }
 
@@ -225,14 +235,14 @@ public:
     std::cout << "Worker ctor" << std::endl;
 #endif
     if (YearIsInvalid(start_year_)) {
-      std::cerr << "Invalid birth year: " << start_year_ << std::endl;
-      assert_perror(EINVAL);
+      std::invalid_argument re{"Invalid start year: " + start_year_};
+      throw RolesException(re);
     }
     start_month_ = LookupMonth(wd.start_month);
     work_status_ = LookupWorkStatus(wd.work_status);
     if (DayOfMonthIsInvalid(start_day_of_month_, start_month_)) {
-      std::cerr << "Invalid birth day: " << start_day_of_month_ << std::endl;
-      assert_perror(EINVAL);
+      std::invalid_argument re{"Invalid start day: " + start_day_of_month_};
+      throw RolesException(re);
     }
   }
   PersonType person_type() const { return PersonType::Worker; }
