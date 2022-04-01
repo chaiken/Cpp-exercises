@@ -12,6 +12,14 @@ namespace student_inheritance {
 enum class Year { kFresh, kSoph, kJunior, kSenior, kGrad };
 enum class Support { kTA, kRA, kFellowship, kOther };
 
+struct StudentException : public std::exception {
+  StudentException(const std::exception &e) {
+    extended_error =
+        std::string(typeid(e).name()) + ": " + std::string(e.what());
+  }
+  std::string extended_error;
+};
+
 namespace {
 // maps apparently cannot be constexpr as they are not literal types.
 const ::std::map<Year, ::std::string> YearDescription = {

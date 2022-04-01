@@ -97,41 +97,37 @@ TEST_F(StudentInheritanceTest, CrossMembership) {
                        "Superconductivity in Graphite Intercalation Compounds");
 }
 
-using StudentInheritanceDeathTest = StudentInheritanceTest;
-
 /* Cannot have this behavior as it means a Student* cannot be a GradStudent.
-TEST_F(StudentInheritanceDeathTest, IllegalStudentYear) {
+TEST_F(StudentInheritanceTest, IllegalStudentYear) {
 const struct student_details bad_details(Year::kGrad, 123, 4.2, "Marvin");
 //EXPECT_DEATH(Student badmarvin(bad_details), "Invalid argument");
 EXPECT_EXIT(Student badmarvin(bad_details), ::testing::KilledBySignal(SIGABRT),
 "Invalid argument");
 } */
 
-TEST_F(StudentInheritanceDeathTest, IllegalGradYear) {
+TEST_F(StudentInheritanceTest, IllegalGradYear) {
   const struct student_details bad_details(Year::kFresh, 124, 2.4, "Angela");
   // Error below is not trapped.
   // EXPECT_DEATH(GradStudent badangela(bad_details, angela_extra), "Invalid
   // argument"); Note that testing::KilledBySignal() chooses THIS testing
   // namespace, which is poorly named.  Use either ::testing::KilledBySignal()
   // or rename this namespace.
-  EXPECT_EXIT(GradStudent badangela(bad_details, angela_extra),
-              testing::KilledBySignal(SIGABRT),
-              "Illegal year for graduate student");
+  EXPECT_THROW(GradStudent badangela(bad_details, angela_extra),
+               StudentException);
 }
 
-TEST_F(StudentInheritanceDeathTest, IllegalStudentYear) {
+TEST_F(StudentInheritanceTest, IllegalStudentYear) {
   const struct student_details bad_details(static_cast<Year>(14), 124, 2.4,
                                            "Angela");
-  EXPECT_EXIT(Student badangela(bad_details), testing::KilledBySignal(SIGABRT),
-              "Illegal year for student");
+  EXPECT_THROW(Student badangela(bad_details), StudentException);
 }
 
-TEST_F(StudentInheritanceDeathTest, IllegalSupport) {
+TEST_F(StudentInheritanceTest, IllegalSupport) {
   const struct grad_student_extra bad_extra(
       static_cast<Support>(-1), "Physics",
       "Anistropic Superconductivity in Graphite Intercalation Compounds");
-  EXPECT_EXIT(GradStudent badangela(angela_details, bad_extra),
-              testing::KilledBySignal(SIGABRT), "Illegal support");
+  EXPECT_THROW(GradStudent badangela(angela_details, bad_extra),
+               StudentException);
 }
 
 } // namespace local_testing
