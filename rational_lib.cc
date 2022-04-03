@@ -1,7 +1,5 @@
 #include "rational.h"
 
-#include <cassert>
-
 using namespace std;
 
 namespace rational {
@@ -40,8 +38,7 @@ int GCD(int i, int j) {
 
 Rational::Rational(int i, int j) {
   if (0 == j) {
-    std::cerr << "0 is an illegal denominator value." << std::endl;
-    assert_perror(EINVAL);
+    throw invalid_argument("0 is an illegal denominator value.");
   }
   int gcd = GCD(i, j);
   numerator_ = i / gcd;
@@ -49,14 +46,10 @@ Rational::Rational(int i, int j) {
 }
 
 bool Rational::operator<(const Rational &r) const {
-  assert(r.denominator_ != 0);
-  assert(denominator_ != 0);
   return ((numerator_ / denominator_) < (r.numerator_ / r.denominator_));
 }
 
 bool Rational::operator>(const Rational &r) const {
-  assert(r.denominator_ != 0);
-  assert(denominator_ != 0);
   return ((numerator_ / denominator_) > (r.numerator_ / r.denominator_));
 }
 

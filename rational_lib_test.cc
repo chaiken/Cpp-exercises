@@ -28,9 +28,8 @@ TEST(RationalLibTest, IntsConstructorTest) {
   EXPECT_TRUE(r == s);
 }
 
-TEST(RationalDeathTest, ZeroDenominator) {
-  EXPECT_EXIT(Rational(1, 0), testing::KilledBySignal(SIGABRT),
-              "0 is an illegal denominator value");
+TEST(RationalLibTest, ZeroDenominator) {
+  EXPECT_THROW(Rational(1, 0), invalid_argument);
 }
 
 TEST(RationalLibTest, IntGreater) {
