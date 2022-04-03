@@ -62,7 +62,7 @@ TEST_F(NewClockTest, ParameterConstructor) {
   ASSERT_EQ(0l, nc.GetSeconds(CLOCK_REALTIME).first);
 }
 
-TEST(NewClockTest, IllegalClock) {
+TEST(NewClockDeathTest, IllegalClock) {
   NewClock nc(1);
   pair<long, bool> res = nc.GetSeconds(CLOCK_TAI + 1);
   EXPECT_EQ(0L, res.first);
