@@ -1,8 +1,6 @@
 #ifndef NEW_CLOCK_H
 #define NEW_CLOCK_H
 
-#include <cassert>
-
 #include <chrono>
 #include <iostream>
 #include <memory>
@@ -13,15 +11,15 @@ namespace new_clock {
 
 class NewClock {
 public:
-  NewClock(int start = 0) {
-    const duration<int> dur(start);
-    time_.reset(new time_point<system_clock, duration<int>>(dur));
+  NewClock(int start = 0)
+      : time_(
+            new time_point<system_clock, duration<int>>(duration<int>(start))) {
   }
   //  ~NewClock() { delete time_; }
   void operator++(int seconds);
   void operator--(int seconds);
   friend ::std::ostream &operator<<(::std::ostream &out, const NewClock &nc);
-  long int GetSeconds(unsigned short clockid) const;
+  std::pair<long, bool> GetSeconds(unsigned short clockid) const;
 
 private:
   std::unique_ptr<time_point<system_clock, duration<int>>> time_;

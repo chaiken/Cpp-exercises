@@ -1,9 +1,10 @@
 #include "new_clock.h"
 
+#include <cstring>
+#include <ctime>
 #include <limits.h>
 
-#include <cassert>
-#include <ctime>
+#include <iostream>
 
 using namespace std;
 using namespace std::chrono;
@@ -12,32 +13,33 @@ namespace new_clock {
 
 namespace {
 
-long GetClockPeriod(unsigned short clockid) {
+pair<long, bool> GetClockPeriod(unsigned short clockid) {
   struct timespec res;
   if (-1 == clock_getres(clockid, &res)) {
-    assert_perror(errno);
+    cerr << strerror(errno) << endl;
+    return pair<long, bool>{0L, false};
   }
-  return res.tv_nsec * 1e9;
+  return pair<long, bool>{res.tv_nsec * 1e9, true};
 }
 
 } // namespace
 
-long int NewClock::GetSeconds(unsigned short clockid) const {
-  assert(nullptr != time_.get());
+pair<long, bool> NewClock::GetSeconds(unsigned short clockid) const {
   system_clock::duration epoch_offset = time_.get()->time_since_epoch();
-  const long int period = GetClockPeriod(clockid);
-  assert((0LU != period) && (LONG_MAX != period));
-  return epoch_offset.count() / period;
+  pair<long, bool> res = GetClockPeriod(clockid);
+  if (res.second) {
+    return pair<long, bool>{epoch_offset.count() / res.first, true};
+  } else {
+    return pair<long, bool>{0L, false};
+  }
 }
 
 void NewClock::operator++(int seconds) {
-  assert(nullptr != time_.get());
   const duration<int> interval(seconds);
   *(time_.get()) += interval;
 }
 
 void NewClock::operator--(int seconds) {
-  assert(nullptr != time_.get());
   const duration<int> interval(seconds);
   *(time_.get()) -= interval;
 }
