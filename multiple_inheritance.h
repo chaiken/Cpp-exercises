@@ -135,6 +135,8 @@ public:
     std::cout << "Person ctor" << std::endl;
 #endif
     if (YearIsInvalid(birth_year_)) {
+      // Without to_string(), the std::exception constructor itself threw a
+      // logical error.
       std::invalid_argument re{"Invalid birth year: " +
                                std::to_string(birth_year_)};
       throw RolesException(re);
@@ -321,8 +323,8 @@ unsigned int GetPersonIndex(PersonType pt);
 void ProcessPerson(const std::string &item, persons_array *pa);
 
 // Given a file containing data about Persons, populate them into the 4 lists in
-// the persons_array.
-void PopulateLists(const std::string &file_path, persons_array *pa);
+// the persons_array.   Return a bool to indicate success or failure.
+bool PopulateLists(const std::string &file_path, persons_array *pa);
 
 // The string comparison operator that SortLists() needs in order to find the
 // Person last names inside the shared_ptrs.

@@ -470,7 +470,8 @@ TEST(ListPopulationTest, BadStudentWorkerTest) {
 
 TEST(FileIOTest, BasicTest) {
   ClearLists();
-  PopulateLists(string(TESTDIR) + "multiple_inheritance_test_data.txt", &pa);
+  EXPECT_TRUE(PopulateLists(
+      string(TESTDIR) + "multiple_inheritance_test_data.txt", &pa));
   EXPECT_FALSE(pa[GetPersonIndex(PersonType::Person)].empty());
   EXPECT_FALSE(pa[GetPersonIndex(PersonType::Student)].empty());
   EXPECT_FALSE(pa[GetPersonIndex(PersonType::Worker)].empty());
@@ -496,39 +497,32 @@ TEST(FileIOTest, EmptyFile) {
   unlink(fname.c_str());
 }
 
-TEST(FileIODeathTest, EmptyFilePath) {
+TEST(FileIOTest, EmptyFilePath) {
   ClearLists();
-  EXPECT_EXIT(PopulateLists("", &pa), testing::KilledBySignal(SIGABRT),
-              "Please provide an input filename.");
+  EXPECT_FALSE(PopulateLists("", &pa));
 }
 
-TEST(FileIODeathTest, IsADirectory) {
+TEST(FileIOTest, IsADirectory) {
   ClearLists();
-  EXPECT_EXIT(PopulateLists("/etc", &pa), testing::KilledBySignal(SIGABRT),
-              "Is a directory.");
+  EXPECT_FALSE(PopulateLists("/etc", &pa));
 }
 
-TEST(FileIODeathTest, PermissionDenied) {
+TEST(FileIOTest, PermissionDenied) {
   ClearLists();
-  EXPECT_EXIT(PopulateLists("/etc/shadow", &pa),
-              testing::KilledBySignal(SIGABRT), "Permission denied.");
+  EXPECT_FALSE(PopulateLists("/etc/shadow", &pa));
 }
 
-TEST(FileIODeathTest, NoSuchFile) {
+TEST(FileIOTest, NoSuchFile) {
   ClearLists();
-  EXPECT_EXIT(PopulateLists("/tmp/superunlikely", &pa),
-              testing::KilledBySignal(SIGABRT),
-              "Logical error on I/O operation for /tmp/superunlikely.");
+  EXPECT_FALSE(PopulateLists("/tmp/superunlikely", &pa));
 }
 
 // https://gehrcke.de/2011/06/reading-files-in-c-using-ifstream-dealing-correctly-with-badbit-failbit-eofbit-and-perror/
 // First line ends with a newline, so getline will succeed.  2nd line with no
 // newline will not yet trigger EOF but cannot succeed in creating a string.
-TEST(FileIODeathTest, NoNewline) {
+TEST(FileIOTest, NoNewline) {
   ClearLists();
-  EXPECT_EXIT(PopulateLists(string(TESTDIR) + "unterminated.txt", &pa),
-              testing::KilledBySignal(SIGABRT),
-              "Logical error on I/O operation.");
+  EXPECT_FALSE(PopulateLists(string(TESTDIR) + "unterminated.txt", &pa));
 }
 
 TEST_F(PersonPrintTest, ListPrinting) {
@@ -610,35 +604,35 @@ TEST(SortingTest, PersonTest) {
 #endif
 }
 
-TEST(PersonDeathTest, IllegalYear) {
+TEST(PersonTest, IllegalYear) {
   const struct person_details bad(2038, 14, 40, "Jane", "Alsop", "Leadville CO",
                                   "F");
   EXPECT_THROW(Person bp(bad), RolesException);
 }
 
-TEST(PersonDeathTest, IllegalMonth) {
+TEST(PersonTest, IllegalMonth) {
   const struct person_details bad(1948, 14, 40, "Jane", "Alsop", "Leadville CO",
                                   "F");
   EXPECT_THROW(Person bp(bad), RolesException);
 }
 
-TEST(PersonDeathTest, IllegalDay) {
+TEST(PersonTest, IllegalDay) {
   const struct person_details bad(1948, 3, 40, "Jane", "Alsop", "Leadville CO",
                                   "F");
   EXPECT_THROW(Person bp(bad), RolesException);
 }
 
-TEST(PersonDeathTest, IllegalDayinJune) {
+TEST(PersonTest, IllegalDayinJune) {
   const struct person_details bad(1948, 6, 31, "Jane", "Alsop", "Leadville CO",
                                   "F");
   EXPECT_THROW(Person bp(bad), RolesException);
 }
 
-TEST(PersonDeathTest, IllegalType) {
+TEST(PersonTest, IllegalType) {
   EXPECT_THROW(GetPersonIndex(static_cast<PersonType>(5u)), RolesException);
 }
 
-TEST(PersonDeathTest, IllegalStudentYear) {
+TEST(PersonTest, IllegalStudentYear) {
   const struct student_details bad(static_cast<StudyYear>(11), 123, 2.4);
   EXPECT_THROW(Student(ad, bad), RolesException);
 }
