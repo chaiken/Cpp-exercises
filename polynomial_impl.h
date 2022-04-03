@@ -8,7 +8,7 @@
 #include "term.h"
 #include "term_vector.h"
 
-#include <cassert>
+#include <exception>
 
 namespace polynomial {
 
@@ -19,9 +19,8 @@ Polynomial::Polynomial(std::array<double, N> coef, std::array<int, N> expon) {
 #endif
   // Following is covered by a DEATH test that gcov does not recognize.
   if (coef.empty() || expon.empty()) {
-    std::cerr
-        << "Cannot create a polynomial from empty coefficients or exponent.";
-    assert_perror(EINVAL);
+    throw std::invalid_argument(
+        "Cannot create a polynomial from empty coefficients or exponent.");
   }
   term::SyncSortTwoArrays(&expon, &coef, 0);
   // Does not work, as  it overwrites the class member of the same name!
@@ -51,8 +50,10 @@ TermVector::TermVector(std::array<double, N> coeff, std::array<int, N> expon) {
   size_ = N;
   // Performs allocation.
   //  termvec_[0] = std::make_unique<term::Term>(Term(expon[0], coeff[0]));
+#ifdef DEBUG
   assert(coeff.size() == static_cast<unsigned>(size_));
   assert(expon.size() == static_cast<unsigned>(size_));
+#endif
   termvec_ = std::make_unique<term::Term[]>(3u);
 
   for (unsigned i = 0; i < static_cast<unsigned>(size_); i++) {

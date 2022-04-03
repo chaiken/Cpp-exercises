@@ -484,9 +484,7 @@ TEST_F(PolynomialTest, EmptyTrueTest) {
 TEST(PolynomialDeathTest, EmptyInputs) {
   array<int, 0> expon2;
   array<double, 0> coeffs2;
-  EXPECT_EXIT(
-      Polynomial(coeffs2, expon2), testing::KilledBySignal(SIGABRT),
-      "Cannot create a polynomial from empty coefficients or exponent.");
+  EXPECT_THROW(Polynomial(coeffs2, expon2), invalid_argument);
 }
 
 } // namespace polynomial
