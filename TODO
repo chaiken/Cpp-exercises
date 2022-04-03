@@ -4,7 +4,7 @@
 
 2. Create a Makefile target that runs all the tests. (Status: done)
 
-3. Analyze source with clang-tidy and/or "gcc -fanalyzer" (https://linuxplumbersconf.org/event/7/contributions/721/).   As of 3/22, "gcc -fanalyzer" is unusably buggy with C++; see https://gcc.gnu.org/bugzilla/showdependencytree.cgi?id=97110.
+3. Analyze source with clang-tidy and/or "gcc -fanalyzer" (https://linuxplumbersconf.org/event/7/contributions/721/).   As of 3/22, "gcc -fanalyzer" is unusably buggy with C++; see https://gcc.gnu.org/bugzilla/showdependencytree.cgi?id=97110.  (clang-tidy status: done)
 
 4. Try microbenchmarking tools (https://www.bfilipek.com/2016/01/micro-benchmarking-libraries-for-c.html)
 
@@ -19,3 +19,5 @@
 9. Make move() constructors standards-compliant; avoid undefined behavior.
 
 10. Add a makedeps facility to the Makefile so that any change to headers (notably gtest.h) will trigger recompilation.
+
+11.  Replace assertions in constructors with exceptions, and replace assertions in  ordinary functions with return of a std::pair, one of whose members is a failure indicator.  With this change, all the code is now valgrind-clean. (Status: done)
