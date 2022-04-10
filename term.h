@@ -39,24 +39,28 @@ struct Term {
   //    Which is: 2
   // [  FAILED  ] TermTest.MoveTest (0 ms)
   Term(Term &&t) noexcept : Term() {
-    *this = ::std::move(t);
+    // It's odd that simply moving the parameter works when the default move
+    // ctor does not.
+    *this = std::move(t);
     t.exponent = 0;
     t.coefficient = 0;
+    // Moved-from objects are not destroyed.
     t.next.reset();
   }
   Term(const Term &t) = delete;
   ~Term() {
-    if (next) {
+    if (next.get()) {
 #ifdef DEBUG
       std::cerr << "Deleting next pointer " << *this << std::endl;
 #endif
       next.reset();
     }
   }
-
   bool empty() { return (0.0 == coefficient); }
   // Following
   // https://eli.thegreenplace.net/2011/12/15/understanding-lvalues-and-rvalues-in-c-and-c/
+  // Why does default move-assignment operator work when default move-ctor does
+  // not?
   Term &operator=(Term &&t) = default;
   Term &operator=(const Term &t) = delete;
   // Must be a friend, non-member function because operator<<() takes only one

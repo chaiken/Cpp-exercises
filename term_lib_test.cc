@@ -54,7 +54,7 @@ TEST(TermTest, CopyTest) {
   ASSERT_EQ(t.next, t2.next);
 }
 
-TEST(TermTest, MoveTest) {
+TEST(TermTest, MoveCtorTest) {
   // term members constructor
   Term t(3, 2);
   const Term t2(move(t));
@@ -70,8 +70,11 @@ TEST(TermTest, MoveTest) {
   EXPECT_EQ(0, t.coefficient);
 }
 
-TEST(TermTest, AssignmentTest) {
-  Term t(3, 2);
+TEST(TermTest, MoveAssignmentTest) {
+  // The Term constructor needs a raw pointer.  Because the raw pointer is
+  // turned into a unique_ptr, there is no need to explicitly free it.
+  Term *tp = new Term(3, 2);
+  Term t1(3, 2, tp);
   // https://eli.thegreenplace.net/2011/12/15/understanding-lvalues-and-rvalues-in-c-and-c/
   // "Constant lvalue references can be assigned rvalues. Since they're
   // constant, the value can't be modified through the reference and hence
@@ -82,12 +85,14 @@ TEST(TermTest, AssignmentTest) {
   // pointer without the notational ugliness, plus the assurance that the
   // address is not null (since a reference can only be to an existing object).
   //
-  Term t2 = std::move(t);
-  ASSERT_EQ(3, t2.exponent);
-  ASSERT_EQ(2, t2.coefficient);
-  ASSERT_EQ(t.next, t2.next);
-  EXPECT_EQ(0, t.exponent);
-  EXPECT_EQ(0, t.coefficient);
+  Term t2 = std::move(t1);
+  EXPECT_EQ(3, t2.exponent);
+  EXPECT_EQ(2, t2.coefficient);
+  EXPECT_NE(t1.next, t2.next);
+  EXPECT_NE(nullptr, t2.next);
+  EXPECT_EQ(tp, t2.next.get());
+  EXPECT_TRUE(t1.empty());
+  EXPECT_EQ(nullptr, t1.next);
 }
 
 TEST(TermTest, AdditionTest) {
