@@ -57,8 +57,12 @@ public:
   Student(struct student_details sd);
   Student(Student &&st);
   Student &operator=(Student &&st);
-  std::string year() const { return YearDescription.find(y_)->second; }
+  std::string year_description() const {
+    return YearDescription.find(y_)->second;
+  }
+  Year year() const { return y_; }
   std::string name() const { return name_; }
+  int id() const { return student_id_; }
   friend ::std::ostream &operator<<(::std::ostream &out, const Student &st);
   // Needed by Exercise 2 of Chapter 8.
   void print(std::ostream &out) const;

@@ -2,6 +2,8 @@
 
 #include "gtest/gtest.h"
 
+using namespace std;
+
 namespace student_inheritance {
 namespace local_testing {
 
@@ -11,7 +13,7 @@ const struct grad_student_extra angela_extra(
     Support::kRA, "Physics",
     "Anistropic Superconductivity in Graphite Intercalation Compounds");
 
-class StudentInheritanceTest : public ::testing::Test {
+struct StudentInheritanceTest : public ::testing::Test {
 public:
   StudentInheritanceTest()
       : marvin(Student(marvin_details)),
@@ -29,39 +31,62 @@ public:
 // error: use of deleted function ‘student_inheritance::Student& student_inheritance::Student::operator=(const student_inheritance::Student&)’
 // a = marvin;
 // error: use of deleted function ‘student_inheritance::GradStudent::GradStudent(const student_inheritance::GradStudent&)’
-// GradStudent b(std::move(angela));
+// GradStudent b(move(angela));
 // clang-format on
 
-TEST_F(StudentInheritanceTest, MoveCtor) {
+TEST_F(StudentInheritanceTest, MoveCtors) {
   Student a(marvin_details);
-  Student b(std::move(a));
+  Student b(move(a));
   EXPECT_EQ(b.gpa(), marvin.gpa());
   EXPECT_EQ(b.year(), marvin.year());
   EXPECT_EQ(b.name(), marvin.name());
+
+  const grad_student_extra another(
+      Support::kTA, "Math", "Convex Eigenfunctions of a Reflected Closure");
+  GradStudent c(angela_details, another);
+  GradStudent d{move(c)};
+  EXPECT_EQ(d.gpa(), angela.gpa());
+  EXPECT_EQ(d.id(), angela.id());
+  EXPECT_EQ(d.year(), angela.year());
+  EXPECT_EQ(d.name(), angela.name());
+  EXPECT_EQ(d.dept(), another.dept);
+  EXPECT_EQ(d.support(), another.support);
+  EXPECT_NE(d.support(), Support::kRA);
+  EXPECT_EQ(d.thesis(), another.thesis);
+  EXPECT_EQ(-1, c.gpa());
 }
 
 TEST_F(StudentInheritanceTest, MoveAssignment) {
-  grad_student_extra another(Support::kTA, "Math",
-                             "Convex Eigenfunctions of a Reflected Closure");
+  const grad_student_extra another(
+      Support::kTA, "Math", "Convex Eigenfunctions of a Reflected Closure");
   GradStudent a(angela_details, another);
-  GradStudent b = std::move(a);
+  const student_details sd(Year::kGrad, 123, 4.2, "Marvin");
+  // clang-format off
+  // The statement
+  // GradStudent b = move(a);
+  // instead calls the move ctor.
+  // clang-format on
+  GradStudent b(sd, angela_extra);
+  b = move(a);
   EXPECT_EQ(b.gpa(), angela.gpa());
+  EXPECT_EQ(b.id(), angela.id());
   EXPECT_EQ(b.year(), angela.year());
   EXPECT_EQ(b.name(), angela.name());
   EXPECT_EQ(b.dept(), another.dept);
   EXPECT_EQ(b.support(), another.support);
   EXPECT_NE(b.support(), Support::kRA);
   EXPECT_EQ(b.thesis(), another.thesis);
+  EXPECT_EQ(-1, a.gpa());
 }
 
 TEST_F(StudentInheritanceTest, StudentPrinting) {
-  ::std::ostringstream oss;
+  ostringstream oss;
   oss << marvin;
   EXPECT_EQ(oss.str(), "Name: Marvin, 123, Junior, 4.2\n");
 }
 
 TEST_F(StudentInheritanceTest, GradStudentPrinting) {
-  ::std::ostringstream oss;
+  ostringstream oss;
   student_inheritance::operator<<(oss, angela);
   EXPECT_EQ(oss.str(), "Name: Angela, 124, Grad, 2.4\n, Physics, Support: "
                        "Research assistant, Thesis: Anistropic "
@@ -69,13 +94,13 @@ TEST_F(StudentInheritanceTest, GradStudentPrinting) {
 }
 
 TEST_F(StudentInheritanceTest, StudentPrintFunction) {
-  ::std::ostringstream oss;
+  ostringstream oss;
   marvin.print(oss);
   EXPECT_EQ(oss.str(), "Name: Marvin, 123, Junior, 4.2\n");
 }
 
 TEST_F(StudentInheritanceTest, GradStudentPrintFunction) {
-  ::std::ostringstream oss;
+  ostringstream oss;
   angela.print(oss);
   EXPECT_EQ(oss.str(),
             "Student::gpa_ is not protected inside this member-function "
@@ -90,7 +115,7 @@ TEST_F(StudentInheritanceTest, CrossMembership) {
   Student Fred(marvin_details);
   GradStudent Sue(angela_details, angela_extra);
   Sue.setGPA(Fred.gpa() + 1.0);
-  ::std::ostringstream oss;
+  ostringstream oss;
   student_inheritance::operator<<(oss, Sue);
   EXPECT_EQ(oss.str(), "Name: Angela, 124, Grad, 5.2\n, Physics, Support: "
                        "Research assistant, Thesis: Anistropic "

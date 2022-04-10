@@ -27,13 +27,26 @@ Student::Student(struct student_details sd)
     throw StudentException(ia);
   }
 }
-Student::Student(Student &&st) { *this = move(st); }
+
+//  'The state of the default constructor is often the “natural” state of a
+//  moved-from object . . .'
+// per Nikolai Josuttis in _C++ Move Semantics_, p. 57.
+// There is no default ctor, but it's clear what one would do.
+Student::Student(Student &&st) {
+  *this = move(st);
+  st.name_.clear();
+  st.student_id_ = -1;
+  st.gpa_ = -1.0;
+}
 
 Student &Student::operator=(Student &&st) {
   name_ = st.name_;
   student_id_ = st.student_id_;
   gpa_ = st.gpa_;
   y_ = st.y_;
+  st.name_.clear();
+  st.student_id_ = -1;
+  st.gpa_ = -1.0;
   return *this;
 }
 
@@ -57,7 +70,17 @@ GradStudent::GradStudent(struct student_details sd,
 // match the prototypes.  Why does the function need to call move() given that
 // it's receiving an R-value reference already?
 GradStudent::GradStudent(GradStudent &&gs) : Student(move(gs)) {
-  *this = move(gs);
+  // Default move() of the GradStudent overwrites the values initialized by the
+  // move of the  Student.
+  //  *this = move(gs);
+  gs.name_.clear();
+  gs.student_id_ = -1;
+  gs.gpa_ = -1.0;
+  support_ = gs.support_;
+  dept_ = gs.dept_;
+  gs.dept_.clear();
+  thesis_ = gs.thesis_;
+  gs.thesis_.clear();
 }
 
 GradStudent &GradStudent::operator=(GradStudent &&gs) {
@@ -68,6 +91,11 @@ GradStudent &GradStudent::operator=(GradStudent &&gs) {
   support_ = gs.support_;
   dept_ = gs.dept_;
   thesis_ = gs.thesis_;
+  gs.name_.clear();
+  gs.student_id_ = -1;
+  gs.gpa_ = -1.0;
+  gs.dept_.clear();
+  gs.thesis_.clear();
   return *this;
 }
 
@@ -80,8 +108,8 @@ ostream &operator<<(ostream &out, const Student &st) {
 #endif
   }
   cout << "GPA is " << st.gpa() << endl;
-  out << "Name: " << st.name_ << ", " << st.student_id_ << ", " << st.year()
-      << ", " << st.gpa_ << endl;
+  out << "Name: " << st.name_ << ", " << st.student_id_ << ", "
+      << st.year_description() << ", " << st.gpa_ << endl;
   return out;
 }
 
@@ -103,7 +131,8 @@ ostringstream &operator<<(ostringstream &out, const GradStudent &gs) {
   // clang-format on
   // because the following line requires a copy.
   // const Student st = gs;
-  const Student &st(move(gs));
+  struct student_details sd(gs.year(), gs.id(), gs.gpa(), gs.name());
+  Student st(sd);
   out << st;
   string retval;
   // Check for malformed input.   These assertions appear to offer no
