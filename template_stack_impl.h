@@ -51,7 +51,7 @@ TemplateStack<T> &TemplateStack<T>::operator=(TemplateStack &&input) {
   max_len_ = input.max_len_;
   top_ = input.top_;
   ::std::swap(data_, input.data_);
-  //  input.data_ = nullptr;
+  input.data_.reset();
   return *this;
 }
 
