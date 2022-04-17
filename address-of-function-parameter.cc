@@ -29,12 +29,15 @@ private:
 
 int main(void) {
   Widget awidget;
+  const Widget *widgetp = awidget.wheres_this();
   Widget another(std::move(awidget));
-  assert(awidget.wheres_this() == another.wheres_this());
+  assert(widgetp == another.wheres_this());
 
+  Widget bwidget;
+  const Widget *widgetpp = bwidget.wheres_this();
   std::array<Widget, 3> yetmore{
-      {std::move(awidget), std::move(awidget), std::move(awidget)}};
+      {std::move(bwidget), std::move(bwidget), std::move(bwidget)}};
   for (auto &&w : yetmore) {
-    assert(awidget.wheres_this() == w.wheres_this());
+    assert(widgetpp == w.wheres_this());
   }
 }
