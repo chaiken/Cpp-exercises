@@ -76,9 +76,10 @@ result CharStack::PopMultiple(const unsigned m, char s1[]) {
   unsigned j;
   for (j = 1; j < m; j++) {
     pair<char, result> res = Pop();
-    if (result::kFailure == res.second) {
-      return result::kFailure;
-    }
+    // The following lines are not reachable.
+    //    if (result::kFailure == res.second) {
+    //      return result::kFailure;
+    //    }
     s1[j] = res.first;
   }
   return result::kSuccess;

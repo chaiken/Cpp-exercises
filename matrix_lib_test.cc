@@ -289,11 +289,7 @@ TEST_F(MatrixLibTest, SubmatrixConstructorSkipColumns) {
   cout << tensor3;
 #endif
   ASSERT_EQ(tensor3.ub1(), tensor2.ub1());
-  if (is_even(kLimit2)) {
-    ASSERT_EQ((kLimit2 / 2) - 1, tensor3.ub2());
-  } else {
-    ASSERT_EQ(kLimit2 / 2, tensor3.ub2());
-  }
+  ASSERT_EQ((kLimit2 / 2) - 1, tensor3.ub2());
   ASSERT_EQ(tensor3.Element(0, 0), tensor2.Element(0, 0));
   ASSERT_EQ(tensor3.Element(0, 1), tensor2.Element(0, 2));
   ASSERT_EQ(tensor3.Element(0, 2), tensor2.Element(0, 4));
@@ -315,11 +311,7 @@ TEST_F(MatrixLibTest, SubmatrixConstructorSkipColumnsOffset) {
   cout << tensor3;
 #endif
   ASSERT_EQ(tensor3.ub1(), tensor2.ub1());
-  if (is_even(kLimit2)) {
-    ASSERT_EQ((kLimit2 / 2) - 1, tensor3.ub2() - tensor3.lb());
-  } else {
-    ASSERT_EQ(kLimit2 / 2, tensor3.ub2());
-  }
+  ASSERT_EQ((kLimit2 / 2) - 1, tensor3.ub2() - tensor3.lb());
   ASSERT_EQ(tensor3.Element(tensor3.lb(), tensor3.lb()),
             tensor2.Element(tensor2.lb(), tensor2.lb()));
   ASSERT_EQ(tensor3.Element(tensor3.lb(), tensor3.lb() + 1),
@@ -345,11 +337,7 @@ TEST_F(MatrixLibTest, SubmatrixConstructorSkipRows) {
 #endif
   ASSERT_EQ(tensor3.ub2(), tensor2.ub2());
   ASSERT_NE(tensor3.ub1(), tensor2.ub1());
-  if (is_even(kLimit1)) {
-    ASSERT_EQ((kLimit1 / 2) - 1, tensor3.ub1());
-  } else {
-    ASSERT_EQ(kLimit1 / 2, tensor3.ub1());
-  }
+  ASSERT_EQ(kLimit1 / 2, tensor3.ub1());
   ASSERT_EQ(tensor3.Element(0, 0), tensor2.Element(0, 0));
   ASSERT_EQ(tensor3.Element(1, 0), tensor2.Element(2, 0));
 }
@@ -371,11 +359,7 @@ TEST_F(MatrixLibTest, SubmatrixConstructorSkipRowsOffset) {
 #endif
   ASSERT_EQ(tensor3.ub2(), tensor2.ub2());
   ASSERT_NE(tensor3.ub1(), tensor2.ub1());
-  if (is_even(kLimit1)) {
-    ASSERT_EQ((kLimit1 / 2) - 1, tensor3.ub1() - tensor3.lb());
-  } else {
-    ASSERT_EQ(kLimit1 / 2, tensor3.ub1() - tensor3.lb());
-  }
+  ASSERT_EQ(kLimit1 / 2, tensor3.ub1() - tensor3.lb());
   ASSERT_EQ(tensor3.Element(tensor3.lb(), tensor3.lb()),
             tensor2.Element(tensor2.lb(), tensor2.lb()));
   ASSERT_EQ(tensor3.Element(tensor3.lb() + 1, tensor3.lb()),

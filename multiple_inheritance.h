@@ -237,7 +237,10 @@ public:
     std::cout << "Worker ctor" << std::endl;
 #endif
     if (YearIsInvalid(start_year_)) {
-      std::invalid_argument re{"Invalid start year: " + start_year_};
+      // Without the to_string() transformation, trying to print a negative
+      // number as an unsigned int produces a SEGV.
+      std::invalid_argument re{"Invalid start year: " +
+                               std::to_string(start_year_)};
       throw RolesException(re);
     }
     start_month_ = LookupMonth(wd.start_month);

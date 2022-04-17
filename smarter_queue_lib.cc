@@ -96,12 +96,13 @@ int FindIncreasingSubsequences(ostream &out, const SmarterQueue &sq) {
   out << "(";
   vector<double> vec;
   while (offset < sq.size()) {
+    // This code is unreachable.
+    //    int retval = 0;
+    //    if ((retval = sq.Peek(offset).first) != 0) {
+    //      return retval;
+    //    }
     double save;
     // Save the increasing subsequences in a vector.
-    int retval = 0;
-    if ((retval = sq.Peek(offset).first) != 0) {
-      return retval;
-    }
     vec.push_back(sq.Peek(offset).second);
     if (!SequenceIsIncreasing(vec)) {
       // Putting decreasing element back on FIFO Queue doesn't work, since

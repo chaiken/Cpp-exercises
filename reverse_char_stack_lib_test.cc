@@ -45,6 +45,7 @@ TEST(ReverseCharStackTest, PushFull) {
     stack.Push('a');
   }
   EXPECT_EQ(result::kFailure, stack.Push('a'));
+  EXPECT_EQ(result::kFailure, stack.PushMultiple(3, "abc"));
 }
 
 TEST(ReverseCharStackTest, PushTooFew) {

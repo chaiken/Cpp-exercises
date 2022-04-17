@@ -72,6 +72,9 @@ TEST(ComplexVectorLibTest, EqualityTest) {
   EXPECT_TRUE(cv2 == cv3);
   cout << cv2 << endl;
   cout << cv3 << endl;
+  ComplexVector cv4;
+  EXPECT_FALSE(cv4 == cv3);
+  EXPECT_TRUE(cv4 != cv3);
 }
 
 TEST(ComplexVectorLibTest, EqualitySubscriptingTest) {

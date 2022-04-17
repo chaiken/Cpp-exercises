@@ -142,11 +142,7 @@ TEST(TemplateVectorTest, MoveCtor) {
   vector<double> dv;
   TemplateVector<double> tv3(dv);
   TemplateVector<double> tv4(move(tv3));
-  i = 0;
-  for (TemplateVector<double>::iterator tvit2 = tv4.begin(); tvit2 != tv4.end();
-       tvit2++, i++) {
-    EXPECT_EQ(dv[i], *tvit2);
-  }
+  EXPECT_EQ(-1, tv4.ub());
 }
 
 TEST(TemplateVectorTest, MoveAssignment) {

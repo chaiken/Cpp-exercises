@@ -20,6 +20,10 @@ const struct person_details og(1948, 11, 28, "Jane", "Alsop", "Leadville CO",
                                "O");
 persons_array pa;
 
+TEST(FormatDateTest, BadInput) {
+  EXPECT_EQ("malformed date data", FormatDate(99, Month::kJun, 1999));
+}
+
 /*
   clang-format off
   Bjarne Stroustrup, _A Tour of C++_, 2nd edition, p. 166:
@@ -230,6 +234,15 @@ TEST(ItemParsingTest, BadStudentDetails) {
   EXPECT_EQ(StudyYear::kUnknown, sd.y);
   EXPECT_EQ(123, sd.id);
   EXPECT_EQ(-1.0, sd.GPA);
+
+  const std::string item2 =
+      "LastName: Alsop, FirstName: Jane, Address: Leadville CO, Gender: "
+      "Female, BirthYear: 1948, BirthMonth: 12, BirthDate: 28, ID: 123, "
+      "StudyYear: A, GPA: 4.2";
+  const struct person_details pd2 = PopulatePersonDetails(item2, &is_person);
+  const struct student_details sd2 = PopulateStudentDetails(item2, &is_student);
+  Student astudent(pd2, sd2);
+  EXPECT_EQ("Unknown", astudent.study_year());
 }
 
 TEST(ItemParsingTest, GoodWorkerDetails) {
@@ -489,6 +502,7 @@ TEST(FileIOTest, EmptyFile) {
   ofstream ofs(fname, fstream::out);
   ofs << "";
   ofs.close();
+  EXPECT_TRUE(PopulateLists(fname, &pa));
   EXPECT_TRUE(pa[GetPersonIndex(PersonType::Person)].empty());
   EXPECT_TRUE(pa[GetPersonIndex(PersonType::Student)].empty());
   EXPECT_TRUE(pa[GetPersonIndex(PersonType::Worker)].empty());
@@ -517,6 +531,11 @@ TEST(FileIOTest, NoSuchFile) {
   EXPECT_FALSE(PopulateLists("/tmp/superunlikely", &pa));
 }
 
+TEST(FileIOTest, GarbageData) {
+  ClearLists();
+  EXPECT_FALSE(PopulateLists(string(TESTDIR) + "garbage.txt", &pa));
+}
+
 // https://gehrcke.de/2011/06/reading-files-in-c-using-ifstream-dealing-correctly-with-badbit-failbit-eofbit-and-perror/
 // First line ends with a newline, so getline will succeed.  2nd line with no
 // newline will not yet trigger EOF but cannot succeed in creating a string.
@@ -529,6 +548,11 @@ TEST_F(PersonPrintTest, ListPrinting) {
   ClearLists();
   PopulateLists(string(TESTDIR) + "multiple_inheritance_test_data.txt", &pa);
   strCout.str().clear();
+  // Empty list.
+  list<shared_ptr<Person>> pl;
+  PrintList(pl);
+  EXPECT_TRUE(strCout.str().empty());
+
   PrintList(pa[GetPersonIndex(PersonType::Person)]);
   EXPECT_NE(
       string::npos,
@@ -620,6 +644,11 @@ TEST(PersonTest, IllegalDay) {
   const struct person_details bad(1948, 3, 40, "Jane", "Alsop", "Leadville CO",
                                   "F");
   EXPECT_THROW(Person bp(bad), RolesException);
+
+  const struct worker_details bad2(1234, 1999, 12, 123, "F");
+  EXPECT_THROW(Worker bw(ad, bad2), RolesException);
+  const struct worker_details bad3(1234, -1, 12, 10, "F");
+  EXPECT_THROW(Worker bwb(ad, bad3), RolesException);
 }
 
 TEST(PersonTest, IllegalDayinJune) {

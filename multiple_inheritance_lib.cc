@@ -189,12 +189,13 @@ WorkStatus LookupWorkStatus(const string work_status) {
 }
 
 // Pretty-print three appropriate numbers into a date string.
+// Return a failure status from this function is overkill given that ctors
+// already check the input parameters.
 string FormatDate(const unsigned int day, const Month month,
                   const unsigned int year) {
   map<Month, string>::const_iterator it = MonthDescription.find(month);
   if ((MonthDescription.cend() == it) || (day > 31u) || (0u == day)) {
-    out_of_range re("Illegal month");
-    throw RolesException(re);
+    return "malformed date data";
   }
   string date = it->second + " " + to_string(day) + ", " + to_string(year);
   return date;
@@ -352,6 +353,7 @@ bool PopulateLists(const string &file_path, persons_array *pa) {
       if (!item.empty()) {
         if (string::npos == item.find("LastName: ")) {
           cerr << "Warning: unparsable record: " << item << endl;
+          return false;
         } else {
           ProcessPerson(item, pa);
         }
@@ -383,10 +385,11 @@ void SortLists(persons_array *unsorted) {
 //  Person member functions
 string Person::gender() const {
   map<Gender, string>::const_iterator it = GenderDescription.find(gender_);
+  /* Because there is a default case, the following code is unreachable:
   if (GenderDescription.cend() == it) {
-    out_of_range re("Illegal gender");
-    throw RolesException(re);
+    return GenderDescription.find(Gender::kUnknown)->second;
   }
+  */
   return it->second;
 }
 
@@ -404,10 +407,11 @@ string Student::study_year() const {
   // Prevents a Student* from pointing to a GradStudent.
   //    if ((StudyYearDescription.end() == idx) || (StudyYear::kGrad ==
   //    idx->first)) {
+  /* Because there is a default case, the following code is unreachable:
   if (StudyYearDescription.cend() == it) {
-    out_of_range re("Illegal student year");
-    throw RolesException(re);
+    return StudyYearDescription.find(StudyYear::kUnknown)->second;
   }
+  */
   return it->second;
 }
 
