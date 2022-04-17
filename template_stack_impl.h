@@ -22,12 +22,17 @@ TemplateStack<T>::TemplateStack(T(&&input)[], int val)
   }
 }
 
+//  'The state of the default constructor is often the “natural” state of a
+//  moved-from object . . .'
+// per Nikolai Josuttis in _C++ Move Semantics_, p. 57.
 template <typename T>
 TemplateStack<T>::TemplateStack(TemplateStack &&ts)
     : max_len_(ts.max_len_), top_(ts.top_) {
   ::std::cout << "Move ctor" << ::std::endl;
   data_ = ::std::move(ts.data_);
   ts.data_ = nullptr;
+  ts.max_len_ = kDefaultSize;
+  ts.top_ = EMPTY;
 }
 
 template <typename T>
@@ -52,6 +57,8 @@ TemplateStack<T> &TemplateStack<T>::operator=(TemplateStack &&input) {
   top_ = input.top_;
   ::std::swap(data_, input.data_);
   input.data_.reset();
+  input.max_len_ = kDefaultSize;
+  input.top_ = EMPTY;
   return *this;
 }
 
