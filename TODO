@@ -16,7 +16,7 @@
 
 8. After getting rid of operator new, check all tests for memory leaks with valgrind.  (Status: done.)
 
-9. Make move() constructors standards-compliant; avoid undefined behavior.
+9. Make move() constructors standards-compliant; avoid undefined behavior.  (Status: done.)
 
 10. Add a makedeps facility to the Makefile so that any change to headers (notably gtest.h) will trigger recompilation.
 
