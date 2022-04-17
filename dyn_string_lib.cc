@@ -22,8 +22,6 @@ DynString::DynString(const char *p)
   assert(len_ == strlen(s_.get()));
 }
 
-DynString::DynString(DynString &&str) : len_(str.len_), s_(str.s_.release()) {}
-
 DynString &DynString::operator=(const DynString &str) {
   if (&str != this) {
     this->s_ = make_unique<char[]>(str.len_ + 1u);

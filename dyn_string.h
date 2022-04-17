@@ -13,7 +13,7 @@ public:
   DynString() : len_(0u), s_(std::make_unique<char[]>(1u)) {}
   DynString(char *p);
   DynString(const char *p);
-  DynString(DynString &&str);
+  DynString(DynString &&str) = default;
 
   const char *contents() const { return s_.get(); }
   size_t len() const { return len_; }
