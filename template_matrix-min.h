@@ -1,3 +1,17 @@
+/*
+The following problem was posed in the "Homework Challenge" feature of
+the May 2023 issue of ACCU's _CVu_ journal.''
+
+Choose one and only one element from each row and each column.  Minimize the sum
+of the 4 selected elements.
+
+        1	2	3	4
+        3	4	7	8
+        4	7	9	10
+        17	13	14	26
+
+*/
+
 #ifndef TEMPLATE_MATRIX_MIN_H
 #define TEMPLATE_MATRIX_MIN_H
 
@@ -12,6 +26,8 @@
 
 namespace template_matrix_min {
 
+// The ith element of the mask indicates from which column the value in row i is
+// selected.
 template <int SZ> struct Mask {
   Mask() {
     static_assert(SZ != 0);
@@ -45,7 +61,7 @@ template <int SZ> constexpr uint16_t rownum(const uint16_t index) {
   return abs(index - colnum<SZ>(index)) / SZ;
 }
 
-// Value is in-range for the matrix.
+// The returned value indicates if a mask member is in-range for the matrix.
 template <int SZ> constexpr bool index_ok(const uint16_t index) {
   if (index > ((SZ * SZ) - 1)) {
     std::cerr << "Index " << index << " out of bounds." << std::endl;
@@ -54,6 +70,7 @@ template <int SZ> constexpr bool index_ok(const uint16_t index) {
   return true;
 }
 
+// Given a Mask, calculate the figure-of-merit cost sum.
 template <int SZ> constexpr int sum(const Mask<SZ> &selected) {
   int sum = 0U;
   for (const uint16_t idx : selected.mask_vals) {
@@ -63,12 +80,13 @@ template <int SZ> constexpr int sum(const Mask<SZ> &selected) {
   return sum;
 }
 
+// In essence, mask_compare() is operator<() for Masks.
 template <int SZ> bool mask_compare(const Mask<SZ> &a, const Mask<SZ> &b);
-
-template <int SZ> void print_result(bool succeeded, const Mask<SZ> &m);
 
 template <int SZ>
 bool (*comparator)(const Mask<SZ> &, const Mask<SZ> &) = mask_compare;
+
+template <int SZ> void print_result(bool succeeded, const Mask<SZ> &m);
 
 // Inspired by
 //  template <class T> using Members = FOLLY_POLY_MEMBERS(&T::bar);
@@ -82,6 +100,8 @@ using MaskSet =
 
 template <int SZ> using MaskSetIterator = typename MaskSet<SZ>::iterator;
 
+// generate_permutations populates the MaskSet with members whose calculated
+// cost sum is unique.
 template <int SZ> MaskSet<SZ> generate_permutations(const Mask<SZ> &input);
 
 } // namespace template_matrix_min

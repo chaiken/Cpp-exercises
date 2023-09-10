@@ -127,17 +127,15 @@ TEST(MatrixMinTest, GeneratePermutations) {
   const Mask<4U> initial(std::array<uint16_t, 4U>{{0, 5, 10, 15}});
   MaskSet<4U> outputs(comparator<4U>);
   outputs = generate_permutations<4U>(initial);
-  for (const Mask<4U> &m : outputs) {
-    std::cerr << sum(m) << ", " << m << std::endl;
-  }
+  EXPECT_EQ(12U, outputs.size());
+  EXPECT_EQ(26, sum(*outputs.cbegin()));
 
   std::cout << std::endl;
   const Mask<3U> initial2(std::array<uint16_t, 3U>{{0, 4, 8}});
   MaskSet<3U> outputs2(comparator<3U>);
   outputs2 = generate_permutations<3U>(initial2);
-  for (const Mask<3U> &m : outputs2) {
-    std::cerr << sum(m) << ", " << m << std::endl;
-  }
+  EXPECT_EQ(4U, outputs2.size());
+  EXPECT_EQ(11, sum(*outputs2.cbegin()));
 }
 
 } // namespace local_testing

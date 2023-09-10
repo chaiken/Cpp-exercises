@@ -1,20 +1,3 @@
-/*
-May 2023
-
-Choose one and only one element from each row and each column.  Minimize the sum
-of the 4 selected elements.
-
-        1	2	3	4
-        3	4	7	8
-        4	7	9	10
-        17	13	14	26
-
-Recursive approaches can't handle the case where two permutations
-generate the same figure of merit.  We must generate all possible
-permutations and calculate their figures of merit.
-
-*/
-
 namespace template_matrix_min {
 
 template <int SZ> bool operator==(const Mask<SZ> &a, const Mask<SZ> &b) {
@@ -37,13 +20,14 @@ template <int SZ> Mask<SZ> Mask<SZ>::operator=(const Mask<SZ> &original) {
   return *this;
 }
 
-// It's a bit hoky, but if Mask a < Mask b if a's sum is less than b's.
+// Mask a < Mask b if a's sum is less than b's.   Hence a will compare before b
+// in MaskSet.
 template <int SZ> bool mask_compare(const Mask<SZ> &a, const Mask<SZ> &b) {
   return (sum<SZ>(a) < sum<SZ>(b));
 }
 
-// 0U < first_idx, second_idx < SZ since the function swaps columns in a Mask,
-// not in the input array.
+// Safely swap the columns of mask elements.  0U < first_idx, second_idx < SZ
+// since the function swaps columns in a Mask, not in the input array.
 template <int SZ>
 bool Mask<SZ>::swap_cols(const uint16_t first_idx, const uint16_t second_idx) {
   if (first_idx == second_idx) {
@@ -77,6 +61,9 @@ std::ostream &operator<<(std::ostream &out, const Mask<SZ> &m) {
 }
 
 template <int SZ> void print_result(bool succeeded, const Mask<SZ> &m) {
+#ifndef DEBUG
+  return;
+#endif
   if (succeeded) {
     std::cerr << "Inserted: " << m << std::endl;
   } else {
