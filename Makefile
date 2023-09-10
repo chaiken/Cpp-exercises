@@ -24,8 +24,17 @@ USDT_LIBS=$(USDT_LIB_PATH)/libbcc.a $(USDT_LIB_PATH)/libbcc_bpf.a
 # Turning Weffc++ on results in errors only from googletest.
 #CXXFLAGS= -std=c++11 -pthread -ggdb -Wall -Wextra -Weffc++ -g -O0 -fno-inline -fsanitize=address,undefined -I$(GTEST_HEADERS)
 #
+
 # Note -pthread, not -lpthread.   Without this option, Googletest does not compile.
-CXXFLAGS= -std=c++17 -pthread -ggdb -Wall -Wextra -Werror -g -O0 -fno-inline -fsanitize=address,undefined -I$(GTEST_HEADERS)
+# How to allow users to add -DDEBUG (for example) to the cmdline:
+# make CXXFLAGS:='-DDEBUG' as described in
+#      https://www.gnu.org/software/make/manual/make.html#Appending
+# "suppose you always want the ‘-g’ switch when you run the C compiler, but you
+# would like to allow the user to specify the other switches with a command
+# argument just as usual. You could use this override directive:
+#     override CFLAGS += -g
+#"
+override CXXFLAGS+= -std=c++17 -pthread -ggdb -Wall -Wextra -Werror -g -O0 -fno-inline -fsanitize=address,undefined -I$(GTEST_HEADERS)
 CXXFLAGS-NOTEST= -std=c++17 -ggdb -Wall -Wextra -Werror -g -O0 -fno-inline -fsanitize=address,undefined
 CXXFLAGS-NOSANITIZE= -std=c++17 -pthread -ggdb -Wall -Wextra -Werror -g -O0 -fno-inline -I$(GTEST_HEADERS)
 # Set Google Test's header directory as a system directory, such that
