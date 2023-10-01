@@ -20,6 +20,7 @@ of the 4 selected elements.
 #include <cstdint>
 #include <cstdlib>
 #include <iostream>
+#include <numeric>
 #include <set>
 #include <utility>
 #include <variant>
@@ -72,12 +73,11 @@ template <int SZ> constexpr bool index_ok(const uint16_t index) {
 
 // Given a Mask, calculate the figure-of-merit cost sum.
 template <int SZ> constexpr int sum(const Mask<SZ> &selected) {
-  int sum = 0U;
-  for (const uint16_t idx : selected.mask_vals) {
-    assert(index_ok<SZ>(idx));
-    sum += Mask<SZ>::coeffs[idx];
-  }
-  return sum;
+  return std::accumulate(selected.mask_vals.cbegin(), selected.mask_vals.cend(),
+                         0, ([&](int sum = 0, uint16_t idx) {
+                           assert(index_ok<SZ>(idx));
+                           return sum + Mask<SZ>::coeffs[idx];
+                         }));
 }
 
 // In essence, mask_compare() is operator<() for Masks.
