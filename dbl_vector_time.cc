@@ -31,7 +31,7 @@ int main(void) {
     input[i] = 10.0 * i;
     i++;
   }
-  DoubleVector fancy(static_cast<const double *>(input), elnum);
+  DoubleVector fancy(static_cast<double *>(input), elnum);
   i = 0;
   time(&now);
   clock_gettime(CLOCK_MONOTONIC, &start);
@@ -42,6 +42,9 @@ int main(void) {
   clock_gettime(CLOCK_MONOTONIC, &finish);
   time(&done);
   timediff = finish.tv_nsec - start.tv_nsec;
+  if (timediff < 0) {
+    timediff += 1e9 * (finish.tv_sec - start.tv_sec);
+  }
   cout << "DoubleVector sum done in " << difftime(done, now) << " s." << endl;
   cout << "DoubleVector sum done in monotonic " << (timediff / 1e6) << " ms."
        << endl;
