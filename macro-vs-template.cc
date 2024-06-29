@@ -4,7 +4,6 @@
 #include <cmath>
 #include <iostream>
 
-using namespace std;
 using namespace complex;
 
 #define CUBE(X) ((X) * (X) * (X))
@@ -36,15 +35,29 @@ constexpr Complex cubeme(const Complex &x) { return x * x * x; }
 //  return (x*x*x);
 //}
 
+void pretty_print_result(const std::string &eval_type, const Complex &result) {
+  std::cout << eval_type;
+  complex::operator<<(std::cout, result);
+  std::cout << std::endl;
+}
+
 } // namespace macro_testing
 
+using namespace macro_testing;
+
 int main(void) {
-  cout << "macro: " << CUBE(sqrt(27.0)) << endl;
-  cout << "template: " << macro_testing::cube(sqrt(27)) << endl;
-  cout << "constexpr: " << macro_testing::cubeme(sqrt(27.0)) << endl << endl;
+  std::cout << "macro: " << CUBE(sqrt(27.0)) << std::endl;
+  std::cout << "template: " << cube(sqrt(27)) << std::endl;
+  std::cout << "constexpr: " << cubeme(sqrt(27.0)) << std::endl << std::endl;
+
   Complex cn(27.0, 13.5);
-  cout << "macro: " << CUBE(sqrt(cn)) << endl;
-  cout << "template: " << macro_testing::cube(sqrt(cn)) << endl;
-  cout << "constexpr: " << macro_testing::cubeme(sqrt(cn)) << endl;
+  std::pair<Complex, bool> res = complex::sqrt(cn);
+  if (!res.second) {
+    std::cerr << "Bad sqrt" << std::endl;
+    exit(-EINVAL);
+  }
+  pretty_print_result("macro: ", CUBE(res.first));
+  pretty_print_result("template: ", cube(res.first));
+  pretty_print_result("constexpr: ", cubeme(res.first));
   exit(0);
 }
