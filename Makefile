@@ -1,3 +1,6 @@
+# https://stackoverflow.com/questions/495598/difference-between-cppflags-and-cxxflags-in-gnu-make
+# CPPFLAGS is supposed to be for flags for the C PreProcessor; CXXFLAGS is for flags for the C++ compiler.
+
 # See ~/gitsrc/googletest/googletest/make/Makefile
 # Points to the root of Google Test, relative to where this file is.
 # Remember to tweak this if you move this file.
@@ -37,11 +40,6 @@ USDT_LIBS=$(USDT_LIB_PATH)/libbcc.a $(USDT_LIB_PATH)/libbcc_bpf.a
 override CXXFLAGS+= -std=c++17 -pthread -ggdb -Wall -Wextra -Werror -g -O0 -fno-inline -fsanitize=address,undefined -I$(GTEST_HEADERS)
 CXXFLAGS-NOTEST= -std=c++17 -ggdb -Wall -Wextra -Werror -g -O0 -fno-inline -fsanitize=address,undefined
 CXXFLAGS-NOSANITIZE= -std=c++17 -pthread -ggdb -Wall -Wextra -Werror -g -O0 -fno-inline -I$(GTEST_HEADERS)
-# Set Google Test's header directory as a system directory, such that
-# the compiler doesn't generate warnings in Google Test headers.
-CPPFLAGS += -isystem $(GTEST_DIR)/include
-# https://developers.redhat.com/blog/2020/03/26/static-analysis-in-gcc-10#what_are_the_new_warnings_
-#CPPFLAGS += -fanalyzer -fdiagnostics-path-format=separate-events
 USDT_FLAGS= -I$(USDT_HEADERS)
 
 LDFLAGS= -ggdb -g -fsanitize=address -L$(GTESTLIBPATH)
