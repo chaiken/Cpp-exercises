@@ -2,7 +2,7 @@
 #include <cstdlib>
 #include <cstring>
 
-#include "int_stack.h"
+#include "int_stack.hh"
 
 using namespace std;
 

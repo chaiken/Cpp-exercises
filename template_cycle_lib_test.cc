@@ -1,5 +1,5 @@
-#include "polynomial.h"
-#include "template_cycle.h"
+#include "polynomial.hh"
+#include "template_cycle.hh"
 
 #include "gtest/gtest.h"
 

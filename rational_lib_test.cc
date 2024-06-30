@@ -1,4 +1,4 @@
-#include "rational.h"
+#include "rational.hh"
 
 #include "gtest/gtest.h"
 

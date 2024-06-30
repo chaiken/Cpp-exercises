@@ -1,4 +1,4 @@
-#include "smarter_stack.h"
+#include "smarter_stack.hh"
 
 #include <cstdio>
 #include <cstring>

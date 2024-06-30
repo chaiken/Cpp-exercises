@@ -1,4 +1,4 @@
-#include "student_inheritance.h"
+#include "student_inheritance.hh"
 
 #include <typeinfo>
 

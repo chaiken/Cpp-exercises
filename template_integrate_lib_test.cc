@@ -1,4 +1,4 @@
-#include "template_integrate.h"
+#include "template_integrate.hh"
 
 #include <cassert>
 #include <cmath>

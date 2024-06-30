@@ -1,4 +1,4 @@
-#include "multiple_inheritance.h"
+#include "multiple_inheritance.hh"
 
 #include <cassert>
 #include <sys/errno.h>

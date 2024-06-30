@@ -21,11 +21,11 @@ public:
      error: no match for ‘operator==’ (operand types are ‘const rational::Rational’ and ‘const rational::Rational’)
      if (lhs == rhs) {
        ~~~~^~~~~~
-     /home/alison/gitsrc/googletest/googletest/include/gtest/gtest.h:1421:11: note: candidate: ‘operator==(double, double)’ <built-in>
-     /home/alison/gitsrc/googletest/googletest/include/gtest/gtest.h:1421:11: note: conversion of argument 2 would be ill-formed:
-     /home/alison/gitsrc/googletest/googletest/include/gtest/gtest.h:1421:11: error: passing ‘const rational::Rational’ as ‘this’ argument discards qualifiers [-fpermissive]
+     /home/alison/gitsrc/googletest/googletest/include/gtest/gtest.hh:1421:11: note: candidate: ‘operator==(double, double)’ <built-in>
+     /home/alison/gitsrc/googletest/googletest/include/gtest/gtest.hh:1421:11: note: conversion of argument 2 would be ill-formed:
+     /home/alison/gitsrc/googletest/googletest/include/gtest/gtest.hh:1421:11: error: passing ‘const rational::Rational’ as ‘this’ argument discards qualifiers [-fpermissive]
      In file included from rational_lib_test.cc:1:
-     rational.h:15:3: note:   in call to ‘rational::Rational::operator double()’
+     rational.hh:15:3: note:   in call to ‘rational::Rational::operator double()’
      operator double() {
   */
   // clang-format on
@@ -50,8 +50,8 @@ private:
 inline int Greater(int i, int j) { return (i > j ? i : j); }
 inline double Greater(double x, double y) { return (x > y ? x : y); }
 /* Without a definition for double():
-   rational.h: In function ‘rational::Rational
-   rational::Greater(rational::Rational, rational::Rational)’: rational.h:24:61:
+   rational.hh: In function ‘rational::Rational
+   rational::Greater(rational::Rational, rational::Rational)’: rational.hh:24:61:
    error: no match for ‘operator>’ (operand types are ‘rational::Rational’ and
    ‘rational::Rational’) inline Rational Greater(Rational w, Rational z) {
    return (w > z ? w : z); }

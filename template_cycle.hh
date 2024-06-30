@@ -8,6 +8,6 @@ template <typename T> void move_cycle(T &a, T &b, T &c);
 
 } // namespace tcycle
 
-#include "template_cycle_impl.h"
+#include "template_cycle_impl.hh"
 
 #endif

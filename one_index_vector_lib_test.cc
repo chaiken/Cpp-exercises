@@ -1,6 +1,6 @@
-#include "one_index_vector.h"
+#include "one_index_vector.hh"
 
-#include "complex.h"
+#include "complex.hh"
 
 #include "gtest/gtest.h"
 

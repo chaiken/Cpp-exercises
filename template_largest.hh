@@ -3,6 +3,6 @@
 
 namespace largest {} // namespace largest
 
-#include "template_largest_impl.h"
+#include "template_largest_impl.hh"
 
 #endif

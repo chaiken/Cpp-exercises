@@ -6,7 +6,7 @@
 #include <memory>
 #include <vector>
 
-#include "dbl_vector.h"
+#include "dbl_vector.hh"
 
 /* namespace dbl_vect {
 class DoubleVector;

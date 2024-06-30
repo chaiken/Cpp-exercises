@@ -5,8 +5,8 @@
 #ifndef POLYNOMIAL_IMPL_H
 #define POLYNOMIAL_IMPL_H
 
-#include "term.h"
-#include "term_vector.h"
+#include "term.hh"
+#include "term_vector.hh"
 
 #include <exception>
 
@@ -35,7 +35,7 @@ Polynomial::Polynomial(std::array<double, N> coef, std::array<int, N> expon) {
 
 } // namespace polynomial
 
-// I tried placing the following code in a term_vector_impl.h and then referring
+// I tried placing the following code in a term_vector_impl.hh and then referring
 // to it in a term_vector_lib_test.cc, but could not get rid of either linker
 // failures or compilation failures (could not find class TermVector) depending
 // on the order of header files.

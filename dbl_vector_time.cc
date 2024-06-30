@@ -9,7 +9,7 @@
 // Simple double vector sum done in 0 s.
 // Simple sum done in monotonic 20.0302 ms.
 
-#include "dbl_vector.h"
+#include "dbl_vector.hh"
 #include <cassert>
 #include <cstdlib>
 #include <ctime>

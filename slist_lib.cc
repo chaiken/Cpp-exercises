@@ -1,5 +1,5 @@
 
-#include "slist.h"
+#include "slist.hh"
 
 #include <cstring>
 #include <iostream>

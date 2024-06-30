@@ -3,7 +3,7 @@
 #ifndef COMPLEX_VECTOR_H
 #define COMPLEX_VECTOR_H
 
-#include "complex.h"
+#include "complex.hh"
 
 #include <memory>
 #include <vector>

@@ -30,7 +30,7 @@ public:
   iterator operator++() const { return &p_[cursor_++]; };
   iterator operator--() const { return &p_[cursor_--]; };
   // The function is not found by the linker if not placed in the header.
-  // See comment in template_stack.h.
+  // See comment in template_stack.hh.
   friend ::std::ostream &operator<<(::std::ostream &out,
                                     const TemplateVector<T> &tv) {
     for (T *tvit = tv.begin(); tvit != tv.end(); tvit++) {
@@ -41,7 +41,7 @@ public:
   // clang-format off
   // https://stackoverflow.com/questions/9787593/implicit-type-conversion-with-template
   // No 'static' here:
-  // template_vector.h:35:79: error: storage class specifiers invalid in friend
+  // template_vector.hh:35:79: error: storage class specifiers invalid in friend
   // function declarations friend static void tvassign(TemplateVector<U> &uvec,
   // TemplateVector<V> &vvec);
   // clang-format on
@@ -70,6 +70,6 @@ public:
 
 } // namespace template_vect
 
-#include "template_vector_impl.h"
+#include "template_vector_impl.hh"
 
 #endif

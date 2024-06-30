@@ -1,4 +1,4 @@
-#include "array_size_deduction_impl.h"
+#include "array_size_deduction_impl.hh"
 
 #include "gtest/gtest.h"
 

@@ -1,7 +1,7 @@
 #ifndef TERM_VECTOR_H
 #define TERM_VECTOR_H
 
-#include "term.h"
+#include "term.hh"
 
 #include <cassert>
 

@@ -81,6 +81,6 @@ template <typename T> struct OneIndexVector : public ::std::vector<T> {
 
 } // namespace one_index_vector
 
-#include "one_index_vector_impl.h"
+#include "one_index_vector_impl.hh"
 
 #endif

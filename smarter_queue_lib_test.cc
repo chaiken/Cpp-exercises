@@ -1,4 +1,4 @@
-#include "smarter_queue.h"
+#include "smarter_queue.hh"
 
 #include <cerrno>
 #include <cstdio>

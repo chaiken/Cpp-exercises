@@ -90,7 +90,7 @@ template <int SZ> void print_result(bool succeeded, const Mask<SZ> &m);
 
 // Inspired by
 //  template <class T> using Members = FOLLY_POLY_MEMBERS(&T::bar);
-// in folly/folly/Poly.h
+// in folly/folly/Poly.hh
 // or
 // template <class T> using Members = folly::PolyMembers<&T::draw>;
 // in folly/folly/docs/Poly.md.
@@ -106,6 +106,6 @@ template <int SZ> MaskSet<SZ> generate_permutations(const Mask<SZ> &input);
 
 } // namespace template_matrix_min
 
-#include "template_matrix-min_impl.h"
+#include "template_matrix-min_impl.hh"
 
 #endif

@@ -1,4 +1,4 @@
-#include "gcd.h"
+#include "gcd.hh"
 #include "gtest/gtest.h"
 
 TEST(GCDTest, Correct) { EXPECT_EQ(4u, gcd(100, 8)); }

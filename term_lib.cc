@@ -1,4 +1,4 @@
-#include "term.h"
+#include "term.hh"
 
 #include <cassert>
 #include <iostream>

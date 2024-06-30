@@ -1,4 +1,4 @@
-#include "notqsort.h"
+#include "notqsort.hh"
 
 using namespace std;
 

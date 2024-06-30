@@ -1,4 +1,4 @@
-#include "template_largest.h"
+#include "template_largest.hh"
 
 #include "gtest/gtest.h"
 

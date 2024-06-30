@@ -8,8 +8,8 @@
 */
 
 #include <iostream>
-#include <stdint.h>
-#include <stdio.h>
+#include <stdint.hh>
+#include <stdio.hh>
 
 using namespace std;
 

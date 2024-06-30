@@ -3,7 +3,7 @@
 
 namespace macro_testing {
 
-// https://www.ibm.com/support/knowledgecenter/en/SSLTBW_2.3.0/com.ibm.zos.v2r3.cbclx01/template_non-type_arguments.htm
+// https://www.ibm.com/support/knowledgecenter/en/SSLTBW_2.3.0/com.ibm.zos.v2r3.cbclx01/template_non-type_arguments.hhtm
 // A non-type template argument provided within a template argument list is an
 // expression whose value can be determined at compile time. Such arguments must
 // be constant expressions, addresses of functions or objects with external

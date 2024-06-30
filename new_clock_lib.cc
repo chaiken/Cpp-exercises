@@ -1,4 +1,4 @@
-#include "new_clock.h"
+#include "new_clock.hh"
 
 #include <cstring>
 #include <ctime>

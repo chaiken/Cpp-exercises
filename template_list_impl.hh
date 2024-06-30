@@ -77,10 +77,10 @@ void CalculateListStatistics(const std::list<T> &elemlist,
     // std::pair<std::__map_iterator<std::__tree_iterator<std::__value_type<long, int>, std::__tree_node<std::__value_type<long, int>, void *> *, long> >, bool> result
     // See template_list-cpp_insights_code.cc.
     //
-    // template_list_impl.h: In function ‘void template_list::CalculateListStatistics(std::__cxx11::list<T>*, std::map<T, int>&, template_list::list_stats<T>&)’:
-    // template_list_impl.h:48:49: error: type/value mismatch at argument 1 in template parameter list for ‘template<class _T1, class _T2> struct std::pair’
+    // template_list_impl.hh: In function ‘void template_list::CalculateListStatistics(std::__cxx11::list<T>*, std::map<T, int>&, template_list::list_stats<T>&)’:
+    // template_list_impl.hh:48:49: error: type/value mismatch at argument 1 in template parameter list for ‘template<class _T1, class _T2> struct std::pair’
     //   std::pair<std::map<T,int>::iterator,bool> result = countmap.insert(candidate);
-    // template_list_impl.h:48:49: note:   expected a type, got ‘std::map<T, int>::iterator’
+    // template_list_impl.hh:48:49: note:   expected a type, got ‘std::map<T, int>::iterator’
     // clang-format on
     auto result = countmap.insert(candidate);
     // If the item is already present, iterate the existing counter.
@@ -110,7 +110,7 @@ void CalculateListStatistics(const std::list<T> &elemlist,
   /*
    * clang-format off
    * Providing a comparison function is not enough:
-   * /usr/include/c++/9/bits/stl_algo.h:1968:22: error: no match for ‘operator-’
+   * /usr/include/c++/9/bits/stl_algo.hh:1968:22: error: no match for ‘operator-’
    * (operand types are ‘std::_Rb_tree_iterator<std::pair<const long int, int>
    * >’ and ‘std::_Rb_tree_iterator<std::pair<const long int, int> >’
    * std::sort(countmap.begin(), countmap.end(), ComparePair<T>);

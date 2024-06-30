@@ -1,7 +1,7 @@
 // https://github.com/google/googletest/blob/master/googletest/docs/Primer.md
 #include <iostream>
 
-#include "reverse_char_stack.h"
+#include "reverse_char_stack.hh"
 #include "gtest/gtest.h"
 
 using namespace std;

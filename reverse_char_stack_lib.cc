@@ -1,5 +1,5 @@
 // The part of the reverse_char_stack that is tested.
-#include "reverse_char_stack.h"
+#include "reverse_char_stack.hh"
 
 using namespace std;
 

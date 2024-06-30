@@ -1,5 +1,5 @@
-#include "macro-vs-template.h"
-#include "complex.h"
+#include "macro-vs-template.hh"
+#include "complex.hh"
 
 #include <cmath>
 #include <iostream>
@@ -17,9 +17,9 @@ constexpr double cubeme(double x) { return x * x * x; }
 // ‘constexpr complex::Complex macro_testing::cubeme(const complex::Complex&)’
 // constexpr Complex cubeme(const Complex &x) { return x * x * x; }
 // In file included from macro-vs-template.cc:2:
-// complex.h:20:7: note: ‘complex::Complex’ is not literal because:
+// complex.hh:20:7: note: ‘complex::Complex’ is not literal because:
 // class Complex {
-// complex.h:20:7: note:   ‘complex::Complex’ is not an aggregate,
+// complex.hh:20:7: note:   ‘complex::Complex’ is not an aggregate,
 // does not have a trivial default constructor, and has no ‘constexpr’
 // constructor that is not a copy or move constructor
 

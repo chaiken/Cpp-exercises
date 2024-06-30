@@ -1,4 +1,4 @@
-#include "term_vector.h"
+#include "term_vector.hh"
 
 #include <iostream>
 

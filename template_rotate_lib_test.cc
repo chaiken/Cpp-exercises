@@ -1,6 +1,6 @@
-#include "template_rotate.h"
+#include "template_rotate.hh"
 
-#include "complex.h"
+#include "complex.hh"
 
 #include "gtest/gtest.h"
 

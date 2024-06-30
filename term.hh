@@ -89,6 +89,6 @@ void SyncSortTwoArrays(::std::array<int, N> *arr1,
 
 } // namespace term
 
-#include "term_impl.h"
+#include "term_impl.hh"
 
 #endif

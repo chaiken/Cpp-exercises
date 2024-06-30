@@ -37,7 +37,7 @@ public:
   TemplateStack(const TemplateStack &ts) = delete;
   // Constructs a TemplateStack from a good old C-style array. The array can be
   // const or non-const; it can capture both. Copied from Philipp Schrader's
-  // span.h.  I don't think that it can be exercised from a class that defines a
+  // span.hh.  I don't think that it can be exercised from a class that defines a
   // destructor without resulting in "attempting free on address which was not
   // malloc()-ed".
   template <int N>
@@ -61,7 +61,7 @@ public:
   // new friends. A new non-template function is created for each
   // specialization.
   //
-  // https://www.justsoftwaresolutions.co.uk/cplusplus/hidden-friends.html
+  // https://www.justsoftwaresolutions.co.uk/cplusplus/hidden-friends.hhtml
   // A friend defined (not just declared) inside a class is a hidden friend.
   // Hidden friends are visible to other code only if the friend takes the
   // object whose class in which it apppears as a parameter, in which case
@@ -89,6 +89,6 @@ public:
 
 } // namespace template_stack
 
-#include "template_stack_impl.h"
+#include "template_stack_impl.hh"
 
 #endif

@@ -1,4 +1,4 @@
-#include "slist.h"
+#include "slist.hh"
 
 #include "gtest/gtest.h"
 

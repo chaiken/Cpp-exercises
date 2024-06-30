@@ -1,7 +1,7 @@
 #include <cstdlib>
 #include <iostream>
 
-#include "dyn_string.h"
+#include "dyn_string.hh"
 
 using namespace std;
 

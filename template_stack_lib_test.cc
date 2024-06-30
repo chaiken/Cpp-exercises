@@ -1,5 +1,5 @@
-#include "complex.h"
-#include "template_stack.h"
+#include "complex.hh"
+#include "template_stack.hh"
 
 #include <iostream>
 #include <vector>

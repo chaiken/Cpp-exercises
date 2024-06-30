@@ -15,8 +15,8 @@ class DoubleVector;
 
 // Both these forward declarations are needed so that the friend declaration
 // inside DoubleVector compiles.  Note that we do not need to include the
-// matrix.h header here even though we need to include dbl_vector.h inside
-// matrix.h.  That's because the function definition is part of matrix_lib.cc
+// matrix.hh header here even though we need to include dbl_vector.h inside
+// matrix.hh.  That's because the function definition is part of matrix_lib.cc
 // and needs the symbols of dbl_vector.cc.
 namespace matrix {
 class Matrix;

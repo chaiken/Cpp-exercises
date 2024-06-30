@@ -1,4 +1,4 @@
-#include "smarter_list.h"
+#include "smarter_list.hh"
 
 #include "gtest/gtest.h"
 

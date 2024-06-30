@@ -3,8 +3,8 @@
 
 #include "gtest/gtest_prod.h"
 
-#include "term.h"
-#include "term_vector.h"
+#include "term.hh"
+#include "term_vector.hh"
 
 #include <array>
 #include <iostream>
@@ -91,6 +91,6 @@ bool operator!=(const Polynomial &a, const Polynomial &b);
 bool operator==(const Polynomial &a, const Polynomial &b);
 } // namespace polynomial
 
-#include "polynomial_impl.h"
+#include "polynomial_impl.hh"
 
 #endif

@@ -1,4 +1,4 @@
-#include "rational.h"
+#include "rational.hh"
 
 using namespace std;
 

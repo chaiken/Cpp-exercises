@@ -1,7 +1,7 @@
 #ifndef TEMPLATE_LIST_H
 #define TEMPLATE_LIST_H
 
-#include "complex.h"
+#include "complex.hh"
 
 #include <list>
 
@@ -12,6 +12,6 @@ void FillTrivialList(std::list<int> &elemlist);
 void FillComplexListTrivial(std::list<complex::Complex> &elemlist);
 
 } // namespace template_list
-#include "template_list_impl.h"
+#include "template_list_impl.hh"
 
 #endif

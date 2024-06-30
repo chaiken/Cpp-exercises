@@ -1,4 +1,4 @@
-#include "generic_stack.h"
+#include "generic_stack.hh"
 
 #include "gtest/gtest.h"
 

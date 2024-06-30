@@ -1,6 +1,6 @@
-#include "polynomial.h"
-#include "term.h"
-#include "term_vector.h"
+#include "polynomial.hh"
+#include "term.hh"
+#include "term_vector.hh"
 
 #include "gtest/gtest.h"
 
@@ -266,7 +266,7 @@ TEST_F(PolynomialTest, ReverseTest) {
 // internal buffer with its own, arranging it so the rvalue's destructor will
 // release our object's own buffer, which is no longer used.'
 //
-// http://thbecker.net/articles/rvalue_references/section_04.html
+// http://thbecker.net/articles/rvalue_references/section_04.hhtml
 // "If move semantics are implemented as a simple swap, then the effect of this
 // is that the objects held by A and B are being exchanged between A and B.
 // Nothing is being destructed yet. The object formerly held by A will of course

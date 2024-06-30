@@ -1,6 +1,6 @@
-#include "matrix.h"
+#include "matrix.hh"
 
-#include "dbl_vector.h"
+#include "dbl_vector.hh"
 #include <cassert>
 #include <climits>
 #include <cmath>

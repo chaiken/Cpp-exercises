@@ -4,7 +4,7 @@
 #include <memory>
 #include <vector>
 
-/* adding test of macros from include/linux/kernel.h: */
+/* adding test of macros from include/linux/kernel.hh: */
 #define _RET_IP_ (unsigned long)__builtin_return_address(0)
 #define _THIS_IP_                                                              \
   ({                                                                           \
@@ -24,7 +24,7 @@ inline void print_mem(void) {
   cout << "Total allocated space is " << (info.uordblks / 1000) << " kB."
        << endl;
   cout << "Total free space is " << (info.fordblks / 1000) << " kB." << endl;
-  cout << "Total mmapped space is " << (info.hblks / 1000) << " kB." << endl;
+  cout << "Total mmapped space is " << (info.hhblks / 1000) << " kB." << endl;
   cout << "Total non-mmapped allocated space is " << (info.arena / 1000)
        << " kB." << endl
        << endl;

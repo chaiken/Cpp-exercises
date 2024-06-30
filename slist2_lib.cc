@@ -1,5 +1,5 @@
 
-#include "slist2.h"
+#include "slist2.hh"
 
 #include <cassert>
 #include <cstring>

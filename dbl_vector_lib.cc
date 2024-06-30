@@ -1,4 +1,4 @@
-#include "dbl_vector.h"
+#include "dbl_vector.hh"
 #ifdef DEBUG
 #include <cassert>
 #endif

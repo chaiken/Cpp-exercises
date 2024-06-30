@@ -10,6 +10,6 @@ void rotate_array(::std::array<T, N> *arr);
 
 }
 
-#include "template_rotate_impl.h"
+#include "template_rotate_impl.hh"
 
 #endif

@@ -1,4 +1,4 @@
-#include "template_matrix-min.h"
+#include "template_matrix-min.hh"
 
 #include "gtest/gtest.h"
 

@@ -1,5 +1,5 @@
-#include "polynomial.h"
-#include "term_vector.h"
+#include "polynomial.hh"
+#include "term_vector.hh"
 
 #include <cassert>
 

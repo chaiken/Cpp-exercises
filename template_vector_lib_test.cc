@@ -1,7 +1,7 @@
-#include "template_vector.h"
+#include "template_vector.hh"
 
-#include "complex.h"
-#include "polynomial.h"
+#include "complex.hh"
+#include "polynomial.hh"
 
 #include <limits.h>
 
@@ -213,7 +213,7 @@ TEST(TemplateVectorTest, EqualityTest) {
   TemplateVector<Polynomial> tv5(move(parr2), 5, 5);
   EXPECT_TRUE(tv4 == tv5);
   // template_vector_lib_test.cc:234:42: required from here
-  // /usr/include/c++/9/bits/predefined_ops.h:43:23: error: no match for
+  // /usr/include/c++/9/bits/predefined_ops.hh:43:23: error: no match for
   // ‘operator<’ (operand types are ‘polynomial::Polynomial’ and
   // ‘polynomial::Polynomial’)
   //  sort(move(tv4).begin(), move(tv4).end());
@@ -241,13 +241,13 @@ TEST(TemplateVectorTest, AssignmentFailsSize) {
 /*
 Maybe code with types that are not convertible will never compile?
 clang-format off
-template_vector_impl.h: In instantiation of ‘void
+template_vector_impl.hh: In instantiation of ‘void
 template_vect::tvassign(template_vect::TemplateVec tor<T>&,
 template_vect::TemplateVector<V>&) [with U = std::__cxx11::basic_string<char>; V
 = double]’
 :
 template_vector_lib_test.cc:163:3:   required from here
-template_vector_impl.h:158:15: error: no matching function for call to
+template_vector_impl.hh:158:15: error: no matching function for call to
 ‘std::__cxx11::basic_string<c har>::basic_string(double&)’ uvec[i] =
 static_cast<U>(vvec[i]); clang-format on TEST(TemplateVectorTest,
 AssignmentTypeMismatch) { vector<double> vec1{{-3.0, -2.0, -1.0, 0.0, 1.0}};

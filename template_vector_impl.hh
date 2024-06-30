@@ -41,7 +41,7 @@ TemplateVector<T>::TemplateVector(const T arr[], size_t sz1, size_t sz2)
   //
   // The compiler does not know the size of the array, so it cannot instantiate
   // the template:
-  // template_vector_impl.h:46:33: error: invalid application of ‘sizeof’ to incomplete type ‘const complex::Complex []’
+  // template_vector_impl.hh:46:33: error: invalid application of ‘sizeof’ to incomplete type ‘const complex::Complex []’
   //  if ((size_ <= 0) || (size_ > (sizeof(v)/sizeof(v[0])))) {
   // clang-format on
   // sz1 can be anything, as the compiler has no way of checking it.
@@ -174,7 +174,7 @@ static void tvassign(TemplateVector<U> &uvec, TemplateVector<V> &vvec) {
   }
   // template argument deduction/substitution failed:
   // In file included from template_vector_lib_test.cc:1:
-  // template_vector.h:48:16: note:   deduced conflicting types for parameter
+  // template_vector.hh:48:16: note:   deduced conflicting types for parameter
   // ‘_Tp’ (‘char*’ and ‘int* const’)
   // swap(static_cast<V *>(uvec.p_), static_cast<U* >(vvec.p_));
   for (int i = 0; i <= vvec.ub(); i++) {

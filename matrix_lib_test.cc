@@ -1,5 +1,5 @@
-#include "dbl_vector.h"
-#include "matrix.h"
+#include "dbl_vector.hh"
+#include "matrix.hh"
 
 #include "gtest/gtest.h"
 

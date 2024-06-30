@@ -1,4 +1,4 @@
-#include "fibonacci.h"
+#include "fibonacci.hh"
 
 #include <cstdlib>
 #include <iostream>
@@ -6,7 +6,7 @@
 
 namespace fibonacci {
 
-/* from include/linux/kernel.h: */
+/* from include/linux/kernel.hh: */
 #define _RET_IP_ (unsigned long)__builtin_return_address(0)
 #define _THIS_IP_                                                              \
   ({                                                                           \

@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "gcd.h"
+#include "gcd.hh"
 
 using namespace std;
 

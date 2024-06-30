@@ -1,4 +1,4 @@
-#include "notqsort.h"
+#include "notqsort.hh"
 
 #include "gtest/gtest.h"
 
