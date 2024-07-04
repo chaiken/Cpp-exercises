@@ -76,13 +76,13 @@ COVERAGE_EXTRA_FLAGS = --coverage
 %lib_test-coverage: LDFLAGS = $(LDFLAGS-NOSANITIZE)
 %lib_test-coverage:  %lib_test.cc %lib.cc $(GTESTHEADERS)
 	$(CXX) $(CXXFLAGS)  $(LDFLAGS) $^ $(GTESTLIBS) -o $@
-	run_lcov.sh $@
+	./run_lcov.sh $@
 
 template_%_lib_test-coverage: CXXFLAGS = $(CXXFLAGS-NOSANITIZE) $(COVERAGE_EXTRA_FLAGS)
 template_%_lib_test-coverage: LDFLAGS = $(LDFLAGS-NOSANITIZE)
 template_%_lib_test-coverage:  template_%_lib_test.cc template_%.hh $(GTESTHEADERS)
 	$(CXX) $(CXXFLAGS)  $(LDFLAGS) $^ $(GTESTLIBS) -o $@
-	run_lcov.sh $@
+	./run_lcov.sh $@
 
 # http://www.valgrind.org/docs/manual/quick-start.html#quick-start.prepare
 # Compile your program with -g . . . Using -O0 is also a good idea,
@@ -235,7 +235,7 @@ one_index_vector_lib_test-valgrind: one_index_vector.hh  one_index_vector_lib_te
 	$(CXX) $(CXXFLAGS-NOSANITIZE) $(LDFLAGS-NOSANITIZE) one_index_vector_lib_test.cc $(GTESTLIBS) -o $@
 one_index_vector_lib_test-coverage: one_index_vector.hh one_index_vector_lib_test.cc
 	$(CXX) $(CXXFLAGS-NOSANITIZE) $(COVERAGE_EXTRA_FLAGS) $(LDFLAGS-NOSANITIZE) one_index_vector_lib_test.cc $(GTESTLIBS) -o $@
-	run_lcov.sh $@
+	./run_lcov.sh $@
 one_index_vector_lib_test-clang-tidy: one_index_vector.hh one_index_vector_lib_test.cc
 
 override_vs_overload_main: override_vs_overload.hh override_vs_overload_main.cc
